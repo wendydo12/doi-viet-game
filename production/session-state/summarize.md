@@ -34,3 +34,10 @@
 - d93b312 phase(0) core+render+server+QR
 - 52929e4 phase(0) chốt meowa 16-bit
 - gitnexus: indexed (13+ nodes)
+
+## Phase 0.9 — Phố đêm art meowa (21/10 tối)
+- Nền `assets/bg/pho-dem.png` (320x240, 25 màu) từ job meowa `job_0ebc22ce...` (125cr đã dùng, còn 480)
+- render8.js: BG_ANH + fallback, quầng đèn, bụi, mèo, phản chiếu, rim light, vungDi theo cảnh
+- Nhân vật: outline 8 hướng, khe chân 3px, bob khi bước; canvas hiển thị 3x (960x720)
+- Test thật: tap sàn → đi bộ; tap sạp → action Quán; tap cổng → về phòng trọ. Commit 8b588fb
+- Còn lệch tông 3 cảnh cũ (phòng trọ/quán phở/văn phòng) — chờ phu quân duyệt làm tiếp
