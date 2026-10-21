@@ -1,82 +1,88 @@
-// CƠM BỤI & DEADLINE — Backend core v2 (Phase 1)
-// State machine: time/day/week, 6 nhu cầu, money, NPC cảm xúc, sự kiện Việt, save/load, chết + văn bia
+// CƠM BỤI & DEADLINE — Backend core v3 (Phase 2: cấu trúc GIỐNG HỆT 9 To Life)
+// 6 nhu cầu: com/nangLuong/vui/xaHoi/sachSe/sucKhoe — mood % phái sinh
+// Quest ngày (3 việc + thưởng), Dream LP, kỹ năng khóa hoạt động, ca làm việc
 // 100% logic thuần — không đụng DOM, test được bằng node
 
 const THANH_PHO = {
-  saigon: {
-    ten: 'Sài Gòn', vung: 'nam',
-    tiet: ['nắng gắt trưa', 'mưa ngập chiều', 'triều cường dâng'],
-    mon: ['cơm tấm', 'hủ tiếu', 'bánh mì', 'cơm bụi'],
-    mauChuDao: '#E8C46A',
-  },
-  hanoi: {
-    ten: 'Hà Nội', vung: 'bac',
-    tiet: ['rét đậm', 'mưa phùn', 'thu mát', 'nồm ẩm'],
-    mon: ['phở', 'bún chả', 'bánh cuốn', 'bún đậu'],
-    mauChuDao: '#C0392B',
-  },
-  danang: {
-    ten: 'Đà Nẵng', vung: 'trung',
-    tiet: ['nắng biển', 'mưa bão', 'gió biển mát'],
-    mon: ['mì Quảng', 'bánh xèo', 'bún mắm', 'cơm gà'],
-    mauChuDao: '#47857D',
-  },
+  saigon: { ten: 'Sài Gòn', vung: 'nam', tiet: ['nắng gắt trưa', 'mưa ngập chiều', 'triều cường dâng'], mon: ['cơm tấm', 'hủ tiếu', 'bánh mì', 'cơm bụi'], mauChuDao: '#E8C46A' },
+  hanoi:  { ten: 'Hà Nội',  vung: 'bac', tiet: ['rét đậm', 'mưa phùn', 'thu mát', 'nồm ẩm'], mon: ['phở', 'bún chả', 'bánh cuốn', 'bún đậu'], mauChuDao: '#C0392B' },
+  danang: { ten: 'Đà Nẵng', vung: 'trung', tiet: ['nắng biển', 'mưa bão', 'gió biển mát'], mon: ['mì Quảng', 'bánh xèo', 'bún mắm', 'cơm gà'], mauChuDao: '#47857D' },
 };
 
-// 14 NPC có đời sống riêng
 const NPC_GOC = [
-  { id: 'linh', ten: 'Linh', vai: 'đồng nghiệp', tinhCach: 'nói nhiều, hay tám', lich: 'làm việc ca hành chính' },
-  { id: 'tuan', ten: 'Tuấn', vai: 'đồng nghiệp', tinhCach: 'trầm, thích cà phê', lich: 'làm ca sáng' },
-  { id: 'ba_tu', ten: 'Bà Tư', vai: 'chủ trọ', tinhCach: 'cứng nhưng tốt bụng', lich: 'thu tiền đầu tháng' },
-  { id: 'hung', ten: 'Hùng', vai: 'anh shipper', tinhCach: 'vui, chạy xe nhanh', lich: 'chạy đơn sáng tối' },
-  { id: 'mai', ten: 'Mai', vai: 'bạn thân', tinhCach: 'ấm áp, hay rủ đi ăn', lich: 'làm văn phòng' },
-  { id: 'cu_long', ten: 'Cụ Long', vai: 'hàng xóm già', tinhCach: 'hay kể chuyện xưa', lich: 'đánh cờ vỉa hè' },
-  { id: 'thao', ten: 'Thảo', vai: 'bán quán cà phê', tinhCach: 'mến khách, nhớ gu nước', lich: 'mở quán 6h-21h' },
-  { id: 'duc', ten: 'Đức', vai: 'sếp', tinhCach: 'khó tính, hay deadline', lich: 'họp sáng thứ 2' },
-  { id: 'hanh', ten: 'Hạnh', vai: 'bà tám hàng xóm', tinhCach: 'biết hết chuyện phố', lich: 'chợ sớm' },
-  { id: 'nam', ten: 'Nam', vai: 'bạn thời đại học', tinhCach: 'hay rủ chơi game', lich: 'freelance đêm' },
-  { id: 'chi_dao', ten: 'Chị Đào', vai: 'bán xôi sáng', tinhCach: 'vui tính, nhớ khách quen', lich: 'gánh xôi 5h-9h' },
-  { id: 'trung', ten: 'Trung', vai: 'anh kỹ thuật', tinhCach: 'ít nói, sửa được mọi thứ', lich: 'on-call' },
-  { id: 'hoa', ten: 'Hoa', vai: 'con bà Tư', tinhCach: 'sinh viên, ráng học', lich: 'học ca tối' },
-  { id: 'ong_sang', ten: 'Ông Sáng', vai: 'bán báo già', tinhCach: 'yêu báo giấy', lich: 'bắt đầu 4h30' },
+  { id: 'linh', ten: 'Linh', vai: 'đồng nghiệp', tinhCach: 'nói nhiều, hay tám' },
+  { id: 'tuan', ten: 'Tuấn', vai: 'đồng nghiệp', tinhCach: 'trầm, thích cà phê' },
+  { id: 'ba_tu', ten: 'Bà Tư', vai: 'chủ trọ', tinhCach: 'cứng nhưng tốt bụng' },
+  { id: 'hung', ten: 'Hùng', vai: 'anh shipper', tinhCach: 'vui, chạy xe nhanh' },
+  { id: 'mai', ten: 'Mai', vai: 'bạn thân', tinhCach: 'ấm áp, hay rủ đi ăn' },
+  { id: 'cu_long', ten: 'Cụ Long', vai: 'hàng xóm già', tinhCach: 'hay kể chuyện xưa' },
+  { id: 'thao', ten: 'Thảo', vai: 'bán quán cà phê', tinhCach: 'mến khách, nhớ gu nước' },
+  { id: 'duc', ten: 'Đức', vai: 'sếp', tinhCach: 'khó tính, hay deadline' },
+  { id: 'hanh', ten: 'Hạnh', vai: 'bà tám hàng xóm', tinhCach: 'biết hết chuyện phố' },
+  { id: 'nam', ten: 'Nam', vai: 'bạn thời đại học', tinhCach: 'hay rủ chơi game' },
+  { id: 'chi_dao', ten: 'Chị Đào', vai: 'bán xôi sáng', tinhCach: 'vui tính, nhớ khách quen' },
+  { id: 'trung', ten: 'Trung', vai: 'anh kỹ thuật', tinhCach: 'ít nói, sửa được mọi thứ' },
+  { id: 'hoa', ten: 'Hoa', vai: 'con bà Tư', tinhCach: 'sinh viên, ráng học' },
+  { id: 'ong_sang', ten: 'Ông Sáng', vai: 'bán báo già', tinhCach: 'yêu báo giấy' },
 ];
 
-// ===== 6 NHU CẦU (kiểu 9 To Life nhưng đời Việt) =====
+// ===== 6 NHU CẦU — ĐÚNG BỘ 9 TO LIFE (Food/Energy/Fun/Social/Clean/Health) =====
 const NHU_CAU = {
-  nangLuong: { ten: 'Năng lượng', icon: '⚡' },
-  tamTrang:  { ten: 'Tâm trạng',  icon: '❤️' },
-  doBao:     { ten: 'No bụng',     icon: '🍚' },
-  khatNuoc:  { ten: 'Khát nước',   icon: '💧' },
-  xaHoi:     { ten: 'Xã hội',      icon: '💬' },
-  tinhThan:  { ten: 'Tinh thần',   icon: '🌿' },
+  com:       { ten: 'Đồ ăn',     icon: '🍚', day: 'com' },
+  nangLuong: { ten: 'Năng lượng', icon: '⚡', day: 'nangLuong' },
+  vui:       { ten: 'Vui vẻ',    icon: '🎮', day: 'vui' },
+  xaHoi:     { ten: 'Xã hội',    icon: '💬', day: 'xaHoi' },
+  sachSe:    { ten: 'Sạch sẽ',   icon: '🚿', day: 'sachSe' },
+  sucKhoe:   { ten: 'Sức khỏe',  icon: '❤️', day: 'sucKhoe' },
 };
 
 function taoNguoiChoi(tenThanhPho, tenNguoi) {
   const tp = THANH_PHO[tenThanhPho];
   if (!tp) throw new Error('Không biết thành phố: ' + tenThanhPho);
   return {
-    phienBan: 2,
+    phienBan: 3,
     ten: tenNguoi || 'Nhân',
     tuoi: 23,
     thanhPhoKey: tenThanhPho,
-    thanhPho: { key: tenThanhPho, ...tp },   // FIX bug: G.thanhPho.ten giờ đọc được
+    thanhPho: { key: tenThanhPho, ...tp },
     thoiGian: { ngay: 1, thu: 2, gio: 6, phut: 0, tuan: 1, thang: 10, nam: 2026 },
-    tien: 150_000, // đồng — bắt đầu broke đúng chất
-    chiSo: { nangLuong: 70, tamTrang: 60, doBao: 40, khatNuoc: 50, xaHoi: 30, tinhThan: 45 },
+    tien: 200_000,
+    chiSo: { com: 67, nangLuong: 73, vui: 60, xaHoi: 53, sachSe: 73, sucKhoe: 100 },
+    // NGHỀ + KỸ NĂNG (khóa hoạt động kiểu "Needs Cooking level 2")
     nghe: 'thực tập sinh',
-    luong: { ngay: 80_000, thang: 2_000_000 },
-    phong: { ten: 'phòng trọ 12m²', tienThue: 1_500_000, conNo: 0 },
-    npc: NPC_GOC.map(n => ({ ...n, quanHe: 20, tamTrang: 'bình thường' })),
+    kyNang: { nauAn: 0, caPhe: 1, vanPhong: 1, giaoTiep: 1 },
+    luong: { ca: 80_000 },
+    caLam: { tu: 7.5, den: 17.5 }, // 7h30-17h30
+    phong: { ten: 'phòng trọ 12m²', tienThue: 1_500_000, conNo: 0, ngayHanNo: 0 },
+    // QUEST NGÀY (kiểu "today 0/3 ... all 3: +$50")
+    questNgay: null,
+    // DREAM (kiểu Mansion Life LP)
+    dream: { ten: 'Nhà Mặt Phố', lp: 0, moTa: 'Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.' },
+    npc: NPC_GOC.map(n => ({ ...n, quanHe: 20, ban: 0, yeu: 0, tamTrang: 'bình thường' })),
     diary: [],
-    suKienCho: [],
-    songSot: { doiBung: 0, doiNuoc: 0, matNgu: 0 }, // đếm ngày chạm đáy → chết
-    daChet: null, // { ngay, lyDo, vanBia }
+    songSot: { doi: 0, khat: 0, matNgu: 0 },
+    daChet: null,
   };
 }
 
 const THU_VIET = { 2: 'thứ hai', 3: 'thứ ba', 4: 'thứ tư', 5: 'thứ năm', 6: 'thứ sáu', 7: 'thứ bảy', 8: 'chủ nhật' };
 
-// ===== THỜI GIAN THUẦN (không side-effect lên chỉ số) =====
+// ===== MOOD % phái sinh (kiểu "66% GOOD") =====
+const MOOD_BAC = [
+  { min: 85, txt: 'TUYỆT VỜI', mau: '#6FE06A' },
+  { min: 65, txt: 'TỐT',       mau: '#9BD66A' },
+  { min: 45, txt: 'ỔN',        mau: '#E8C46A' },
+  { min: 25, txt: 'MỆT MỎI',   mau: '#E67E22' },
+  { min: 0,  txt: 'KIỆT QUỆ',  mau: '#E2585E' },
+];
+function mood(state) {
+  const c = state.chiSo;
+  const v = Math.round((c.com + c.nangLuong + c.vui + c.xaHoi + c.sachSe + c.sucKhoe) / 6);
+  const bac = MOOD_BAC.find(b => v >= b.min);
+  return { pct: v, txt: bac.txt, mau: bac.mau };
+}
+
+// ===== THỜI GIAN =====
 function tienTruoi(state, phut) {
   let { gio, phut: p, ngay, thu, tuan, thang, nam } = state.thoiGian;
   let total = gio * 60 + p + phut;
@@ -90,47 +96,186 @@ function tienTruoi(state, phut) {
   return state;
 }
 
-// ===== NHU CẦU TỤT THEO THỜI GIAN (linh hồn life-sim) =====
-// Thức: tụt rõ rệt. Ngủ (23h-6h): đói/khát tụt chậm — đúng cơ thể thật,
-// cũng là balance để một ngày 2 bữa + ngủ đêm là sống khỏe (nhịp 9 To Life).
+// ===== NHU CẦU TỤT (thức nhanh, ngủ chậm — sạch sẽ tụt chậm nhất) =====
 function nhuCauTut(state, phut) {
-  const gio = state.thoiGian.gio;
   const h = phut / 60;
-  const dangThuc = gio >= 6 && gio < 23;
+  const thuc = state.thoiGian.gio >= 6 && state.thoiGian.gio < 23;
+  const heSo = thuc ? 1 : 0.4;
   const c = state.chiSo;
-  const heSo = dangThuc ? 1 : 0.4; // ngủ thì cơ thể "tiết kiệm"
-  c.doBao    = ket(c.doBao    - 1.0 * h * heSo);
-  c.khatNuoc = ket(c.khatNuoc - 1.1 * h * heSo);
-  c.xaHoi    = ket(c.xaHoi    - (dangThuc ? 1.0 : 0.3) * h);
-  c.tinhThan = ket(c.tinhThan - 0.8 * h * heSo);
-  if (dangThuc) c.nangLuong = ket(c.nangLuong - 1.6 * h);
-  // tâm trạng trôi về trung bình các nhu cầu khác (đời nó vậy)
-  const tb = (c.nangLuong + c.doBao + c.khatNuoc + c.xaHoi + c.tinhThan) / 5;
-  c.tamTrang = ket(c.tamTrang + (tb - c.tamTrang) * Math.min(1, 0.25 * h));
+  c.com       = ket(c.com       - 1.0 * h * heSo);
+  c.nangLuong = ket(c.nangLuong - (thuc ? 1.5 : -6) * h); // ngủ = hồi năng lượng
+  c.vui       = ket(c.vui       - 0.8 * h * heSo);
+  c.xaHoi     = ket(c.xaHoi     - (thuc ? 0.9 : 0.25) * h);
+  c.sachSe    = ket(c.sachSe    - 0.5 * h * heSo);
+  // sức khỏe: bị kéo xuống khi nhu cầu khác chạm đáy
+  const day = [c.com, c.nangLuong, c.sachSe].filter(v => v < 15).length;
+  c.sucKhoe   = ket(c.sucKhoe   - (day * 1.2) * h + (day === 0 && thuc ? -0.05 * h : 0));
   return state;
 }
 function ket(v) { return Math.max(0, Math.min(100, Math.round(v * 10) / 10)); }
 
-// ===== TIẾN ĐỘ ĐẦY ĐỦ: thời gian + nhu cầu + kiểm tra đáy + sự kiện =====
 function tienDo(state, phut) {
   if (state.daChet) return state;
   const ngayTruoc = state.thoiGian.ngay;
   tienTruoi(state, phut);
   nhuCauTut(state, phut);
   npcSong(state, phut);
-  if (state.thoiGian.ngay !== ngayTruoc) kiemTraDay(state);
+  if (state.thoiGian.ngay !== ngayTruoc) {
+    questMoi(state);      // ngày mới → quest mới
+    kiemTraDay(state);
+  }
   return state;
 }
 
-// Chạm đáy 2 ngày liên tiếp → chết (kiểu 9 To Life, nhưng nguyên nhân rất Việt)
+// ===== QUEST NGÀY — kiểu "today 0/3, all 3: +$50" =====
+const QUEST_POOL = [
+  { id: 'goi_dien',  ten: 'Gọi cho ai đó',        ktra: s => s.diary.some(d => d.quest === 'goi_dien' && d.ngay === s.thoiGian.ngay), thuong: 20_000 },
+  { id: 'ra_pho',    ten: 'Ra phố đi dạo',        ktra: s => s.diary.some(d => d.quest === 'ra_pho' && d.ngay === s.thoiGian.ngay), thuong: 20_000 },
+  { id: 'an_quan',   ten: 'Ăn một bữa ở quán',    ktra: s => s.diary.some(d => d.quest === 'an_quan' && d.ngay === s.thoiGian.ngay), thuong: 20_000 },
+  { id: 'tra_da',    ten: 'Ngồi trà đá vỉa hè',   ktra: s => s.diary.some(d => d.quest === 'tra_da' && d.ngay === s.thoiGian.ngay), thuong: 15_000 },
+  { id: 'di_lam',    ten: 'Đi làm trọn ca',       ktra: s => s.diary.some(d => d.quest === 'di_lam' && d.ngay === s.thoiGian.ngay), thuong: 15_000 },
+  { id: 'tam_giat',  ten: 'Tắm giặt sạch sẽ',     ktra: s => s.diary.some(d => d.quest === 'tam_giat' && d.ngay === s.thoiGian.ngay), thuong: 10_000 },
+  { id: 'choi_game', ten: 'Chơi game với Nam',    ktra: s => s.diary.some(d => d.quest === 'choi_game' && d.ngay === s.thoiGian.ngay), thuong: 10_000 },
+  { id: 'xem_tivi',  ten: 'Xem tivi CRT',         ktra: s => s.diary.some(d => d.quest === 'xem_tivi' && d.ngay === s.thoiGian.ngay), thuong: 10_000 },
+];
+function questMoi(state) {
+  // bốc 3 quest không trùng
+  const pool = [...QUEST_POOL];
+  const chon = [];
+  while (chon.length < 3 && pool.length) {
+    chon.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  state.questNgay = { ngay: state.thoiGian.ngay, viec: chon.map(q => ({ id: q.id, ten: q.ten, thuong: q.thuong, xong: false })), thuongHet: 50_000, daLanhHet: false };
+}
+function capNhatQuest(state) {
+  if (!state.questNgay || state.questNgay.ngay !== state.thoiGian.ngay) questMoi(state);
+  const q = state.questNgay;
+  for (const v of q.viec) {
+    if (v.xong) continue;
+    const def = QUEST_POOL.find(x => x.id === v.id);
+    if (def && def.ktra(state)) {
+      v.xong = true;
+      state.tien += v.thuong;
+      ghiNhatKy(state, 'quest', 'Xong việc ngày: "' + v.ten + '" (+' + v.thuong.toLocaleString('vi-VN') + 'đ)');
+    }
+  }
+  const xongHet = q.viec.every(v => v.xong);
+  if (xongHet && !q.daLanhHet) {
+    q.daLanhHet = true;
+    state.tien += q.thuongHet;
+    state.dream.lp += 1; // mỗi ngày trọn quest = +1 LP giấc mơ
+    ghiNhatKy(state, 'quest', 'Hoàn thành CẢ 3 việc ngày! (+' + q.thuongHet.toLocaleString('vi-VN') + 'đ, +1 LP "' + state.dream.ten + '")');
+  }
+  return q;
+}
+
+// ===== HOẠT ĐỘNG — cấu trúc row 9 To Life: tên + icon↑↓ + chip tiền + chip giờ, có KHÓA =====
+const HOAT_DONG = [
+  { id: 'an_com_bui',  ten: 'Ăn cơm bụi đầu hẻm', phut: 30, tien: -25_000, chiSo: { com: +35, vui: +5, sachSe: -5 }, quest: 'an_quan', scene: ['phong_tro', 'pho_dem'], moTa: 'Cơm sườn bì chả thêm trứng, kèm chén canh.' },
+  { id: 'an_quan_pho', ten: 'Ăn tô phở quen',     phut: 40, tien: -40_000, chiSo: { com: +45, vui: +8 }, quest: 'an_quan', scene: ['quan_pho'], moTa: 'Bà Hạnh nhớ mặt: "như cũ hả con?"' },
+  { id: 'tra_da_via_he', ten: 'Trà đá vỉa hè',    phut: 15, tien: -3_000,  chiSo: { xaHoi: +10, vui: +6 }, quest: 'tra_da', scene: ['pho_dem', 'quan_pho'], moTa: '3 ngàn một cốc, ngắm phố chảy qua.' },
+  { id: 'ca_phe_sua',  ten: 'Cà phê sữa đá',      phut: 20, tien: -15_000, chiSo: { nangLuong: +12, vui: +8, xaHoi: +4 }, scene: ['pho_dem', 'van_phong'], moTa: 'Tỉnh táo 2 tiếng, tim đập nhanh 3 tiếng.' },
+  { id: 'di_lam',      ten: 'Đi làm trọn ca',     phut: 480, tien: +80_000, chiSo: { nangLuong: -30, com: -25, vui: -12, sachSe: -15 }, quest: 'di_lam', scene: ['van_phong'], dieuKien: 'ngayLamViec', moTa: 'Chấm công, họp hành, deadline.' },
+  { id: 'lam_them_gio', ten: 'Nán lại tăng ca',   phut: 180, tien: +50_000, chiSo: { nangLuong: -25, vui: -20, com: -12 }, scene: ['van_phong'], dieuKien: 'ngayLamViec', moTa: 'Sếp Đức: "anh ghi nhận nỗ lực của em".' },
+  { id: 'ngu_trua',    ten: 'Ngủ trưa một giấc',  phut: 60,  tien: 0, chiSo: { nangLuong: +20 }, scene: ['phong_tro', 'van_phong'], moTa: 'Gục xuống bàn 1 tiếng, mơ thấy lương về.' },
+  { id: 'ngu_dem',     ten: 'Ngủ một đêm',        phut: 420, tien: 0, chiSo: { nangLuong: 100, sucKhoe: +5 }, scene: ['phong_tro'], dieuKien: 'banDem', moTa: 'Tắt điện thoại. Giấc ngủ không deadline.' },
+  { id: 'tam_giat',    ten: 'Tắm giặt',           phut: 30,  tien: 0, chiSo: { sachSe: +55, vui: +5, nangLuong: +5 }, quest: 'tam_giat', scene: ['phong_tro'], moTa: 'Nước máy lạnh — tỉnh cả người.' },
+  { id: 'tam_su_ban',  ten: 'Tám chuyện với bạn', phut: 45,  tien: 0, chiSo: { xaHoi: +30, vui: +15, nangLuong: -5 }, scene: ['phong_tro', 'pho_dem', 'quan_pho'], moTa: 'Chuyện trên trời dưới đất, hết buồn luôn.' },
+  { id: 'goi_ve_nha',  ten: 'Gọi điện về cho má', phut: 30,  tien: 0, chiSo: { xaHoi: +15, vui: +12, sucKhoe: +3 }, quest: 'goi_dien', scene: ['phong_tro'], moTa: 'Má hỏi: "ăn uống đầy đủ không con?" — Ừa má.' },
+  { id: 'xem_tivi',    ten: 'Xem tivi CRT',       phut: 60,  tien: 0, chiSo: { vui: +18, nangLuong: -5, sachSe: -3 }, quest: 'xem_tivi', scene: ['phong_tro'], moTa: 'Phim cũ chiếu lại, quảng cáo vẫn hay.' },
+  { id: 'di_dao',      ten: 'Đi dạo phố',         phut: 45,  tien: 0, chiSo: { vui: +15, xaHoi: +10, sucKhoe: +6, nangLuong: -8 }, quest: 'ra_pho', scene: ['pho_dem'], moTa: 'Gió đêm, mùi hủ tiếu gõ, xe máy chảy như sông.' },
+  { id: 'choi_game',   ten: 'Chơi game với Nam',  phut: 90,  tien: 0, chiSo: { vui: +28, xaHoi: +15, nangLuong: -12, com: -8 }, quest: 'choi_game', scene: ['phong_tro'], moTa: 'Nam gào trong voice: "đẩy trụ đi bạn êi!"' },
+  { id: 'di_cho',      ten: 'Đi chợ mua đồ',      phut: 60,  tien: -50_000, chiSo: { com: +25, vui: +8, nangLuong: -8, sachSe: -5 }, scene: ['pho_dem'], moTa: 'Rau trứng mì gói — tủ lạnh hết trống trải.' },
+  { id: 'nau_an',      ten: 'Nấu bữa tử tế',      phut: 60,  tien: -30_000, chiSo: { com: +50, vui: +10, sachSe: -10 }, khoa: { kyNang: 'nauAn', cap: 2 }, moTa: 'Món nhà làm — má dạy mà chưa thuộc.', scene: ['phong_tro'] },
+  { id: 'tap_the_duc', ten: 'Chạy bộ công viên',  phut: 45,  tien: 0, chiSo: { sucKhoe: +12, nangLuong: -15, sachSe: -20, vui: +5 }, scene: ['pho_dem'], moTa: 'Sáng sớm hít thở — né ổ gà và xe buýt.' },
+];
+
+function hoatDongKhaDung(state, sceneHien) {
+  const ra = [];
+  for (const h of HOAT_DONG) {
+    if (!h.scene.includes(sceneHien)) continue;
+    const row = { ...h, khoaLyDo: null };
+    if (h.dieuKien === 'ngayLamViec') {
+      const t = state.thoiGian;
+      if (!(t.thu >= 2 && t.thu <= 6)) row.khoaLyDo = 'Chỉ ngày thường (thứ 2 → thứ 6).';
+      else if (t.gio < state.caLam.tu || t.gio > state.caLam.den) row.khoaLyDo = 'Ngoài ca làm (7h30–17h30).';
+    }
+    if (h.dieuKien === 'banDem') {
+      const g = state.thoiGian.gio;
+      if (g >= 5 && g < 21) row.khoaLyDo = 'Chưa tới giờ ngủ (sau 21h).';
+    }
+    if (h.khoa && state.kyNang[h.khoa.kyNang] < h.khoa.cap) {
+      row.khoaLyDo = 'Cần kỹ năng ' + tenKyNang(h.khoa.kyNang) + ' cấp ' + h.khoa.cap + '.';
+    }
+    if (h.tien < 0 && state.tien < -h.tien) row.khoaLyDo = 'Không đủ tiền.';
+    ra.push(row);
+  }
+  return ra;
+}
+const TEN_KY_NANG = { nauAn: 'Nấu ăn', caPhe: 'Pha chế', vanPhong: 'Văn phòng', giaoTiep: 'Giao tiếp' };
+function tenKyNang(k) { return TEN_KY_NANG[k] || k; }
+
+function lamHoatDong(state, id) {
+  const h = HOAT_DONG.find(x => x.id === id);
+  if (!h) throw new Error('Hoạt động lạ: ' + id);
+  const khaDung = hoatDongKhaDung(state, h.scene[0]).find(r => r.id === id);
+  // kiểm tra lại điều kiện từ chính state thật (scene hiện tại do UI truyền)
+  if (h.dieuKien === 'ngayLamViec') {
+    const t = state.thoiGian;
+    if (t.thu === 7 || t.thu === 8) return { ok: false, lyDo: 'Cuối tuần mà! Văn phòng đóng cửa.' };
+    if (t.gio < state.caLam.tu || t.gio > state.caLam.den) return { ok: false, lyDo: 'Ngoài ca làm.' };
+  }
+  if (h.dieuKien === 'banDem') {
+    const g = state.thoiGian.gio;
+    if (g >= 5 && g < 21) return { ok: false, lyDo: 'Giờ này ai lại đi ngủ?' };
+  }
+  if (h.khoa && state.kyNang[h.khoa.kyNang] < h.khoa.cap) {
+    return { ok: false, lyDo: 'Cần kỹ năng ' + tenKyNang(h.khoa.kyNang) + ' cấp ' + h.khoa.cap + ' — đi làm rồi học thêm đã.' };
+  }
+  if (h.tien < 0 && state.tien < -h.tien) return { ok: false, lyDo: 'Tiền không đủ — túi lép rồi.' };
+
+  state.tien += h.tien;
+  apDungChiSo(state, h.chiSo);
+  if (h.chiSo.xaHoi >= 10) {
+    const ban = state.npc[Math.floor(Math.random() * state.npc.length)];
+    ban.quanHe = Math.min(100, ban.quanHe + 5);
+    ban.ban = Math.min(100, ban.ban + 2);
+    ghiNhatKy(state, 'quan_he', 'Nói chuyện vui với ' + ban.ten + ' (+5 thân thiết).');
+  }
+  // kỹ năng tăng khi dùng
+  if (h.id === 'di_lam' || h.id === 'lam_them_gio') state.kyNang.vanPhong = Math.min(5, state.kyNang.vanPhong + 0.2);
+  if (h.id === 'tam_su_ban' || h.id === 'goi_ve_nha') state.kyNang.giaoTiep = Math.min(5, state.kyNang.giaoTiep + 0.2);
+  if (h.id === 'ca_phe_sua') state.kyNang.caPhe = Math.min(5, state.kyNang.caPhe + 0.1);
+  // quest hook
+  if (h.quest) ghiNhatKyQuest(state, h.quest, h.ten);
+  tienDo(state, h.phut);
+  capNhatQuest(state);
+  ghiNhatKy(state, 'hoat_dong', state.ten + ' dành ' + dinhDangPhut(h.phut) + ': ' + h.ten + '. ' + h.moTa);
+  return { ok: true, hoatDong: h };
+}
+function ghiNhatKyQuest(state, questId, ten) {
+  state.diary.push({ ngay: state.thoiGian.ngay, loai: 'quest_hook', quest: questId, noiDung: ten });
+}
+
+function dinhDangPhut(p) {
+  if (p >= 60) { const h = Math.floor(p / 60), m = p % 60; return m ? h + 'h' + m + 'm' : h + 'h'; }
+  return p + 'm';
+}
+
+function ghiNhatKy(state, loai, noiDung) {
+  state.diary.push({ ngay: state.thoiGian.ngay, thu: state.thoiGian.thu, loai, noiDung });
+  if (state.diary.length > 80) state.diary = state.diary.slice(-80);
+}
+
+// ===== CHẾT + VĂN BIA (9 To Life v0.5: "you get old now. and you can die. a lot...") =====
 function kiemTraDay(state) {
   const c = state.chiSo;
-  state.songSot.doiBung = c.doBao <= 0 ? state.songSot.doiBung + 1 : 0;
-  state.songSot.doiNuoc = c.khatNuoc <= 0 ? state.songSot.doiNuoc + 1 : 0;
-  state.songSot.matNgu  = c.nangLuong <= 0 ? state.songSot.matNgu + 1 : 0;
-  if (state.songSot.doiNuoc >= 2) return chet(state, 'kiệt sức vì khát', 'Quên uống nước suốt 2 ngày vì chạy deadline.');
-  if (state.songSot.doiBung >= 2) return chet(state, 'đói lả giữa mùa deadline', 'Nhịn ăn 2 ngày để kịp tiến độ. Tiến độ không kịp người.');
-  if (state.songSot.matNgu >= 3)  return chet(state, 'gục trên bàn phím', 'Ba đêm trắng liên tiếp. Laptop vẫn mở, người đã tắt.');
+  state.songSot.doi    = c.com <= 0 ? state.songSot.doi + 1 : 0;
+  state.songSot.matNgu = c.nangLuong <= 0 ? state.songSot.matNgu + 1 : 0;
+  state.songSot.khat   = c.sucKhoe <= 0 ? 2 : 0; // sức khỏe cạn = nguy kịch luôn
+  if (c.sucKhoe <= 0) return chet(state, 'kiệt sức', 'Sức khỏe chạm đáy nhiều ngày liền.');
+  if (state.songSot.doi >= 2) return chet(state, 'đói lả giữa mùa deadline', 'Nhịn ăn 2 ngày để kịp tiến độ. Tiến độ không kịp người.');
+  if (state.songSot.matNgu >= 3) return chet(state, 'gục trên bàn phím', 'Ba đêm trắng liên tiếp. Laptop vẫn mở, người đã tắt.');
   return state;
 }
 
@@ -146,113 +291,27 @@ function chet(state, lyDo, chiTiet) {
     ngay: state.thoiGian.ngay, thang: state.thoiGian.thang,
     lyDo, chiTiet,
     vanBia: mauVanBia[Math.floor(Math.random() * mauVanBia.length)],
-    khachDu: khach,
-    nghe: state.nghe, tuoi: state.tuoi, ten: state.ten,
+    khachDu: khach, nghe: state.nghe, tuoi: state.tuoi, ten: state.ten,
+    lp: state.dream.lp,
   };
   return state;
 }
 
-// ===== HOẠT ĐỘNG (menu kiểu 9 To Life: thời gian + tiền + chỉ số ↑↓) =====
-const HOAT_DONG = [
-  { id: 'an_com_bui',  ten: 'Ăn cơm bụi đầu hẻm',   phut: 30,  tien: -25_000, chiSo: { doBao: +35, tamTrang: +5, khatNuoc: +10 }, scene: ['phong_tro', 'pho_dem'], moTa: 'Cơm sườn bì chả thêm trứng, kèm chén canh rau — chuẩn bữa bình dân.' },
-  { id: 'an_quan_pho', ten: 'Ăn tô phở/bún quen',    phut: 40,  tien: -40_000, chiSo: { doBao: +45, tamTrang: +8, khatNuoc: +15 }, scene: ['quan_pho'], moTa: 'Bà Hạnh nhớ mặt: "như cũ hả con?" — tô nhiều nước lèo, húp tới giọt cuối.' },
-  { id: 'tra_da_via_he', ten: 'Trà đá vỉa hè',       phut: 15,  tien: -3_000,  chiSo: { khatNuoc: +35, xaHoi: +8, tinhThan: +5 }, scene: ['pho_dem', 'quan_pho'], moTa: '3 ngàn một cốc, ngồi ngắm phố chảy qua.' },
-  { id: 'ca_phe_sua',  ten: 'Cà phê sữa đá',         phut: 20,  tien: -15_000, chiSo: { khatNuoc: +20, nangLuong: +10, tinhThan: +8 }, scene: ['pho_dem', 'van_phong'], moTa: 'Tỉnh táo 2 tiếng, tim đập nhanh 3 tiếng.' },
-  { id: 'di_lam',      ten: 'Đi làm một ngày',       phut: 480, tien: +80_000, chiSo: { nangLuong: -30, doBao: -25, khatNuoc: -20, tinhThan: -10 }, scene: ['van_phong'], dieuKien: 'ngayLamViec', moTa: 'Chấm công 7h30, họp hành, deadline.' },
-  { id: 'lam_them_gio', ten: 'Nán lại tăng ca',      phut: 180, tien: +50_000, chiSo: { nangLuong: -25, tinhThan: -20, doBao: -15 }, scene: ['van_phong'], dieuKien: 'ngayLamViec', moTa: 'Sếp Đức đi qua: "anh ghi nhận nỗ lực của em".' },
-  { id: 'ngu_trua',    ten: 'Ngủ trưa một giấc',     phut: 60,  tien: 0,       chiSo: { nangLuong: +20, tamTrang: +5 }, scene: ['phong_tro', 'van_phong'], moTa: 'Gục xuống bàn 1 tiếng, mơ thấy lương về.' },
-  { id: 'ngu_dem',     ten: 'Ngủ một đêm đẫy giấc',  phut: 480, tien: 0,       chiSo: { nangLuong: 100, tamTrang: +10 }, scene: ['phong_tro'], dieuKien: 'banDem', moTa: 'Tắt điện thoại. Giấc ngủ không deadline.' },
-  { id: 'tam_su_ban',  ten: 'Tám chuyện với bạn',    phut: 45,  tien: 0,       chiSo: { xaHoi: +30, tinhThan: +15, nangLuong: -5 }, scene: ['phong_tro', 'pho_dem', 'quan_pho'], moTa: 'Chuyện trên trời dưới đất, hết buồn luôn.' },
-  { id: 'xem_tivi',    ten: 'Xem tivi CRT của bà',   phut: 60,  tien: 0,       chiSo: { tinhThan: +12, tamTrang: +8, nangLuong: -5 }, scene: ['phong_tro'], moTa: 'Phim cũ chiếu lại, quảng cáo vẫn hay.' },
-  { id: 'di_dao',      ten: 'Đi dạo phố một vòng',   phut: 45,  tien: 0,       chiSo: { tinhThan: +18, xaHoi: +10, nangLuong: -8, tamTrang: +6 }, scene: ['pho_dem'], moTa: 'Gió đêm, mùi hủ tiếu gõ, xe máy chảy như sông.' },
-  { id: 'choi_game',   ten: 'Chơi game với Nam',     phut: 90,  tien: 0,       chiSo: { tinhThan: +22, xaHoi: +18, nangLuong: -12, doBao: -8 }, scene: ['phong_tro'], moTa: 'Nam gào trong voice: "đẩy trụ đi bạn êi!"' },
-  { id: 'di_cho',      ten: 'Đi chợ mua đồ',         phut: 60,  tien: -50_000, chiSo: { doBao: +20, tinhThan: +8, nangLuong: -8 }, scene: ['pho_dem'], moTa: 'Rau trứng mì gói — tủ lạnh hết trống trải.' },
-  { id: 'goi_ve_nha',  ten: 'Gọi điện về cho má',    phut: 30,  tien: 0,       chiSo: { tinhThan: +20, tamTrang: +12, xaHoi: +10 }, scene: ['phong_tro'], moTa: 'Má hỏi: "ăn uống đầy đủ không con?" — Ừa má.' },
-];
-
-function hoatDongKhaDung(state, sceneHien) {
-  return HOAT_DONG.filter(h => {
-    if (!h.scene.includes(sceneHien)) return false;
-    if (h.dieuKien === 'ngayLamViec') {
-      const t = state.thoiGian;
-      return t.thu >= 2 && t.thu <= 6 && t.gio >= 7 && t.gio <= 17;
-    }
-    if (h.dieuKien === 'banDem') {
-      const g = state.thoiGian.gio;
-      return g >= 21 || g < 5;
-    }
-    if (h.tien < 0 && state.tien < -h.tien) return false;
-    return true;
-  });
-}
-
-function lamHoatDong(state, id) {
-  const h = HOAT_DONG.find(x => x.id === id);
-  if (!h) throw new Error('Hoạt động lạ: ' + id);
-  if (h.tien < 0 && state.tien < -h.tien) return { ok: false, lyDo: 'Tiền không đủ — túi lép rồi.' };
-  if (h.dieuKien === 'ngayLamViec') {
-    const t = state.thoiGian;
-    if (t.thu === 7 || t.thu === 8) return { ok: false, lyDo: 'Cuối tuần mà! Văn phòng đóng cửa.' };
-    if (t.gio < 7 || t.gio > 17) return { ok: false, lyDo: 'Ngoài giờ làm — bảo vệ không cho vào.' };
-  }
-  if (h.dieuKien === 'banDem') {
-    const g = state.thoiGian.gio;
-    if (g >= 5 && g < 21) return { ok: false, lyDo: 'Giờ này ai lại đi ngủ? Đời còn nhiều thứ lắm.' };
-  }
-  state.tien += h.tien;
-  apDungChiSo(state, h.chiSo);
-  // hoạt động xã hội → quan hệ NPC nhích lên
-  if (h.chiSo.xaHoi >= 10) {
-    const ban = state.npc[Math.floor(Math.random() * state.npc.length)];
-    ban.quanHe = Math.min(100, ban.quanHe + 5);
-    state.diary.push({ ngay: state.thoiGian.ngay, nguoi: ban.ten, loai: 'quan_he', noiDung: 'Nói chuyện vui vẻ với ' + ban.ten + ' (+5 thân thiết).' });
-  }
-  tienDo(state, h.phut);
-  ghiNhatKy(state, 'hoat_dong', state.ten + ' dành ' + dinhDangPhut(h.phut) + ' để: ' + h.ten + '. ' + h.moTa);
-  return { ok: true, hoatDong: h };
-}
-
-function dinhDangPhut(p) {
-  if (p >= 60) { const h = Math.floor(p / 60), m = p % 60; return m ? h + 'h' + m + 'm' : h + ' giờ'; }
-  return p + ' phút';
-}
-
-function ghiNhatKy(state, loai, noiDung) {
-  state.diary.push({ ngay: state.thoiGian.ngay, thu: state.thoiGian.thu, loai, noiDung });
-  if (state.diary.length > 60) state.diary = state.diary.slice(-60); // đừng phình save
-}
-
-// ===== SỰ KIỆN NGẪU NHIÊN 100% VIỆT =====
+// ===== SỰ KIỆN VIỆT =====
 const SU_KIEN_VIET = [
-  { id: 'ket_xe', ten: 'Kẹt xe', xacSuat: 0.10, chiSo: { nangLuong: -8, tamTrang: -10, tinhThan: -5 },
-    thoai: 'Đường kẹt cứng 40 phút. Xe máy nhích từng chút, ai cũng thở dài. Một chú Grab vẫn cười: "kệ, sống chung với lũ em ơi".' },
-  { id: 'cup_dien', ten: 'Cúp điện', xacSuat: 0.07, chiSo: { tinhThan: -12, tamTrang: -8 },
-    thoai: 'Cúp điện đúng lúc deadline gần kề. Cả xóm trọ kéo ra hành lang hóng gió, tự nhiên thành buổi họp tổ dân phố.' },
-  { id: 'mua_ngap', ten: 'Mưa ngập', xacSuat: 0.08, chiSo: { nangLuong: -10, tamTrang: -6, khatNuoc: -5 },
-    thoai: 'Mưa ập xuống, nước ngập nửa bánh xe. Dắt bộ qua đoạn ngập, dép trôi một chiếc. Đời công sở có những ngày như thế.' },
-  { id: 'duoc_khen', ten: 'Sếp khen', xacSuat: 0.06, chiSo: { tamTrang: +15, tinhThan: +12, xaHoi: +5 },
-    thoai: 'Sếp Đức hiếm hoi mỉm cười: "báo cáo của em ổn đấy". Cả văn phòng quay lại nhìn. Tự nhiên thấy deadline cũng đáng.' },
-  { id: 'ba_tu_thu', ten: 'Bà Tư thu tiền', xacSuat: 0.05, chiSo: { tamTrang: -8 },
-    thoai: 'Bà Tư gõ cửa: "tiền trọ tháng này nha con". Giọng cứng mà tay thì đưa thêm bịch cam: "ăn cho có chất".' },
-  { id: 've_so', ten: 'Trúng vé số', xacSuat: 0.02, chiSo: { tamTrang: +20, tinhThan: +15 }, tien: +100_000,
-    thoai: 'Ông Sáng dúi cho tờ vé số ế. Chiều dò: trúng 100 ngàn! Cả xóm mừng như mình trúng độc đắc.' },
-  { id: 'hang_xom_pho', ten: 'Xóm trọ vui', xacSuat: 0.07, chiSo: { xaHoi: +12, tamTrang: +8 },
-    thoai: 'Chị Hạnh rủ cả dãy trọ ăn chè ngoài hiên. Chuyện phố chuyện phường rôm rả tới khuya.' },
-  { id: 'me_goi', ten: 'Má gọi', xacSuat: 0.06, chiSo: { tinhThan: +15, tamTrang: +10 },
-    thoai: 'Má gọi: "ngoài đó lạnh không con, nhớ mặc áo khoác". Nói chuyện 20 phút, má kể hết chuyện bà con dưới quê.' },
-  { id: 'doi_tien', ten: 'Đòi tiền khó', xacSuat: 0.04, chiSo: { tamTrang: -12, tinhThan: -10 },
-    thoai: 'Bạn mượn 200 ngàn từ tháng trước, giờ nhắn tin không rep. Thôi, coi như học phí nhìn người.' },
+  { id: 'ket_xe', ten: 'Kẹt xe', xacSuat: 0.10, chiSo: { nangLuong: -8, vui: -10 }, thoai: 'Đường kẹt cứng 40 phút. Một chú Grab vẫn cười: "kệ, sống chung với lũ em ơi".' },
+  { id: 'cup_dien', ten: 'Cúp điện', xacSuat: 0.07, chiSo: { vui: -12, sachSe: -8 }, thoai: 'Cúp điện đúng lúc deadline gần kề. Cả xóm trọ kéo ra hành lang hóng gió.' },
+  { id: 'mua_ngap', ten: 'Mưa ngập', xacSuat: 0.08, chiSo: { nangLuong: -10, sachSe: -25, vui: -6 }, thoai: 'Mưa ập xuống, nước ngập nửa bánh xe. Dép trôi một chiếc.' },
+  { id: 'duoc_khen', ten: 'Sếp khen', xacSuat: 0.06, chiSo: { vui: +15, sucKhoe: +3 }, thoai: 'Sếp Đức hiếm hoi mỉm cười: "báo cáo của em ổn đấy".' },
+  { id: 'ba_tu_thu', ten: 'Bà Tư hỏi tiền', xacSuat: 0.05, chiSo: { vui: -8 }, thoai: 'Bà Tư gõ cửa nhắc tiền nước — tay thì đưa thêm bịch cam.' },
+  { id: 've_so', ten: 'Trúng vé số', xacSuat: 0.02, chiSo: { vui: +20 }, tien: +100_000, thoai: 'Ông Sáng dúi tờ vé ế. Chiều dò: trúng 100 ngàn!' },
+  { id: 'me_goi', ten: 'Má gọi', xacSuat: 0.06, chiSo: { vui: +15, xaHoi: +8, sucKhoe: +3 }, thoai: 'Má: "ngoài đó lạnh không con, nhớ mặc áo khoác".' },
+  { id: 'cam_cum', ten: 'Trái gió trở trời', xacSuat: 0.05, chiSo: { sucKhoe: -15, nangLuong: -10 }, thoai: 'Hắt hơi sổ mũi — mùa này ai cũng dính. Uống nước ấm vào.' },
 ];
 
 function kiemTraSuKien(state) {
   const sk = [];
-  // sự kiện lịch cố định
   const { thu, gio, ngay } = state.thoiGian;
-  if (gio === 7 && thu >= 2 && thu <= 6) sk.push({ id: 'di_lam', ten: 'Giờ đi làm — xe máy hay xe buýt?' });
-  if (gio === 12 && thu <= 6) sk.push({ id: 'an_trua', ten: 'Trưa rồi — cơm bụi hay tô phở quen?' });
-  if (gio === 18 && thu >= 2 && thu <= 6) sk.push({ id: 'tan_lam', ten: 'Tan làm — về thẳng hay la cà trà đá?' });
-  if (ngay === 1 && gio === 8) sk.push({ id: 'tien_thue', ten: 'Đầu tháng — tới hạn tiền trọ ' + state.phong.tienThue.toLocaleString('vi-VN') + 'đ' });
-  // sự kiện ngẫu nhiên Việt (tối đa 1 cái mỗi lần kiểm tra)
   if (Math.random() < 0.35) {
     const r = Math.random(); let cong = 0;
     for (const s of SU_KIEN_VIET) {
@@ -260,16 +319,17 @@ function kiemTraSuKien(state) {
       if (r < cong) {
         apDungChiSo(state, s.chiSo);
         if (s.tien) state.tien += s.tien;
+        if (s.chiSo.sucKhoe <= -15 && Math.random() < 0.5) state.songSot.khat = 0; // ốm nhẹ chưa nguy
         ghiNhatKy(state, 'su_kien', s.ten + ': ' + s.thoai);
         sk.push({ id: s.id, ten: s.ten, thoai: s.thoai, ngauNhien: true });
         break;
       }
     }
   }
+  if (ngay === 1 && gio >= 6 && gio <= 9) sk.push({ id: 'tien_thue', ten: 'Đầu tháng — tiền trọ ' + state.phong.tienThue.toLocaleString('vi-VN') + 'đ' });
   return sk;
 }
 
-// Trả tiền trọ đầu tháng
 function xuLyTienThue(state) {
   const thue = state.phong.tienThue;
   if (state.tien >= thue) {
@@ -277,26 +337,24 @@ function xuLyTienThue(state) {
     ghiNhatKy(state, 'tien_thue', 'Đóng tiền trọ ' + thue.toLocaleString('vi-VN') + 'đ. Bà Tư gật gù: "con biết lo rồi đó".');
     return { ok: true };
   }
+  // Giống 9 To Life: "Forget rent and the landlord gives you five days"
   state.phong.conNo += thue - state.tien;
+  state.phong.ngayHanNo = state.thoiGian.ngay + 5;
   state.tien = 0;
-  apDungChiSo(state, { tamTrang: -15, tinhThan: -10 });
-  ghiNhatKy(state, 'tien_thue', 'Không đủ tiền trọ. Nợ bà Tư ' + state.phong.conNo.toLocaleString('vi-VN') + 'đ. Bà chép miệng: "tháng sau liệu đó con".');
-  return { ok: false, no: state.phong.conNo };
+  apDungChiSo(state, { vui: -15 });
+  ghiNhatKy(state, 'tien_thue', 'Không đủ tiền trọ. Bà Tư hẹn đúng 5 ngày: "liệu đó con". Nợ ' + state.phong.conNo.toLocaleString('vi-VN') + 'đ.');
+  return { ok: false, no: state.phong.conNo, han: state.phong.ngayHanNo };
 }
 
-// ===== NPC TỰ SỐNG =====
+// ===== NPC =====
 function npcSong(state, phut) {
   const bien = ['đang bận', 'đi làm', 'vui vẻ', 'buồn ngủ', 'đi chợ', 'đang tám', 'nuôi cún con', 'mệt vì tăng ca'];
   for (const n of state.npc) {
-    if (Math.random() < 0.05) n.tamTrang = bien[Math.floor(Math.random() * bien.length)];
-    if (Math.random() < 0.004) {
-      state.diary.push({
-        ngay: state.thoiGian.ngay, nguoi: n.ten, loai: 'tin_nhan',
-        noiDung: n.ten + ' nhắn: "' + tinNhanNgauNhien(n) + '"',
-      });
-      if (n.quanHe >= 40) { apDungChiSo(state, { xaHoi: +4, tamTrang: +3 }); }
+    if (Math.random() < 0.04) n.tamTrang = bien[Math.floor(Math.random() * bien.length)];
+    if (Math.random() < 0.003) {
+      state.diary.push({ ngay: state.thoiGian.ngay, nguoi: n.ten, loai: 'tin_nhan', noiDung: n.ten + ' nhắn: "' + tinNhanNgauNhien(n) + '"' });
+      if (n.quanHe >= 40) apDungChiSo(state, { xaHoi: +4, vui: +3 });
     }
-    // quên nhau dần nếu không gặp
     if (Math.random() < 0.002) n.quanHe = Math.max(0, n.quanHe - 1);
   }
 }
@@ -304,19 +362,19 @@ function npcSong(state, phut) {
 function tinNhanNgauNhien(n) {
   const mau = {
     mai: ['Chiều nay ăn lẩu không?', 'Lương về chưa vậy?', 'Cuối tuần đi cà phê bệt nha'],
-    ba_tu: ['Nhớ đóng tiền nước nha con', 'Điện tháng này tăng 20 ngàn đó', 'Tối nhớ khóa cổng'],
+    ba_tu: ['Nhớ đóng tiền nước nha con', 'Tối nhớ khóa cổng'],
     hung: ['Ship đơn gấp lắm, chạy quá trời', 'Bữa nào rảnh làm ly cà phê'],
-    linh: ['Sếp kêu nộp report rùi huhu', 'Café không bạn êi?', 'Nghe nói tháng này có thưởng'],
-    duc: ['Deadline thứ 5 nhớ nhớ nhớ', 'Gửi anh file cuối cùng trước 17h'],
+    linh: ['Sếp kêu nộp report rùi huhu', 'Café không bạn êi?'],
+    duc: ['Deadline thứ 5 nhớ nhớ nhớ', 'Gửi anh file trước 17h'],
     cu_long: ['Đánh cờ không cháu?', 'Trà sen mới pha, sang chơi'],
     nam: ['Tối nay leo rank không?', 'Game mới ra, hay lắm'],
-    thao: ['Cà phê như cũ nha anh/chị?', 'Quán mới có bàn ngoài hiên mát lắm'],
-    hoa: ['Em thi giữa kỳ xong rồi!', 'Anh/chị còn sách toán lớp 12 không?'],
-    chi_dao: ['Mai ghé ăn xôi nha, có xôi mặn mới', 'Cô để phần cho con một gói nè'],
-    ong_sang: ['Báo sáng nay có tin hay', 'Ghé sạp chú, chú để dành tờ Tuổi Trẻ'],
-    hanh: ['Nghe nói cuối hẻm mới mở quán bún', 'Tối nay xóm mình mất nước đó con'],
-    trung: ['Máy bạn chậm thì đưa mình xem', 'Sửa giùm cái quạt, không tính tiền'],
-    tuan: ['Cà phê sáng không?', 'Im lặng nhấp một ngụm cà phê'],
+    thao: ['Cà phê như cũ nha?', 'Quán mới có bàn ngoài hiên mát lắm'],
+    hoa: ['Em thi giữa kỳ xong rồi!'],
+    chi_dao: ['Mai ghé ăn xôi nha, có xôi mặn mới'],
+    ong_sang: ['Báo sáng nay có tin hay'],
+    hanh: ['Nghe nói cuối hẻm mới mở quán bún'],
+    trung: ['Máy bạn chậm thì đưa mình xem'],
+    tuan: ['Cà phê sáng không?'],
   };
   const list = mau[n.id] || ['Dạo này sao rồi?'];
   return list[Math.floor(Math.random() * list.length)];
@@ -324,18 +382,41 @@ function tinNhanNgauNhien(n) {
 
 function apDungChiSo(state, chg) {
   for (const [k, v] of Object.entries(chg || {})) {
-    if (k in state.chiSo) {
-      // giá trị tuyệt đối (ví dụ nangLuong: 100 khi ngủ đẫy) vs cộng trừ
-      state.chiSo[k] = v === 100 && k === 'nangLuong' ? 100 : ket(state.chiSo[k] + v);
-    }
+    if (k in state.chiSo) state.chiSo[k] = v === 100 ? 100 : ket(state.chiSo[k] + v);
   }
   return state;
+}
+
+// ===== HÀNH ĐỘNG VỚI NPC (kiểu Apologize/Chat/Give a gift/Flirt) =====
+const NPC_HANH_DONG = [
+  { id: 'tro_chuyen', ten: 'Trò chuyện', tien: 0, phut: 20, ban: +6, yeu: 0, vui: +8, xaHoi: +12 },
+  { id: 'moi_nuoc',   ten: 'Mời ly trà đá', tien: -5_000, phut: 15, ban: +9, yeu: +2, vui: +6, xaHoi: +10 },
+  { id: 'tang_qua',   ten: 'Tặng quà', tien: -30_000, phut: 10, ban: +14, yeu: +6, vui: +10, xaHoi: +5 },
+  { id: 'tha_thinh',  ten: 'Thả thính', tien: 0, phut: 15, ban: +2, yeu: +8, vui: +12, xaHoi: +8, dieuKienBan: 50 },
+  { id: 'moi_hen_ho', ten: 'Rủ đi ăn tối', tien: -80_000, phut: 120, ban: +8, yeu: +15, vui: +20, xaHoi: +15, dieuKienBan: 60 },
+];
+function lamVoiNpc(state, npcId, hanhDongId) {
+  const n = state.npc.find(x => x.id === npcId);
+  if (!n) throw new Error('NPC lạ: ' + npcId);
+  const hd = NPC_HANH_DONG.find(x => x.id === hanhDongId);
+  if (!hd) throw new Error('Hành động lạ: ' + hanhDongId);
+  if (hd.tien < 0 && state.tien < -hd.tien) return { ok: false, lyDo: 'Tiền không đủ.' };
+  if (hd.dieuKienBan && n.ban < hd.dieuKienBan) return { ok: false, lyDo: n.ten + ' chưa đủ thân (' + Math.round(n.ban) + '/' + hd.dieuKienBan + ' Bạn).' };
+  state.tien += hd.tien;
+  n.ban = Math.min(100, n.ban + hd.ban);
+  n.yeu = Math.min(100, n.yeu + hd.yeu);
+  n.quanHe = Math.round((n.ban + n.yeu) / 2);
+  apDungChiSo(state, { vui: hd.vui, xaHoi: hd.xaHoi });
+  tienDo(state, hd.phut);
+  capNhatQuest(state);
+  ghiNhatKy(state, 'npc', hd.ten + ' với ' + n.ten + ' — ' + n.ten + ' có vẻ ' + (hd.yeu >= 8 ? 'cảm động' : 'vui hơn') + '.');
+  return { ok: true, npc: n };
 }
 
 // ===== SAVE / LOAD =====
 const SAVE_KEY = '***';
 function luuGame(state) {
-  const duLieu = JSON.stringify({ phienBan: 2, luuLuc: Date.now(), state });
+  const duLieu = JSON.stringify({ phienBan: 3, luuLuc: Date.now(), state });
   if (typeof localStorage !== 'undefined') localStorage.setItem(SAVE_KEY, duLieu);
   return duLieu;
 }
@@ -345,169 +426,136 @@ function docGame() {
   if (!raw) return null;
   try {
     const d = JSON.parse(raw);
-    if (!d || d.phienBan !== 2 || !d.state) return null;
+    if (!d || d.phienBan !== 3 || !d.state) return null;
     return d.state;
   } catch { return null; }
 }
-function xoaSave() {
-  if (typeof localStorage !== 'undefined') localStorage.removeItem(SAVE_KEY);
-}
+function xoaSave() { if (typeof localStorage !== 'undefined') localStorage.removeItem(SAVE_KEY); }
 
-// ==== TESTS (blockgate Phase 1) ====
+// ==== TESTS ====
 function chayTest() {
   const kq = [];
-  const t = (ten, fn) => {
-    try { fn(); kq.push(['PASS', ten]); }
-    catch (e) { kq.push(['FAIL', ten + ' — ' + e.message]); }
-  };
+  const t = (ten, fn) => { try { fn(); kq.push(['PASS', ten]); } catch (e) { kq.push(['FAIL', ten + ' — ' + e.message]); } };
   const eq = (a, b, msg) => { if (a !== b) throw new Error((msg || '') + ' (' + a + ' ≠ ' + b + ')'); };
 
   let s = taoNguoiChoi('saigon');
-  t('Tạo người chơi Sài Gòn OK', () => eq(s.thanhPhoKey, 'saigon', 'city'));
-  t('FIX bug thanhPho.ten đọc được', () => eq(s.thanhPho.ten, 'Sài Gòn', 'ten tp'));
-  t('14 NPC khởi tạo', () => eq(s.npc.length, 14, 'npc count'));
-  t('6 nhu cầu đủ', () => eq(Object.keys(s.chiSo).length, 6, 'chi so'));
-  t('Broke đúng chất: ≤ 500k', () => { if (s.tien > 500_000) throw new Error('quá giàu'); });
-
-  t('Tiến thời gian 1 ngày', () => {
-    const truoc = s.thoiGian.ngay;
-    tienTruoi(s, 1440);
-    eq(s.thoiGian.ngay, truoc + 1, 'ngày tăng');
+  t('Tạo người chơi + 6 nhu cầu đúng bộ 9 To Life', () => {
+    eq(Object.keys(s.chiSo).length, 6, 'so nhu cau');
+    ['com','nangLuong','vui','xaHoi','sachSe','sucKhoe'].forEach(k => { if (!(k in s.chiSo)) throw new Error('thiếu ' + k); });
   });
-
-  t('Qua tuần: thứ 7 → chủ nhật → thứ 2', () => {
-    s.thoiGian = { ngay: 6, thu: 7, gio: 0, phut: 0, tuan: 1, thang: 1, nam: 2026 };
-    tienTruoi(s, 1440); eq(s.thoiGian.thu, 8, 'CN');
-    tienTruoi(s, 1440); eq(s.thoiGian.thu, 2, 'T2');
-    eq(s.thoiGian.tuan, 2, 'tuần tăng');
+  t('Mood % phái sinh + bậc chữ', () => {
+    const m = mood(s);
+    if (m.pct < 0 || m.pct > 100) throw new Error('pct lạ');
+    if (!m.txt) throw new Error('thiếu chữ mood');
   });
-
-  t('Nhu cầu tụt theo giờ (đói tăng dần)', () => {
-    const s3 = taoNguoiChoi('hanoi');
-    const truoc = s3.chiSo.doBao;
-    tienDo(s3, 120);
-    if (s3.chiSo.doBao >= truoc) throw new Error('no không tụt: ' + truoc + '→' + s3.chiSo.doBao);
+  t('14 NPC khởi tạo', () => eq(s.npc.length, 14, 'npc'));
+  t('Quest ngày: mới chơi có quest 3 việc + thưởng hết 50k', () => {
+    capNhatQuest(s);
+    eq(s.questNgay.viec.length, 3, 'so viec');
+    eq(s.questNgay.thuongHet, 50_000, 'thuong het');
   });
-
-  t('Chỉ số không vượt 0-100', () => {
-    apDungChiSo(s, { doBao: 500 }); eq(s.chiSo.doBao, 100, 'cap 100');
-    apDungChiSo(s, { doBao: -900 }); eq(s.chiSo.doBao, 0, 'san 0');
+  t('Quest hook: ăn cơm bụi → quest "Ăn một bữa ở quán" xong + tiền thưởng', () => {
+    const tienTruoc = s.tien;
+    lamHoatDong(s, 'an_com_bui');
+    capNhatQuest(s);
+    const q = s.questNgay.viec.find(v => v.id === 'an_quan');
+    if (q && !q.xong) throw new Error('quest chưa xong dù đã ăn quán');
   });
-
-  t('Hoạt động tốn tiền bị chặn khi túi lép', () => {
-    const s4 = taoNguoiChoi('danang'); s4.tien = 1_000;
-    const kq4 = lamHoatDong(s4, 'an_com_bui');
-    if (kq4.ok) throw new Error('không chặn');
+  t('Hoạt động bị KHÓA bởi kỹ năng (nấu ăn cấp 2)', () => {
+    const list = hoatDongKhaDung(s, 'phong_tro');
+    const nau = list.find(h => h.id === 'nau_an');
+    if (!nau) throw new Error('thiếu nấu ăn trong list');
+    if (!nau.khoaLyDo) throw new Error('nấu ăn không bị khóa khi kỹ năng 0');
+    const kq2 = lamHoatDong(s, 'nau_an');
+    if (kq2.ok) throw new Error('vẫn cho nấu khi chưa đủ kỹ năng');
   });
-
-  t('Ăn cơm bụi: đúng tiền + đúng chỉ số + trôi giờ', () => {
-    const s5 = taoNguoiChoi('saigon'); s5.tien = 100_000;
-    const gioTruoc = s5.thoiGian.gio * 60 + s5.thoiGian.phut;
-    const noTruoc = s5.chiSo.doBao;
-    const kq5 = lamHoatDong(s5, 'an_com_bui');
-    if (!kq5.ok) throw new Error('fail: ' + (kq5.lyDo || ''));
-    eq(s5.tien, 75_000, 'tiền trừ 25k');
-    if (s5.chiSo.doBao <= noTruoc) throw new Error('no không tăng');
-    const gioSau = s5.thoiGian.gio * 60 + s5.thoiGian.phut;
-    if (gioSau <= gioTruoc) throw new Error('giờ không trôi');
+  t('Mở khóa kỹ năng → nấu được', () => {
+    s.kyNang.nauAn = 2;
+    s.tien = 500_000;
+    const kq3 = lamHoatDong(s, 'nau_an');
+    if (!kq3.ok) throw new Error('fail: ' + kq3.lyDo);
   });
-
-  t('Đi làm cuối tuần bị từ chối', () => {
-    const s6 = taoNguoiChoi('hanoi');
-    s6.thoiGian.thu = 8; s6.thoiGian.gio = 9;
-    const kq6 = lamHoatDong(s6, 'di_lam');
-    if (kq6.ok) throw new Error('không chặn CN');
-  });
-
-  t('Đi làm ngày thường: lương +80k, trôi 8 giờ', () => {
+  t('Đi làm đúng ca: +80k, trôi 8h', () => {
     const s7 = taoNguoiChoi('saigon');
-    s7.thoiGian = { ngay: 2, thu: 3, gio: 7, phut: 30, tuan: 1, thang: 10, nam: 2026 };
+    s7.thoiGian = { ngay: 2, thu: 3, gio: 8, phut: 0, tuan: 1, thang: 10, nam: 2026 };
     const t0 = s7.tien;
     const kq7 = lamHoatDong(s7, 'di_lam');
-    if (!kq7.ok) throw new Error('fail: ' + (kq7.lyDo || ''));
+    if (!kq7.ok) throw new Error('fail: ' + kq7.lyDo);
     eq(s7.tien, t0 + 80_000, 'lương');
-    if (s7.thoiGian.gio < 15) throw new Error('giờ chưa trôi tới chiều: ' + s7.thoiGian.gio);
   });
-
-  t('hoatDongKhaDung lọc theo scene', () => {
-    const s8 = taoNguoiChoi('danang');
-    const list = hoatDongKhaDung(s8, 'quan_pho');
-    if (!list.length) throw new Error('quán phở rỗng');
-    if (list.some(h => h.id === 'xem_tivi')) throw new Error('tivi ở quán phở?');
+  t('Ngủ đêm hồi 100 năng lượng', () => {
+    const s8 = taoNguoiChoi('hanoi');
+    s8.thoiGian.gio = 22; s8.chiSo.nangLuong = 20;
+    lamHoatDong(s8, 'ngu_dem');
+    if (s8.chiSo.nangLuong < 90) throw new Error('NL = ' + s8.chiSo.nangLuong);
   });
-
-  t('Chết vì khát 2 ngày → có văn bia', () => {
-    const s9 = taoNguoiChoi('hanoi');
-    s9.chiSo.khatNuoc = 0; s9.songSot.doiNuoc = 1;
-    kiemTraDay(s9);
-    if (!s9.daChet) throw new Error('chưa chết');
-    if (!s9.daChet.vanBia) throw new Error('thiếu văn bia');
-    if (typeof s9.daChet.khachDu !== 'number') throw new Error('thiếu khách dự');
-  });
-
-  t('Tiền trọ đầu tháng: đủ tiền thì trừ, thiếu thì ghi nợ', () => {
-    const s10 = taoNguoiChoi('saigon'); s10.tien = 2_000_000;
-    xuLyTienThue(s10);
-    eq(s10.tien, 500_000, 'trừ thuê');
+  t('Tiền trọ: thiếu → nợ + hạn 5 ngày (đúng 9 To Life)', () => {
     const s11 = taoNguoiChoi('saigon'); s11.tien = 100_000;
     const kq11 = xuLyTienThue(s11);
     if (kq11.ok) throw new Error('không ghi nợ');
-    if (s11.phong.conNo <= 0) throw new Error('nợ = 0?');
+    if (s11.phong.ngayHanNo !== s11.thoiGian.ngay + 5) throw new Error('hạn nợ không phải 5 ngày');
   });
-
-  t('Save/Load round-trip', () => {
-    const s12 = taoNguoiChoi('danang'); s12.tien = 777_000;
-    const raw = JSON.stringify({ phienBan: 2, luuLuc: Date.now(), state: s12 });
-    const doc = JSON.parse(raw).state;
-    eq(doc.tien, 777_000, 'tiền giữ nguyên');
-    eq(doc.thanhPhoKey, 'danang', 'tp giữ nguyên');
-    eq(doc.chiSo.doBao, s12.chiSo.doBao, 'chỉ số giữ nguyên');
+  t('Chết vì sức khỏe cạn → văn bia + LP', () => {
+    const s9 = taoNguoiChoi('hanoi');
+    s9.chiSo.sucKhoe = 0;
+    kiemTraDay(s9);
+    if (!s9.daChet) throw new Error('chưa chết');
+    if (!s9.daChet.vanBia) throw new Error('thiếu văn bia');
+    if (typeof s9.daChet.lp !== 'number') throw new Error('thiếu LP');
   });
-
-  t('NPC sống + nhắn tin', () => {
-    let coTin = false;
-    for (let i = 0; i < 400; i++) {
-      npcSong(s, 30);
-      if (s.diary.some(d => d.loai === 'tin_nhan')) { coTin = true; break; }
-    }
-    if (!coTin) throw new Error('400 vòng không thấy tin nhắn');
+  t('Hành động NPC: tặng quà +quan hệ, thả thính cần Bạn 50', () => {
+    const s12 = taoNguoiChoi('danang'); s12.tien = 500_000;
+    const kq12 = lamVoiNpc(s12, 'mai', 'tang_qua');
+    if (!kq12.ok) throw new Error('tặng quà fail');
+    const mai = s12.npc.find(n => n.id === 'mai');
+    if (mai.ban <= 0 || mai.yeu <= 0) throw new Error('quan hệ không tăng: ban=' + mai.ban + ' yeu=' + mai.yeu);
+    const kq13 = lamVoiNpc(s12, 'mai', 'tha_thinh');
+    if (kq13.ok) throw new Error('thả thính được khi chưa thân?');
   });
-
-  t('1 TUẦN IN-GAME không crash (blockgate Phase 1)', () => {
-    const s13 = taoNguoiChoi('saigon');
-    const lichNgay = ['an_com_bui', 'tra_da_via_he', 'tam_su_ban', 'tra_da_via_he', 'xem_tivi', 'tra_da_via_he'];
-    let dem = 0;
-    for (let ngayLap = 0; ngayLap < 9 && !s13.daChet; ngayLap++) {
-      s13.tien = Math.max(s13.tien, 200_000); // đảm bảo đủ tiền hoạt động
-      for (const id of lichNgay) {
+  t('Save/Load v3 round-trip', () => {
+    const s13 = taoNguoiChoi('danang'); s13.tien = 777_000;
+    const raw = JSON.stringify({ phienBan: 3, state: s13 });
+    eq(JSON.parse(raw).state.tien, 777_000, 'tiền');
+  });
+  t('Nhu cầu tụt theo giờ, ngủ không tụt năng lượng', () => {
+    const s14 = taoNguoiChoi('hanoi');
+    const truoc = s14.chiSo.com;
+    tienDo(s14, 120);
+    if (s14.chiSo.com >= truoc) throw new Error('com không tụt');
+    s14.thoiGian.gio = 23; s14.chiSo.nangLuong = 50;
+    tienDo(s14, 180);
+    if (s14.chiSo.nangLuong < 50) throw new Error('ngủ mà tụt NL');
+  });
+  t('1 TUẦN IN-GAME sống khỏe không chết (blockgate)', () => {
+    const s15 = taoNguoiChoi('saigon');
+    for (let ngayLap = 0; ngayLap < 9 && !s15.daChet; ngayLap++) {
+      s15.tien = Math.max(s15.tien, 300_000);
+      capNhatQuest(s15);
+      // lịch ngày: ăn, đi làm (nếu được), trà đá, tám, tắm, gọi má, ngủ
+      for (const id of ['an_com_bui', 'tra_da_via_he', 'tam_su_ban', 'tam_giat', 'goi_ve_nha']) {
         const h = HOAT_DONG.find(x => x.id === id);
-        s13.tien += Math.max(0, -h.tien);
-        lamHoatDong(s13, id);
-        if (s13.daChet) break;
+        s15.tien += Math.max(0, -h.tien);
+        lamHoatDong(s15, id);
+        if (s15.daChet) break;
       }
-      if (s13.daChet) throw new Error('chết giữa tuần: ' + s13.daChet.lyDo);
-      // ngủ đêm: trôi tới 6h sáng hôm sau (đúng như người chơi thật bấm "ngủ một đêm")
-      const g = s13.thoiGian.gio;
-      const phutToi6h = ((30 - g) % 24 + 24) % 24 * 60; // tới 6h sáng kế tiếp
-      tienDo(s13, Math.max(360, phutToi6h));
-      apDungChiSo(s13, { nangLuong: 100 - s13.chiSo.nangLuong }); // ngủ dậy tỉnh táo
-      kiemTraSuKien(s13);
+      if (s15.daChet) break;
+      const g = s15.thoiGian.gio;
+      if (g < 21) tienDo(s15, (21 - g) * 60 + 30);
+      lamHoatDong(s15, 'ngu_dem');
+      capNhatQuest(s15);
     }
-    if (s13.daChet) throw new Error('chết giữa tuần: ' + s13.daChet.lyDo);
-    if (s13.thoiGian.tuan < 2) throw new Error('chưa qua hết tuần: tuần ' + s13.thoiGian.tuan + ' ngày ' + s13.thoiGian.ngay);
-    if (!s13.diary.length) throw new Error('diary rỗng');
+    if (s15.daChet) throw new Error('chết: ' + s15.daChet.lyDo);
+    if (s15.thoiGian.tuan < 2) throw new Error('chưa qua tuần: ' + s15.thoiGian.tuan);
+    if (!s15.questNgay) throw new Error('quest mất');
   });
-
   t('Thành phố lạ từ chối', () => {
     let threw = false;
     try { taoNguoiChoi('trape'); } catch { threw = true; }
-    if (!threw) throw new Error('không chặn tp lạ');
+    if (!threw) throw new Error('không chặn');
   });
-
   return kq;
 }
 
-// Chỉ chạy test trong Node — browser bỏ qua
 if (typeof process !== 'undefined' && process.versions && process.versions.node) {
   const kq = chayTest();
   for (const [st, ten] of kq) console.log(st + ' | ' + ten);

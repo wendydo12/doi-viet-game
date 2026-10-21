@@ -6,141 +6,253 @@
 <title>Cơm Bụi &amp; Deadline — life-sim 100% Việt</title>
 <style>
   :root {
-    --vang-nge: #E8C46A; --teal-co: #47857D; --nau-go: #6D4A2E;
-    --do-do: #C0392B; --kem-nga: #E8D5B0; --dem: #13111E;
-    --trang-nghe: #FFF6E0; --panel: #241B3A;
+    --navy: #1D2440; --navy2: #2A3157; --vien: #5B6CB5; --kem: #F2F2F2;
+    --vang: #E9C04B; --cam: #E67E22; --hong: #EF6FA7; --xanhla: #6FE06A;
+    --do: #D64541; --teal: #3FA88C; --nen: #141A30;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { height:100%; }
-  body { background: var(--dem); color: var(--trang-nghe); font-family: 'Courier New', monospace;
-    display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden; padding:6px 0 14px; }
-  #tieu-de { font-size:13px; letter-spacing:1px; color:var(--vang-nge); padding:4px 0 2px; text-shadow:1px 1px 0 var(--do-do); }
-  #tieu-de small { color:var(--kem-nga); text-shadow:none; }
-  #khung-chinh { display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; justify-content:center; width:100%; max-width:1180px; padding:0 8px; }
-  #cot-trai { display:flex; flex-direction:column; gap:6px; }
-  #man-choi { image-rendering: pixelated; border: 4px solid var(--nau-go);
-    background: #13111E; touch-action: none; display:block;
-    width: min(92vw, 640px); height: auto; aspect-ratio: 4 / 3;
-    box-shadow: 0 0 0 2px #0d0a14, 0 18px 40px rgba(0,0,0,.55); }
-  #hud { width: min(92vw, 640px); background: var(--nau-go); padding: 6px 10px;
-    display:flex; justify-content:space-between; font-size: 13px; flex-wrap: wrap; gap:4px; border:2px solid #0d0a14; }
-  #hud .tien { color: var(--vang-nge); font-weight:bold; }
-  #canh-hien { width: min(92vw, 640px); background: var(--panel); padding:4px 10px; font-size:12px; color:var(--kem-nga); border:2px solid #0d0a14; border-top:none; }
-  #cot-phai { width: min(94vw, 420px); display:flex; flex-direction:column; gap:6px; }
-  .panel { background: var(--panel); border:2px solid #0d0a14; padding:8px 10px; }
-  .panel h3 { font-size:12px; color:var(--vang-nge); letter-spacing:1px; margin-bottom:6px; }
-  /* 6 thanh nhu cầu */
-  #nhu-cau { display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; }
-  .nc { font-size:11px; }
-  .nc .ten { display:flex; justify-content:space-between; color:var(--kem-nga); }
-  .nc .thanh { height:10px; background:#0d0a14; border:1px solid #3A2F52; margin-top:2px; position:relative; }
-  .nc .day { height:100%; transition: width .3s; }
-  .nc.thap .ten { color:#E2585E; }
-  /* menu hoạt động */
-  #hoat-dong { display:flex; flex-direction:column; gap:4px; max-height:230px; overflow-y:auto; }
-  .hd { background:#322848; border:1px solid #4A3D66; color:var(--trang-nghe); padding:6px 8px;
-    font-family:inherit; font-size:12px; text-align:left; cursor:pointer; display:flex; justify-content:space-between; gap:6px; }
-  .hd:hover { background:#3E3358; }
-  .hd:active { background:var(--vang-nge); color:#13111E; }
-  .hd .phi { color:var(--vang-nge); white-space:nowrap; }
-  .hd .mui { font-size:10px; }
-  .hd:disabled { opacity:.4; cursor:not-allowed; }
-  /* nút hệ thống */
-  #he-thong { display:flex; gap:6px; flex-wrap:wrap; }
-  .btn { background: var(--teal-co); color:var(--trang-nghe); border:2px solid #0d2b28;
-    padding:7px 12px; font-family:inherit; font-size:12px; cursor:pointer; }
-  .btn:active { background: var(--vang-nge); color:#13111E; }
+  body { background: var(--nen); color: var(--kem); font-family: 'Courier New', monospace;
+    display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+  body::before { content:''; position:fixed; inset:0; pointer-events:none; opacity:.25;
+    background-image: radial-gradient(circle, #2A3157 1px, transparent 1px); background-size: 22px 22px; }
+  #app { width:100%; max-width:1080px; display:grid; gap:8px; padding:8px;
+    grid-template-columns: 1fr; position:relative; z-index:1; }
+  @media (min-width: 860px) { #app { grid-template-columns: 56% 44%; } }
+
+  /* ===== HUD trên cùng (full width, như 9 To Life) ===== */
+  #hud { grid-column: 1 / -1; background: var(--navy); border: 2px solid var(--vien);
+    display:flex; justify-content:space-between; align-items:center; padding:6px 12px; font-size:13px; gap:8px; flex-wrap:wrap; }
+  #hud .trai b { color: var(--vang); font-size:15px; }
+  #hud .trai span { color:#9AA5C9; font-size:11px; }
+  #hud .giua { color: var(--kem); white-space:nowrap; }
+  #hud .giua .kimcuong { color: var(--vang); }
+  #hud .phai { color: var(--vang); font-weight:bold; white-space:nowrap; }
+
+  /* ===== Cột trái: canvas + panel idle ===== */
+  #col-trai { display:flex; flex-direction:column; gap:8px; min-width:0; }
+  #man-choi { image-rendering: pixelated; width:100%; height:auto; aspect-ratio:4/3;
+    border:2px solid var(--vien); background:#13111E; touch-action:none; display:block; }
+  #canh-hien { background: var(--navy); border:2px solid var(--vien); padding:4px 10px; font-size:12px; color:#9AA5C9; }
+
+  /* Panel "Đang ở..." + 6 thanh nhu cầu + mood box — khung viền vàng như 9 To Life */
+  #panel-idle { background: var(--navy); border:2px solid var(--vang); padding:8px 10px; }
+  #panel-idle h3 { color: var(--vang); font-size:12px; letter-spacing:1px; margin-bottom:6px; }
+  #idle-grid { display:grid; grid-template-columns: 1fr 1fr auto; gap:5px 12px; align-items:center; }
+  .bar { font-size:11px; }
+  .bar .ten { display:flex; justify-content:space-between; color:#C9D2F0; }
+  .bar .ong { height:10px; background:#10152A; border:1px solid var(--vien); margin-top:2px; }
+  .bar .day { height:100%; transition: width .3s; background: var(--xanhla); }
+  .bar .day.vang { background: var(--vang); } .bar .day.do { background: var(--do); }
+  .bar .ten .tt { color:#9AA5C9; }
+  #mood-box { grid-row: 1 / span 6; background:#10152A; border:2px solid var(--vien);
+    padding:6px; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:78px; }
+  #mood-box img { width:44px; height:44px; image-rendering:pixelated; background:var(--navy2); border:1px solid var(--vien); }
+  #mood-pct { font-weight:bold; font-size:15px; color: var(--xanhla); }
+  #mood-txt { font-size:10px; letter-spacing:1px; color:#C9D2F0; }
+  #shift-note { background: var(--navy); border:2px solid var(--vien); padding:4px 10px; font-size:11px; color:#9AA5C9; }
+  #shift-note b { color: var(--vang); }
+
+  /* ===== Cột phải: tabs + today + dream + action list ===== */
+  #col-phai { display:flex; flex-direction:column; gap:8px; min-width:0; }
+  #tabs { display:flex; gap:4px; }
+  .tab { flex:1; background: var(--navy2); border:2px solid var(--vien); color:#9AA5C9;
+    font-family:inherit; font-size:11px; padding:7px 2px; cursor:pointer; text-align:center; line-height:1.2; }
+  .tab .ico { display:block; font-size:14px; }
+  .tab.on { background: var(--vien); color:#fff; }
+  .panel { background: var(--navy); border:2px solid var(--vien); padding:8px 10px; }
+  /* today box */
+  #today { background:#EDE4C8; border:2px solid var(--vien); padding:8px 10px; color:#2A2440; }
+  #today .hd { display:flex; justify-content:space-between; font-size:12px; }
+  #today .hd b { color: var(--do); }
+  #today .hd span { color:#6A5B3A; }
+  #today ul { list-style:none; margin-top:5px; }
+  #today li { font-size:12px; padding:2px 0; display:flex; justify-content:space-between; }
+  #today li .tick { color:#8A8A7A; }
+  #today li.done { text-decoration: line-through; color:#7A8A6A; }
+  #today li.done .tick { color: var(--teal); }
+  #today li .thuong { color:#2E7D32; font-weight:bold; }
+  /* dream bar */
+  #dream { background: var(--navy2); border:2px solid var(--vien); padding:6px 10px; font-size:12px;
+    display:flex; justify-content:space-between; align-items:center; }
+  #dream .sao { color: var(--vang); }
+  #dream .pips { display:flex; gap:3px; }
+  #dream .pip { width:12px; height:12px; border:1px solid var(--vien); background:#10152A; }
+  #dream .pip.on { background: var(--vang); }
+  #dream .lp { color: var(--vang); font-weight:bold; }
+  /* location header */
+  #loc-hd { font-size:12px; color:#9AA5C9; letter-spacing:1px; padding:0 2px; }
+  /* action list */
+  #actions { display:flex; flex-direction:column; gap:4px; max-height:46vh; overflow-y:auto; }
+  .act { background: linear-gradient(#3A4368, #2A3157); border:2px solid #10152A;
+    border-left:4px solid var(--vang); color:var(--kem); font-family:inherit; font-size:12px;
+    padding:7px 9px; cursor:pointer; display:flex; justify-content:space-between; gap:6px; align-items:center; text-align:left; }
+  .act:hover { background: linear-gradient(#454E78, #333B63); }
+  .act .ten { flex:1; }
+  .act .mui { font-size:10px; color:#9AA5C9; display:block; margin-top:1px; }
+  .act .chips { display:flex; gap:4px; white-space:nowrap; }
+  .act .chip { border:1px solid #6A75A8; background:#1A2040; padding:1px 6px; font-size:11px; color:var(--vang); }
+  .act .chip.gio { color:#8FD4C8; }
+  .act.locked { opacity:.45; cursor:not-allowed; border-left-color:#888; }
+  .act.locked .canhkhoa { display:block; font-size:10px; color:var(--do); margin-top:1px; }
+  /* NPC list (tab NGƯỜI) */
+  #npc-list { display:flex; flex-direction:column; gap:5px; max-height:46vh; overflow-y:auto; }
+  .npc { background: var(--navy2); border:2px solid #10152A; padding:6px 8px; display:flex; gap:8px; align-items:center; cursor:pointer; }
+  .npc:hover { border-color: var(--vien); }
+  .npc img { width:40px; height:40px; image-rendering:pixelated; background:#10152A; border:1px solid var(--vien); }
+  .npc .info { flex:1; font-size:11px; }
+  .npc .info b { color:var(--vang); font-size:12px; }
+  .npc .rels { display:flex; gap:6px; margin-top:2px; }
+  .npc .rel { color:#9AA5C9; }
+  /* NPC detail */
+  #npc-chi-tiet { display:none; }
+  .hd-npc { background: linear-gradient(#3A4368, #2A3157); border:2px solid #10152A; color:var(--kem);
+    font-family:inherit; font-size:12px; padding:7px 9px; cursor:pointer; text-align:left; width:100%; margin-top:4px; }
+  .hd-npc:hover { background:#454E78; }
   /* hộp thoại */
-  #hop-thoai { width:100%; background: var(--trang-nghe); color:#13111E;
-    padding:10px 14px; font-size:13px; min-height:52px; border:2px solid #0d0a14; display:none; }
-  #hop-thoai .nguoi { color: var(--do-do); font-weight: bold; }
-  #hop-thoai .nut { margin-top:6px; background: var(--vang-nge); padding:4px 12px;
-    display:inline-block; cursor:pointer; border:2px solid #13111E; font-size:12px; }
-  /* menu chính */
-  #menu { position:fixed; inset:0; background:rgba(19,17,30,.97); display:flex;
-    flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:10; padding:20px; }
-  #menu h1 { color: var(--vang-nge); font-size: clamp(22px, 5vw, 34px); text-shadow: 3px 3px 0 var(--do-do); text-align:center; }
-  #menu .tagline { color: var(--kem-nga); font-style: italic; font-size: 13px; text-align:center; }
-  #menu p { color: var(--kem-nga); font-size: 13px; max-width: 520px; text-align:center; }
-  .city-btn { width: 300px; padding: 13px; font-size: 15px; }
-  #menu .tiep-tuc { border-color: var(--vang-nge); }
-  /* màn văn bia */
-  #van-bia { position:fixed; inset:0; background:#0B0916; display:none; z-index:20;
-    flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:24px; text-align:center; }
+  #hop-thoai { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(92vw,560px);
+    background:#27408B; border:3px solid #fff; box-shadow: 0 0 0 3px #10152A, 0 12px 32px rgba(0,0,0,.6);
+    padding:12px 14px; font-size:13px; display:none; z-index:50; }
+  #hop-thoai .nguoi { color: var(--vang); font-weight:bold; text-decoration:underline; }
+  #hop-thoai .nut { margin-top:8px; background: linear-gradient(#4A5580,#343E66); border:2px solid #10152A;
+    padding:5px 16px; display:inline-block; cursor:pointer; font-size:12px; color:#fff; }
+  #hop-thoai img.pt { width:56px; height:56px; image-rendering:pixelated; float:left; margin-right:10px;
+    background:#10152A; border:2px solid #9AA5C9; }
+  /* menu chọn thành phố */
+  #menu { position:fixed; inset:0; background:rgba(15,18,38,.98); display:flex; z-index:60; overflow:auto; }
+  #menu .bg { position:absolute; inset:0; }
+  #menu .noi { position:relative; margin:auto; display:flex; flex-direction:column; gap:12px; padding:24px; width:min(94vw,480px); }
+  #menu h1 { color: var(--cam); font-size:clamp(26px,6vw,40px); text-shadow: 3px 3px 0 #7A2E10; text-align:center; letter-spacing:2px; }
+  #menu .tagline { color: var(--hong); font-style:italic; font-size:13px; text-align:center; }
+  #menu .panel-tao { background: var(--navy); border:2px solid var(--vien); padding:14px; }
+  #menu .panel-tao h2 { color: var(--vang); font-size:14px; margin-bottom:10px; text-align:center; }
+  .row-tao { display:flex; align-items:center; gap:6px; margin-bottom:8px; font-size:13px; }
+  .row-tao label { width:92px; color:#9AA5C9; }
+  .row-tao .nut-mui { background: var(--navy2); border:2px solid var(--vien); color:#fff; width:34px; height:32px; cursor:pointer; font-family:inherit; }
+  .row-tao .gia-tri { flex:1; background: linear-gradient(#3A4368,#2A3157); border:2px solid var(--vien); padding:6px; text-align:center; }
+  #menu .mo-ta { font-size:11px; color:#C9D2F0; margin:-4px 0 8px 92px; }
+  #menu .start { background: linear-gradient(#5BC95B,#2E9B3E); border:3px solid #145A22; color:#fff;
+    font-family:inherit; font-size:17px; padding:12px; cursor:pointer; letter-spacing:2px; width:100%; }
+  #menu .load-save { background: linear-gradient(#4A5068,#343A50); border:2px solid #10152A; color:#C9D2F0;
+    font-family:inherit; font-size:12px; padding:8px; cursor:pointer; width:100%; }
+  #menu .ver { color:#5A6080; font-size:10px; text-align:center; }
+  /* văn bia */
+  #van-bia { position:fixed; inset:0; background:#0B0916; display:none; z-index:70;
+    flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:24px; text-align:center; overflow:auto; }
   #van-bia .mo { font-size:11px; letter-spacing:2px; color:#E2585E; }
-  #van-bia h2 { color:var(--vang-nge); font-size:26px; letter-spacing:2px; }
-  #van-bia .nghe { color:var(--cam, #E67E22); font-size:13px; }
-  #van-bia .bia { background:#2A2A38; border:3px solid #4A4A5A; padding:18px 24px; max-width:420px;
+  #van-bia h2 { color:var(--vang); font-size:28px; letter-spacing:2px; }
+  #van-bia .nghe { color:var(--cam); font-size:13px; }
+  #van-bia .bia { background:#2A2A38; border:3px solid #4A4A5A; padding:18px 24px; max-width:430px;
     color:#D8D8E0; font-size:13px; line-height:1.7; }
-  #van-bia .bia .rip { font-size:20px; letter-spacing:4px; display:block; margin-bottom:8px; color:#8A8A9A; }
+  #van-bia .rip { font-size:20px; letter-spacing:4px; display:block; margin-bottom:8px; color:#8A8A9A; }
   #van-bia .trich { color:#E8A0A6; font-style:italic; }
   #van-bia .khach { color:#8FDcd4; font-size:12px; }
-  #van-bia .nut { margin-top:8px; }
-  #chu-y { width:100%; max-width:1180px; text-align:center; color:#5A5070; font-size:11px; padding-top:8px; }
+  .btn { background: var(--teal); color:#fff; border:2px solid #0d2b28; padding:8px 14px; font-family:inherit; font-size:13px; cursor:pointer; }
+  #footer { grid-column:1/-1; display:flex; justify-content:space-between; color:#4A5070; font-size:10px; padding:2px 4px; }
 </style>
 </head>
 <body>
+  <!-- MENU TẠO NHÂN VẬT (đúng cấu trúc "Create your sim" của 9 To Life) -->
   <div id="menu">
-    <h1>🍜 CƠM BỤI &amp; DEADLINE 🍜</h1>
-    <div class="tagline">"Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời mà."</div>
-    <p>Life-sim pixel 100% Việt. Bạn 23 tuổi, vừa lên thành phố, túi 150 ngàn, một vali cũ — chọn nơi bắt đầu đời mình:</p>
-    <button class="btn city-btn" onclick="batDau('saigon')">🌅 Sài Gòn — hẻm &amp; mưa ngập</button>
-    <button class="btn city-btn" onclick="batDau('hanoi')">🍂 Hà Nội — phố cổ &amp; gió mùa</button>
-    <button class="btn city-btn" onclick="batDau('danang')">🌊 Đà Nẵng — biển &amp; gió Lào</button>
-    <button class="btn city-btn tiep-tuc" id="btn-tiep-tuc" style="display:none" onclick="tiepTuc()">📂 Chơi tiếp (tải bản lưu)</button>
-  </div>
-
-  <div id="tieu-de">CƠM BỤI &amp; DEADLINE <small>— life-sim Việt</small></div>
-
-  <div id="khung-chinh">
-    <div id="cot-trai">
-      <div id="hud">
-        <span id="hud-tg">—</span>
-        <span id="hud-tien" class="tien">—</span>
-        <span id="hud-nghe">—</span>
+    <canvas class="bg" id="menu-bg" width="480" height="900" style="width:100%;height:100%;position:absolute;inset:0;image-rendering:pixelated;"></canvas>
+    <div class="noi">
+      <h1>CƠM BỤI &amp; DEADLINE</h1>
+      <div class="tagline">một life-sim 8bit nho nhỏ kiểu Việt</div>
+      <div class="panel-tao">
+        <h2>Tạo nhân vật của bạn</h2>
+        <div class="row-tao"><label>Tên</label><div class="gia-tri" id="tao-ten" style="cursor:pointer" onclick="doiTen()">Nhân</div></div>
+        <div class="row-tao"><label>Thành phố</label>
+          <button class="nut-mui" onclick="chinhTp(-1)">◄</button><div class="gia-tri" id="tao-tp">Sài Gòn</div><button class="nut-mui" onclick="chinhTp(1)">►</button></div>
+        <div class="mo-ta" id="tao-tp-mo-ta">Hẻm sâu, mưa ngập, cơm tấm sáng — thành phố không ngủ.</div>
+        <div class="row-tao"><label>Xuất phát</label>
+          <button class="nut-mui" onclick="chinhNghe(-1)">◄</button><div class="gia-tri" id="tao-nghe">Dân văn phòng</div><button class="nut-mui" onclick="chinhNghe(1)">►</button></div>
+        <div class="mo-ta" id="tao-nghe-mo-ta">Thực tập sinh với 200 ngàn, phòng trọ 12m² và nhiều hoài bão.</div>
+        <div class="row-tao"><label>Giấc mơ</label>
+          <button class="nut-mui" onclick="chinhDream(-1)">◄</button><div class="gia-tri" id="tao-dream">Nhà Mặt Phố</div><button class="nut-mui" onclick="chinhDream(1)">►</button></div>
+        <div class="mo-ta" id="tao-dream-mo-ta" style="color:var(--vang)">Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.</div>
+        <button class="start" onclick="batDauTuMenu()">BẮT ĐẦU CUỘC ĐỜI</button>
+        <button class="load-save" id="btn-tiep-tuc" style="display:none;margin-top:8px" onclick="tiepTuc()">📂 Chơi tiếp (tải bản lưu)</button>
       </div>
-      <canvas id="man-choi" width="320" height="240"></canvas>
-      <div id="canh-hien">—</div>
-      <div id="hop-thoai"></div>
-    </div>
-
-    <div id="cot-phai">
-      <div class="panel">
-        <h3>💗 NHU CẦU</h3>
-        <div id="nhu-cau"></div>
-        <div id="mood-box" style="margin-top:8px; padding:6px 8px; background:#1A1428; border:2px solid #3A2F52; display:flex; align-items:center; gap:8px;">
-          <img id="mood-face" src="assets/meowa-r1/char_07.png" style="width:40px;height:40px;image-rendering:pixelated;border:1px solid #6D4A2E;background:#241B3A;">
-          <div><span id="mood-pct" style="color:#6FE06A; font-weight:bold;">—</span> <span id="mood-txt" style="color:var(--kem-nga); font-size:12px;"></span><br><span id="mood-note" style="color:#8A80A0; font-size:10px;"></span></div>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>📋 LÀM GÌ BÂY GIỜ?</h3>
-        <div id="hoat-dong"></div>
-      </div>
-      <div class="panel">
-        <h3>🗺️ DI CHUYỂN</h3>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
-          <button class="btn" onclick="diChuyenNhanh('phong_tro')">🏠 Phòng trọ</button>
-          <button class="btn" onclick="diChuyenNhanh('pho_dem')">🏮 Phố</button>
-          <button class="btn" onclick="diChuyenNhanh('quan_pho')">🍜 Quán phở</button>
-          <button class="btn" onclick="diChuyenNhanh('van_phong')">🏢 Văn phòng</button>
-        </div>
-      </div>
-      <div id="he-thong-2" style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="btn" onclick="moNhatKy()">📖 Nhật ký</button>
-        <button class="btn" onclick="luuVaBao()">💾 Lưu game</button>
-        <button class="btn" onclick="hoiLaiChoi()">🔄 Chơi lại</button>
-      </div>
-      <div class="panel" id="panel-nhat-ky" style="display:none">
-        <h3>📖 NHẬT KÝ GẦN ĐÂY</h3>
-        <div id="nhat-ky-list" style="font-size:11px; line-height:1.6; color:var(--kem-nga); max-height:150px; overflow-y:auto;"></div>
-      </div>
+      <div class="ver">v1.0 · đời việt</div>
     </div>
   </div>
 
-  <div id="chu-y">Chạm/click vào cảnh để đi lại · chạm đồ vật để tương tác · hoặc chọn hoạt động ở panel phải</div>
+  <div id="app">
+    <div id="hud">
+      <div class="trai"><b id="hud-ten">Nhân</b> <span id="hud-noi">Ngày 1 tại phòng trọ</span></div>
+      <div class="giua"><span class="kimcuong">◆</span> <span id="hud-tg">—</span> <span id="hud-pause" style="cursor:pointer" onclick="togglePause()">‖</span></div>
+      <div class="phai">🪙 <span id="hud-tien">—</span></div>
+    </div>
 
-  <!-- MÀN VĂN BIA (kiểu 9 To Life, bản Việt) -->
+    <div id="col-trai">
+    <canvas id="man-choi" width="320" height="240"></canvas>
+    <div id="panel-idle">
+        <h3 id="idle-title">ĐANG Ở NHÀ</h3>
+        <div id="idle-grid"></div>
+      </div>
+      <div id="shift-note">—</div>
+    </div>
+
+    <div id="col-phai">
+      <div id="tabs">
+        <button class="tab on" data-tab="lam" onclick="chuyenTab('lam')"><span class="ico">👆</span>LÀM</button>
+        <button class="tab" data-tab="pho" onclick="chuyenTab('pho')"><span class="ico">🏙️</span>PHỐ</button>
+        <button class="tab" data-tab="nguoi" onclick="chuyenTab('nguoi')"><span class="ico">👥</span>NGƯỜI</button>
+        <button class="tab" data-tab="doi" onclick="chuyenTab('doi')"><span class="ico">📖</span>ĐỜI</button>
+        <button class="tab" data-tab="song" onclick="chuyenTab('song')"><span class="ico">🌿</span>SỐNG</button>
+        <button class="tab" data-tab="mo" onclick="chuyenTab('mo')"><span class="ico">⭐</span>MƠ</button>
+      </div>
+
+      <div id="today">
+        <div class="hd"><b id="today-hd">hôm nay 0/3</b><span id="today-thuong">cả 3: +50.000đ</span></div>
+        <ul id="today-ul"></ul>
+      </div>
+
+      <div id="dream">
+        <span><span class="sao">★</span> <span id="dream-ten">Nhà Mặt Phố</span></span>
+        <span class="pips" id="dream-pips"></span>
+        <span class="lp" id="dream-lp">0 LP</span>
+      </div>
+
+      <div id="loc-hd">PHÒNG TRỌ 12M²</div>
+
+      <div id="tab-lam"><div id="actions"></div></div>
+      <div id="tab-pho" style="display:none" class="panel">
+        <div style="font-size:12px; line-height:1.7; color:#C9D2F0;">
+          <b style="color:var(--vang)">ĐI ĐÂU?</b><br>
+          Chạm vào cảnh bên trái để đi lại, chạm đồ vật để tương tác — hoặc đi nhanh:
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn" onclick="diChuyenNhanh('phong_tro')">🏠 Phòng trọ</button>
+            <button class="btn" onclick="diChuyenNhanh('pho_dem')">🏮 Phố</button>
+            <button class="btn" onclick="diChuyenNhanh('quan_pho')">🍜 Quán phở</button>
+            <button class="btn" onclick="diChuyenNhanh('van_phong')">🏢 Văn phòng</button>
+          </div>
+        </div>
+      </div>
+      <div id="tab-nguoi" style="display:none"><div id="npc-list"></div><div id="npc-chi-tiet"></div></div>
+      <div id="tab-doi" style="display:none" class="panel">
+        <div style="font-size:11px; color:var(--vang); letter-spacing:1px; margin-bottom:5px;">NHẬT KÝ GẦN ĐÂY</div>
+        <div id="nhat-ky-list" style="font-size:11px; line-height:1.65; color:#C9D2F0; max-height:44vh; overflow-y:auto;"></div>
+      </div>
+      <div id="tab-song" style="display:none" class="panel">
+        <div style="font-size:11px; color:var(--vang); letter-spacing:1px; margin-bottom:5px;">KỸ NĂNG &amp; TÌNH TRẠNG</div>
+        <div id="ky-nang-list" style="font-size:12px; line-height:1.8; color:#C9D2F0;"></div>
+        <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn" onclick="luuVaBao()">💾 Lưu game</button>
+          <button class="btn" onclick="hoiLaiChoi()">🔄 Chơi lại</button>
+        </div>
+      </div>
+      <div id="tab-mo" style="display:none" class="panel">
+        <div style="font-size:11px; color:var(--vang); letter-spacing:1px; margin-bottom:5px;">GIẤC MƠ</div>
+        <div id="dream-mo-ta" style="font-size:12px; line-height:1.7; color:#C9D2F0;"></div>
+      </div>
+    </div>
+
+    <div id="footer"><span>v1.0</span><span>1-6: chuyển tab · chạm: đi lại/tương tác</span></div>
+  </div>
+
+  <div id="hop-thoai"></div>
+
   <div id="van-bia">
     <div class="mo">— TƯỞNG NHỚ —</div>
     <h2 id="vb-ten"></h2>
@@ -152,7 +264,7 @@
       <span class="trich" id="vb-trich"></span>
     </div>
     <div class="khach" id="vb-khach"></div>
-    <button class="btn nut" onclick="hoiLaiChoi()">🌱 Đầu thai làm lại cuộc đời</button>
+    <button class="btn" style="margin-top:8px" onclick="hoiLaiChoi()">🌱 Đầu thai làm lại cuộc đời</button>
   </div>
 
 <script src="src/core.js"></script>

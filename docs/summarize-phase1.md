@@ -65,3 +65,16 @@ Tagline: "Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời
 - FIX 2 — **tỉ lệ**: charPx 48/240 = đúng 20% cho phố đêm; walk sheet scale động theo charPx; idle dùng frame 0 của walk sheet (cùng nhân vật, hết cảnh 2 sprite khác nhau)
 - FIX 3 — vùng đi + viTriGoc theo chiều cao sprite mới
 - Vision QA sau fix: phố đêm 8/10 ("tỉ lệ đúng dải 9 To Life, pixel cục 2x2 đạt, chân bám vỉa hè"), phòng trọ 8/10 ("hòa cảnh, cùng outline, walk-sheet side-view")
+
+## Phase 2 — Cấu trúc GIỐNG HỆT 9 To Life (22/10 đêm, theo lệnh phu quân "làm giống y vậy, chỉ khác VN")
+- Vào chơi game gốc trên itch.io (iframe html-classic.itch.zone) — chụp + vision phân tích layout thật:
+  HUD (tên+ngày | giờ+pause | tiền), panel "Idle at Home" 6 bars 2 cột + mood box %,
+  today box 3 quest + "all 3: +$50", dream bar ★ + 8 pips + LP, action list chip $/giờ + khóa đỏ
+  "Needs Cooking level 2", tabs DO/TOWN/STYLE/PEOPLE/LIFE/DREAM, "landlord gives you five days"
+- Backend v3 (16/16 node PASS): 6 nhu cầu đổi đúng bộ gốc (Đồ ăn/Năng lượng/Vui/Xã hội/Sạch sẽ/Sức khỏe),
+  mood % phái sinh, quest ngày 3 việc + thưởng, dream LP, kỹ năng khóa hoạt động, nợ trọ hạn 5 ngày,
+  hành động NPC (Trò chuyện/Mời trà đá/Tặng quà/Thả thính cần Bạn 50/Rủ đi ăn cần Bạn 60)
+- UI mới: menu "Tạo nhân vật" kiểu Create your sim (tên/thành phố/xuất phát/giấc mơ + START LIFE),
+  layout 2 cột giống hệt, tabs VIỆT: LÀM/PHỐ/NGƯỜI/ĐỜI/SỐNG/MƠ (phím 1-6), hộp thoại RPG xanh viền trắng
+- Vision QA layout: 8/10 "đúng chuẩn 9 To Life — khung sườn chuẩn, thứ tự khối đúng"
+- QA tuần in-game qua UI: đi làm T2-T6, nghỉ T7-CN, tiền 200k→1tr143, LP tích 3, không chết
