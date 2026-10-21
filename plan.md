@@ -1,4 +1,8 @@
-# PLAN — Game "Phố Đêm Trở Về" (tên dự phòng, 100% VN) — 21/10/2026
+# PLAN — Game "Cơm Bụi & Deadline" (tên CHÍNH THỨC phu quân duyệt 21/10 tối) — 21/10/2026
+
+> Tagline: "Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời mà."
+> Kỷ nguyên: 2020s hiện đại + nội thất nhà hoài niệm (gạch bông, TV CRT của bà).
+> Cấu trúc gameplay theo 9 To Life (ngày-giờ, hoạt động, nhu cầu, NPC cảm xúc, sự kiện, màn văn bia) nhưng tình tiết 100% Việt, KHÔNG copy cat.
 
 ## Concept một dòng
 Life-sim pixel art kiểu 9 To Life nhưng **100% Việt Nam**: người chơi chọn thành phố
@@ -27,11 +31,14 @@ NPC có đời sống riêng, sự kiện đậm chất Việt (Tết, mưa ng�
 | 0.6 | meowa asset đợt 1: nhân vật + đồ phòng trọ VN (ghế nhựa, gạch bông, tủ kính) | Sprite dán vào game, feet-Y khớp |
 | 0.7 | **Deploy LAN + QR**: server local + QR code để chàng mở điện thoại chơi | QR scan mở game trên điện thoại |
 
-### Phase 1 — Sống đời trong nhà (backend vững)
-Time/day/week loop + money + stats (năng lượng/tâm trạng/đói) + mối quan hệ.
+### Phase 1 — Sống đời trong nhà (backend vững) + đồng bộ art
+Time/day/week loop + money + stats (năng lượng/tâm trạng/đói/khát/xã hội/tinh thần) + mối quan hệ.
 - Save/Load (localStorage + export code)
 - NPC sheet 14 người có lịch trình riêng
-- Blockgate: 1 tuần in-game chạy trọn không crash + save/load pass
+- **Đồng bộ 3 cảnh vẽ code (phòng trọ/quán phở/văn phòng) sang chuẩn art Meowa 16-bit của phố đêm** (việc treo Phase 0.9)
+- Sửa bug `taoNguoiChoi` chưa gắn `thanhPho.ten`
+- Đổi tên game trong UI/title thành "Cơm Bụi & Deadline"
+- Blockgate: 1 tuần in-game chạy trọn không crash + save/load pass + 4 cảnh cùng tông art
 
 ### Phase 2 — Đi làm + sự kiện
 Chọn nghề (văn phòng/shipper/quán bar), mini-game đi làm, sự kiện ngẫu nhiên (mưa ngập, tủ lạnh hỏng, đám giỗ...)
