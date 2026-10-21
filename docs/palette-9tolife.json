@@ -1,0 +1,17 @@
+{
+  "nguon": "2 video tham chieu 9 To Life (Downloads/9db64b57..., 2eeea4b4...) — MEDIANCUT 16 mau tren frame sach",
+  "nen_dem": ["#14142E", "#1A1736", "#20193A", "#2B1F48", "#362351", "#1C1C38", "#11111E"],
+  "den_am": ["#F4E6B2", "#F0E6B4", "#E8C46A", "#FFB000"],
+  "nau_go_gach": ["#381F1E", "#28131B", "#623C3A", "#301D1D", "#6B3F1E", "#9A5B2E"],
+  "xanh_la_xam": ["#595647", "#8CB297", "#1A331A"],
+  "xanh_la_phu": ["#2A3256", "#4B5774", "#5B6CB5", "#79676C", "#423744"],
+  "toi_nhat": ["#0B0A14", "#140A0A"],
+  "trang": ["#FFFFFF"],
+  "quy_tac": [
+    "moi vat 2-4 tong mau, khong gradient",
+    "outline toi 1 pixel quanh vat",
+    "dithering chi o vung toi sau",
+    "do bao hoa thap, anh sang am tu den/qua",
+    "khong dung neon ruc ro"
+  ]
+}

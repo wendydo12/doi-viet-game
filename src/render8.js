@@ -33,10 +33,10 @@ const CHAR_FRAMES = {
     '.a..aaaa..a.',
     '....aaaa....',
     '....qqqq....',
-    '....q..q....',
-    '....q..q....',
-    '....q..q....',
-    '...gg..gg...',
+    '...qq...qq..',
+    '...q.....q..',
+    '...q.....q..',
+    '..gg.....gg.',
   ],
   walk1: [
     '....tttt....',
@@ -52,11 +52,11 @@ const CHAR_FRAMES = {
     '.a.aaaaaa.a.',
     '.aa.aaaa.aa.',
     '....aaaa....',
-    '...qqqq.....',
-    '...qq..q....',
-    '..qq....q...',
-    '..q......q..',
-    '.gg......gg.',
+    '....qqqq....',
+    '...qq...qq..',
+    '..qq.....q..',
+    '..q.......q.',
+    '.gg.......gg',
   ],
   walk2: [
     '....tttt....',
@@ -72,16 +72,18 @@ const CHAR_FRAMES = {
     '.a.aaaaaa.a.',
     '.a.aaaaaa.a.',
     '....aaaa....',
-    '.....qqqq...',
-    '....q..qq...',
-    '...q....qq..',
-    '..q......q..',
-    '.gg.....gg..',
+    '....qqqq....',
+    '...qq...qq..',
+    '...q.....qq.',
+    '.q.......q..',
+    'gg.......gg.',
   ],
 };
-const CHAR_COLOR = { t: P.toc, d: P.da, m: P.den, a: P.teal, q: P.nau2, g: P.den, ' ': null, '.': null };
 
-function veCharRaw(rows, x, y, sc, flip, mauFn) {
+const CHAR_COLOR = { t: P.toc, d: P.da, m: P.den, a: '#4E9A8F', q: '#3A2A1C', g: '#16121E', ' ': null, '.': null };
+
+function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
+  sy = sy || sx;
   for (let r = 0; r < rows.length; r++) {
     const line = rows[r];
     for (let c = 0; c < line.length; c++) {
@@ -89,7 +91,7 @@ function veCharRaw(rows, x, y, sc, flip, mauFn) {
       const mau = mauFn(ch);
       if (!mau) continue;
       CTX.fillStyle = mau;
-      CTX.fillRect(x + c*sc, y + r*sc, sc, sc);
+      CTX.fillRect(x + c*sx, y + r*sy, sx, sy);
     }
   }
 }
@@ -97,8 +99,8 @@ function veCharRaw(rows, x, y, sc, flip, mauFn) {
 function veChar(frame, x, y, flip) {
   const rows = CHAR_FRAMES[frame];
   const SC = 2; // 24x36 — nhân vật nhỏ chuẩn 9 To Life
-  // Outline đen quanh silhouette
-  for (const [ox, oy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+  // Outline đen dày đúng 1 pixel-art (bằng 1 ô sprite), ôm sát silhouette
+  for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
     veCharRaw(rows, x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
   }
   veCharRaw(rows, x, y, SC, flip, (ch) => CHAR_COLOR[ch]);
@@ -322,14 +324,78 @@ SCENES.van_phong = {
 };
 
 // --- SCENE 4: PHỐ ĐÊM ---
+// ===== ẢNH NỀN MEOWA — pixel art phố Việt, chuẩn 9 To Life =====
+const BG_ANH = {};
+function napNen(ten, duong) {
+  const im = new Image();
+  im.onload = () => { BG_ANH[ten] = im; try { render(); } catch (e) {} };
+  im.onerror = () => console.warn('Thiếu ảnh nền:', duong);
+  im.src = duong;
+}
+napNen('pho_dem', 'assets/bg/pho-dem.png');
+
+// ---- hiệu ứng sống động phủ lên ảnh nền ----
+let TG = 0;
+const BUI = Array.from({ length: 9 }, (_, i) => ({
+  x: (i * 73) % 320, y: 158 + ((i * 41) % 66),
+  v: 0.05 + (i % 5) * 0.015, l: 1 + (i % 2),
+}));
+
+function hieuUngPhoDem() {
+  const nhap = 0.5 + 0.5 * Math.sin(TG * 0.05);   // nhịp thở của đèn
+  // quầng ấm từ đèn đường / quán (cộng sáng rất nhẹ, giữ nguyên pixel gốc)
+  CTX.save();
+  CTX.globalCompositeOperation = 'lighter';
+  const quang = [
+    [148, 168, 46, 0.030], [206, 150, 54, 0.036], [58, 176, 30, 0.022],
+  ];
+  for (const [qx, qy, bk, a] of quang) {
+    const g = CTX.createRadialGradient(qx, qy, 2, qx, qy, bk);
+    g.addColorStop(0, 'rgba(244,230,178,' + (a * (0.85 + 0.3 * nhap)).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(244,230,178,0)');
+    CTX.fillStyle = g;
+    CTX.fillRect(qx - bk, qy - bk, bk * 2, bk * 2);
+  }
+  CTX.restore();
+  // bụi bay trong quầng đèn
+  for (const b of BUI) {
+    b.y -= b.v;
+    b.x += Math.sin((TG + b.y) * 0.02) * 0.12;
+    if (b.y < 130) { b.y = 224; b.x = (b.x * 7 + 33) % 320; }
+    CTX.fillStyle = 'rgba(244,230,178,0.30)';
+    CTX.fillRect(Math.round(b.x), Math.round(b.y), b.l, b.l);
+  }
+}
+
+// ---- mèo ngồi trên vỉa hè (chi tiết life-sim) ----
+function veMeo(x, y) {
+  const nhay = Math.sin(TG * 0.04) > 0.96 ? 1 : 0;
+  CTX.fillStyle = '#2A2233'; CTX.fillRect(x + 1, y + 4 - nhay, 7, 6);
+  CTX.fillStyle = '#2A2233'; CTX.fillRect(x + 2, y + 1 - nhay, 2, 3);
+  CTX.fillStyle = '#2A2233'; CTX.fillRect(x + 5, y + 1 - nhay, 2, 3);
+  CTX.fillStyle = '#3A3044'; CTX.fillRect(x + 2, y + 5 - nhay, 5, 2);
+  CTX.fillStyle = '#E8C46A'; CTX.fillRect(x + 2, y + 4 - nhay, 1, 1);
+  CTX.fillStyle = '#E8C46A'; CTX.fillRect(x + 5, y + 4 - nhay, 1, 1);
+  CTX.fillStyle = '#2A2233'; CTX.fillRect(x + 8, y + 6 - nhay, 3, 1);
+  CTX.fillRect(x + 10, y + 5 - nhay, 1, 2);
+}
+
 SCENES.pho_dem = {
   ten: 'Phố đêm',
   ve() {
+    const bg = BG_ANH.pho_dem;
+    if (bg) {
+      CTX.drawImage(bg, 0, 0, W, H);
+      hieuUngPhoDem();
+      veMeo(52, 196);
+      return;
+    }
+    // ---- dự phòng khi chưa nạp được ảnh ----
     CTX.fillStyle = P.dem; CTX.fillRect(0, 0, W, H);
     dither(0, 0, W, 115, 'rgba(58,47,82,0.35)', 6);
     for (let i = 0; i < 40; i++) {
       CTX.fillStyle = i % 3 ? P.kem : P.vang;
-      CTX.fillRect(((i*61) % W), ((i*37) % 110), 1, 1);
+      CTX.fillRect(((i * 61) % W), ((i * 37) % 110), 1, 1);
     }
     for (const [bk, alpha] of [[26, 0.1], [16, 0.18]]) {
       CTX.fillStyle = `rgba(232,196,106,${alpha})`;
@@ -341,68 +407,21 @@ SCENES.pho_dem = {
     CTX.fillStyle = '#4A2F1F'; CTX.fillRect(0, 160, 120, 10);
     CTX.fillStyle = P.vat; CTX.fillRect(200, 50, 120, 120);
     CTX.fillStyle = '#2A2138'; CTX.fillRect(200, 160, 120, 10);
-    for (const [sx, mau] of [[20, P.do], [50, P.vang], [230, P.vang], [270, P.cam]]) {
-      CTX.fillStyle = 'rgba(232,196,106,0.08)';
-      CTX.fillRect(sx-14, 76, 62, 66);
-      CTX.fillStyle = 'rgba(232,196,106,0.14)';
-      CTX.fillRect(sx-6, 80, 46, 58);
-      CTX.fillStyle = mau; CTX.fillRect(sx, 84, 34, 30);
-      CTX.fillStyle = 'rgba(255,246,224,0.3)';
-      CTX.fillRect(sx-2, 82, 38, 4);
-      CTX.fillStyle = 'rgba(232,196,106,0.1)';
-      CTX.fillRect(sx, 114, 34, 24);
-    }
-    CTX.fillStyle = P.do2; CTX.fillRect(96, 70, 100, 20);
-    CTX.fillStyle = P.do; CTX.fillRect(99, 73, 94, 14);
-    CTX.fillStyle = P.vang;
-    CTX.fillRect(110, 77, 3, 7); CTX.fillRect(110, 77, 7, 2);
-    CTX.fillRect(126, 77, 3, 8); CTX.fillRect(124, 77, 6, 2);
-    CTX.fillRect(124, 74, 6, 2);
-    CTX.fillRect(140, 77, 8, 2); CTX.fillRect(140, 77, 2, 8); CTX.fillRect(146, 77, 2, 8); CTX.fillRect(140, 83, 8, 2);
-    CTX.fillRect(158, 77, 3, 8); CTX.fillRect(156, 77, 6, 2);
-    CTX.fillStyle = P.nau2; CTX.fillRect(158, 96, 4, 74);
-    CTX.fillStyle = P.vang; CTX.fillRect(150, 92, 20, 5);
-    for (const [bk, alpha] of [[26, 0.1], [16, 0.18]]) {
-      CTX.fillStyle = `rgba(232,196,106,${alpha})`;
-      CTX.beginPath(); CTX.arc(160, 100, bk, 0, 7); CTX.fill();
-    }
-    CTX.fillStyle = 'rgba(232,196,106,0.35)';
-    CTX.fillRect(146, 110, 28, 3);
-    CTX.strokeStyle = P.den; CTX.lineWidth = 1;
-    CTX.beginPath(); CTX.moveTo(0, 58); CTX.quadraticCurveTo(80, 72, 160, 56); CTX.stroke();
-    CTX.beginPath(); CTX.moveTo(160, 56); CTX.quadraticCurveTo(240, 70, 320, 56); CTX.stroke();
-    CTX.fillStyle = P.nau2; CTX.fillRect(0, 54, 4, 60);
     CTX.fillStyle = '#3A3A48'; CTX.fillRect(0, 170, W, 30);
     CTX.fillStyle = '#5A5A6A'; CTX.fillRect(0, 170, W, 3);
-    CTX.fillStyle = '#2E2E3A';
-    for (let i = 0; i < 10; i++) CTX.fillRect(i*34, 173, 1, 27);
     CTX.fillStyle = '#241B30'; CTX.fillRect(0, 200, W, 40);
     CTX.fillStyle = P.vang;
-    for (let i = 0; i < 8; i++) CTX.fillRect(i*44, 218, 18, 3);
-    CTX.fillStyle = P.xanh; CTX.fillRect(240, 176, 30, 8);
-    CTX.fillStyle = '#2456A0'; CTX.fillRect(240, 176, 30, 3);
-    CTX.fillStyle = P.den; CTX.beginPath(); CTX.arc(244, 186, 4, 0, 7); CTX.fill();
-    CTX.beginPath(); CTX.arc(266, 186, 4, 0, 7); CTX.fill();
-    CTX.fillStyle = P.den; CTX.fillRect(252, 168, 10, 10);
-    CTX.fillStyle = P.vang; CTX.fillRect(268, 180, 4, 3);
-    CTX.fillStyle = P.nau; CTX.fillRect(60, 180, 26, 10);
-    CTX.fillStyle = P.do2; CTX.fillRect(64, 172, 18, 8);
-    CTX.fillStyle = P.vang; CTX.fillRect(66, 174, 4, 2);
-    CTX.fillStyle = 'rgba(255,246,224,0.5)'; CTX.fillRect(70, 166, 3, 6); CTX.fillRect(76, 162, 3, 8);
-    CTX.fillStyle = P.do; CTX.fillRect(96, 184, 12, 12); CTX.fillRect(98, 178, 8, 6);
-    CTX.fillStyle = P.xanh; CTX.fillRect(116, 184, 12, 12); CTX.fillRect(118, 178, 8, 6);
-    CTX.fillStyle = 'rgba(232,196,106,0.15)';
-    CTX.fillRect(-4, 112, 48, 62);
-    CTX.fillStyle = P.vat; CTX.fillRect(0, 120, 36, 50);
-    CTX.fillStyle = P.vang; CTX.fillRect(6, 126, 24, 6);
-    CTX.fillStyle = '#5A4A22'; CTX.fillRect(6, 132, 24, 38);
+    for (let i = 0; i < 8; i++) CTX.fillRect(i * 44, 218, 18, 3);
   },
   diem: {
-    quan: [20, 76, 280, 46, 'quan_bar'],
-    ve_phong: [0, 120, 36, 50, 've_phong'],
-    do_an: [60, 162, 68, 36, 'an_via_he'],
+    // toạ độ bám theo bố cục ảnh nền Meowa: sạp bún giữa, cửa cuốn trái, ghế đẩu vỉa hè
+    quan: [136, 132, 80, 42, 'quan_bar'],
+    ve_phong: [0, 128, 40, 64, 've_phong'],
+    do_an: [96, 166, 52, 22, 'an_via_he'],
   },
-  viTriGoc: [160, 196],
+  viTriGoc: [172, 176],
+  // vùng đi lại: chỉ cho đi trên dải vỉa hè + lòng đường (y = góc trên sprite, chân ở y+36)
+  vungDi: { x1: 8, x2: 296, y1: 174, y2: 190 },
 };
 
 let SCENE_HIEN = 'phong_tro';
@@ -412,21 +431,79 @@ function render() {
   veNguoiHien();
 }
 
+// viền sáng ấm: tô ô trống ngay sát silhouette ở phía hướng về nguồn đèn
+function veRimSang(frame, x, y, flip, benPhai) {
+  if (SCENE_HIEN !== 'pho_dem') return;
+  const rows = CHAR_FRAMES[frame];
+  const SC = 2;
+  const day = (r, c) => {
+    if (r < 0 || r >= rows.length || c < 0 || c >= 12) return false;
+    const line = rows[r];
+    return !!CHAR_COLOR[flip ? line[line.length-1-c] : line[c]];
+  };
+  CTX.save();
+  CTX.fillStyle = 'rgba(244,230,178,0.42)';
+  for (let r = 0; r < rows.length; r++) {
+    for (let c = 0; c < 12; c++) {
+      const nc = benPhai ? c + 1 : c - 1;
+      if (day(r, c) && !day(r, nc)) {
+        const px = x + (benPhai ? Math.min(nc, 11) : Math.max(nc, 0)) * SC;
+        CTX.fillRect(px, y + r*SC, SC, SC);
+      }
+    }
+  }
+  CTX.restore();
+}
+
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
-  CTX.fillStyle = 'rgba(13,10,20,0.4)';
+  const chanY = y + 36;
+  // phản chiếu mờ trên mặt đường ướt (chỉ ở cảnh phố đêm)
+  if (SCENE_HIEN === 'pho_dem' && BG_ANH.pho_dem) {
+    CTX.save();
+    CTX.globalAlpha = 0.24;
+    const rows = CHAR_FRAMES[frame];
+    for (let r = 0; r < rows.length; r++) {
+      const ry = chanY + 2 + (rows.length - 1 - r);
+      if (ry > 239) break;
+      const line = rows[r];
+      for (let c = 0; c < line.length; c++) {
+        const mau = CHAR_COLOR[di < 0 ? line[line.length-1-c] : line[c]];
+        if (!mau) continue;
+        CTX.fillStyle = mau;
+        CTX.fillRect(x + c*2, ry, 2, 1);
+      }
+    }
+    CTX.restore();
+  }
+  // vệt sáng ấm hắt xuống mặt đường dưới chân (đèn đường/ quán)
+  CTX.fillStyle = 'rgba(232,196,106,0.10)';
+  CTX.beginPath(); CTX.ellipse(x+12, y+37, 14, 4, 0, 0, 7); CTX.fill();
+  CTX.fillStyle = 'rgba(8,6,12,0.45)';
   CTX.beginPath(); CTX.ellipse(x+12, y+37, 9, 2.5, 0, 0, 7); CTX.fill();
-  CTX.strokeStyle = 'rgba(232,196,106,0.5)'; CTX.lineWidth = 1;
-  CTX.beginPath(); CTX.ellipse(x+12, y+36, 13, 4, 0, 0, 7); CTX.stroke();
-  veChar(frame, x, y, di < 0);
+  // nhấp nhô nhẹ theo nhịp bước (1 pixel-art = 2px canvas) cho đỡ cứng
+  const nhun = frame === 'walk2' ? -2 : 0;
+  veChar(frame, x, y + nhun, di < 0);
+  // viền sáng ấm phía quay về nguồn đèn (đèn đường/quán nằm giữa phố)
+  veRimSang(frame, x, y + nhun, di < 0, x + 12 > 150);
+  // ánh sáng ấm của phố hắt lên người (giúp nhân vật hòa vào cảnh)
+  CTX.save();
+  CTX.globalCompositeOperation = 'lighter';
+  const g = CTX.createRadialGradient(x+12, y+26, 1, x+12, y+26, 18);
+  g.addColorStop(0, 'rgba(244,230,178,0.085)');
+  g.addColorStop(1, 'rgba(244,230,178,0)');
+  CTX.fillStyle = g;
+  CTX.fillRect(x - 8, y + 6, 40, 44);
+  CTX.restore();
 }
 
 // NGUOI: x,y là góc trên-trái sprite 24x36
 let NGUOI = { x: 150, y: 130, di: 1, frame: 'idle', dichX: null, mucTieuAction: null, mucTieuX: 0, mucTieuY: 0, vanToc: 1.6, frameDem: 0 };
 
 function tapToMove(mx, my) {
-  NGUOI.dichX = mx - 12;
   const sc = SCENES[SCENE_HIEN];
+  NGUOI.dichX = mx - 12;
+  NGUOI.mucTieuAction = null;
   for (const [ten, [px, py, pw, ph, action]] of Object.entries(sc.diem)) {
     if (mx >= px && mx <= px+pw && my >= py && my <= py+ph) {
       NGUOI.mucTieuAction = action;
@@ -435,6 +512,10 @@ function tapToMove(mx, my) {
       break;
     }
   }
+  // kẹp đích vào vùng đi được, tránh nhân vật đi mãi không tới
+  [NGUOI.mucTieuX, NGUOI.mucTieuY] = gioiHan(sc, NGUOI.mucTieuX, NGUOI.mucTieuY);
+  const [dx, dy] = gioiHan(sc, NGUOI.dichX, NGUOI.y);
+  NGUOI.dichX = dx; NGUOI.mucTieuY = NGUOI.mucTieuAction ? NGUOI.mucTieuY : dy;
 }
 
 CANVAS.addEventListener('pointerdown', (ev) => {
@@ -448,15 +529,22 @@ const PHIM1 = {};
 window.addEventListener('keydown', e => { PHIM1[e.key] = true; });
 window.addEventListener('keyup', e => { PHIM1[e.key] = false; });
 
+function gioiHan(sc, x, y) {
+  const v = sc.vungDi;
+  if (!v) return [Math.max(4, Math.min(W-28, x)), Math.max(50, Math.min(H-42, y))];
+  return [Math.max(v.x1, Math.min(v.x2, x)), Math.max(v.y1, Math.min(v.y2, y))];
+}
+
 function buocChuyen() {
+  TG++;
   let dx = 0, dy = 0;
   if (PHIM1['ArrowLeft'] || PHIM1['a']) dx = -1;
   if (PHIM1['ArrowRight'] || PHIM1['d']) dx = 1;
   if (PHIM1['ArrowUp'] || PHIM1['w']) dy = -1;
   if (PHIM1['ArrowDown'] || PHIM1['s']) dy = 1;
   if (dx || dy) {
-    NGUOI.x = Math.max(4, Math.min(W-28, NGUOI.x + dx*NGUOI.vanToc));
-    NGUOI.y = Math.max(50, Math.min(H-42, NGUOI.y + dy*NGUOI.vanToc));
+    const sc0 = SCENES[SCENE_HIEN];
+    [NGUOI.x, NGUOI.y] = gioiHan(sc0, NGUOI.x + dx*NGUOI.vanToc, NGUOI.y + dy*NGUOI.vanToc);
     if (dx) NGUOI.di = dx;
     NGUOI.frameDem++;
     NGUOI.frame = NGUOI.frameDem % 12 < 6 ? 'walk1' : 'walk2';
@@ -479,6 +567,8 @@ function buocChuyen() {
     }
     NGUOI.x += ddx/d * NGUOI.vanToc;
     NGUOI.y += ddy/d * NGUOI.vanToc;
+    [NGUOI.x, NGUOI.y] = gioiHan(SCENES[SCENE_HIEN], NGUOI.x, NGUOI.y);
+    NGUOI.x = Math.round(NGUOI.x); NGUOI.y = Math.round(NGUOI.y);
     if (Math.abs(ddx) > 2) NGUOI.di = ddx;
     NGUOI.frameDem++;
     NGUOI.frame = NGUOI.frameDem % 12 < 6 ? 'walk1' : 'walk2';
