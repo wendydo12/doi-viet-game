@@ -66,6 +66,17 @@ function capNhatNhuCau() {
     el.querySelector('.day').style.width = v + '%';
     el.classList.toggle('thap', v < 25);
   }
+  // Mood box kiểu 9 To Life: % + chữ + mặt
+  const m = Math.round(G.chiSo.tamTrang);
+  const pct = document.getElementById('mood-pct');
+  const txt = document.getElementById('mood-txt');
+  const note = document.getElementById('mood-note');
+  const face = document.getElementById('mood-face');
+  pct.textContent = m + '%';
+  if (m >= 75) { pct.style.color = '#6FE06A'; txt.textContent = 'TUYỆT'; face.src = 'assets/meowa-r1/char_08.png'; note.textContent = 'Đời đang đẹp — tranh thủ tận hưởng.'; }
+  else if (m >= 50) { pct.style.color = '#E8C46A'; txt.textContent = 'ỔN'; face.src = 'assets/meowa-r1/char_07.png'; note.textContent = 'Bình bình như mọi ngày.'; }
+  else if (m >= 25) { pct.style.color = '#E67E22'; txt.textContent = 'MỆT'; face.src = 'assets/meowa-r1/char_06.png'; note.textContent = 'Cần trà đá và một lời động viên.'; }
+  else { pct.style.color = '#E2585E'; txt.textContent = 'KIỆT'; face.src = 'assets/meowa-r1/char_02.png'; note.textContent = 'Đừng để chạm đáy — nghỉ ngơi đi.'; }
 }
 
 // ===== MENU HOẠT ĐỘNG (linh hồn 9 To Life) =====
@@ -157,10 +168,24 @@ function kiemTraChet() {
 
 // ===== HỘP THOẠI =====
 let hopThoaiTimer = null;
+const PORTRAIT_NPC = {
+  'Bà Tư chủ trọ': 'char_01', 'Bà Tư': 'char_01', 'Sếp': 'char_06', 'Sếp Đức': 'char_06',
+  'Mai': 'char_04', 'Linh': 'char_02', 'Nam': 'char_08', 'Tuấn': 'char_06',
+  'Hùng': 'char_03', 'Bà Hạnh': 'char_01', 'Cụ Long': 'char_06', 'Thảo': 'char_04',
+  'Hạnh': 'char_01', 'Chị Đào': 'char_01', 'Trung': 'char_07', 'Hoa': 'char_04',
+  'Ông Sáng': 'char_06',
+};
 function hopThoai(nguoi, noiDung) {
   const box = document.getElementById('hop-thoai');
   box.style.display = 'block';
-  box.innerHTML = '<span class="nguoi">' + nguoi + '</span><br>' + noiDung.replace(/\n/g, '<br>') +
+  // portrait NPC nếu có (kiểu khung chân dung 9 To Life)
+  let portrait = '';
+  const pKey = Object.keys(PORTRAIT_NPC).find(k => nguoi.includes(k));
+  const isNhanVat = nguoi.includes('Phố') || nguoi.includes('Sáng') || nguoi === 'Khoan đã';
+  if (pKey) portrait = 'assets/meowa-r1/' + PORTRAIT_NPC[pKey] + '.png';
+  else if (!isNhanVat) portrait = 'assets/meowa-r1/char_07.png';
+  const imgHtml = portrait ? '<img src="' + portrait + '" style="width:52px;height:52px;image-rendering:pixelated;border:2px solid #6D4A2E;background:#241B3A;float:left;margin-right:10px;">' : '';
+  box.innerHTML = imgHtml + '<span class="nguoi">' + nguoi + '</span><br>' + noiDung.replace(/\n/g, '<br>') +
     '<br><span class="nut" onclick="dongHopThoai()">Đóng</span>';
   if (hopThoaiTimer) clearTimeout(hopThoaiTimer);
   hopThoaiTimer = setTimeout(dongHopThoai, 9000);

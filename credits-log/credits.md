@@ -17,3 +17,4 @@ Ghi chú API (21/10/2026):
 | 2026-10-21 tối | job_240d49d467f74fedb5cf33decbec1985 | xlarge_4_3 | 25 | ~405 | Phòng trọ Meowa — CHỌN, 8.5/10 |
 | 2026-10-21 tối | job_4c2795cbf1e94948ae95755012537847 | xlarge_4_3 | 25 | ~380 | Quán phở Meowa — CHỌN, 8.5/10 |
 | 2026-10-21 tối | job_9efb244df2ca4cd2b97826e2e1b60f0b | xlarge_4_3 | 25 | ~355 | Văn phòng Meowa — CHỌN, 8.5/10 |
+| 2026-10-21 khuya | job_ff599d0510ea4e99ab2a2a53c566767a | xlarge_4_3 | 25 | ~330 | Walk sheet 6 frame side-view — CHỌN, tích hợp engine |

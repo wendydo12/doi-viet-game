@@ -49,3 +49,11 @@ Tagline: "Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời
 - Engine: BG_ANH cho cả 4 cảnh + fallback vẽ code; charScale=3 (36x54) cho nội thất vs 2 (24x36) cho phố; vungDi theo cảnh; contact shadow ellipse + rim light mọi cảnh nền ảnh
 - Vision QA sau fix: phòng trọ 8/10 (tỉ lệ OK, "người thật trong phòng thật"), văn phòng 8/10 (scale khớp 1.7m, bóng tiếp xúc có)
 - QA gameplay lại: ăn cơm bụi → phở → đi làm (+80k, 8h→16h) → "Ngủ một đêm" ẩn đúng ngoài giờ → tap giường ra action ngủ ✅
+
+## Phase 1.6 — Polish theo 3 ảnh chuẩn 9 To Life phu quân gửi (21/10 khuya)
+- Chốt công nghệ: GIỮ Vanilla JS + Canvas (phu quân duyệt; 9 To Life gốc cũng là web game — không chuyển Godot)
+- Chuẩn art xác nhận từ 3 ảnh: side-view 2D phẳng, sprite ~28-32px 3 đầu, palette 16-32 màu, outline 1px, dithering — game mình ĐANG đúng chuẩn
+- Walk cycle Meowa thật (job ff599..., 25cr): 6 frame side-view ~7fps, 2 cỡ (54px nội thất / 36px phố), fallback char bitmap khi idle
+- Portrait NPC trong hộp thoại (8 char meowa-r1 map theo 14 NPC) + mood box % kiểu 9 To Life (TUYỆT/ỔN/MỆT/KIỆT đổi mặt)
+- Nhân vật phố đêm: filter saturate(0.82) brightness(0.88) → hòa ánh đêm, vision 8/10; phòng trọ walk vision 9/10 "nhận nhầm là cùng vũ trụ 9 To Life"
+- QA: không lỗi JS, walk chạy 2 cảnh, tap-to-move OK

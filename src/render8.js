@@ -347,6 +347,35 @@ napNen('phong_tro', 'assets/bg/phong-tro.png');
 napNen('quan_pho', 'assets/bg/quan-pho.png');
 napNen('van_phong', 'assets/bg/van-phong.png');
 
+// ===== WALK SHEET MEOWA (6 frame side-view, chuẩn 9 To Life) =====
+const WALK_ANH = {};
+function napWalk(ten, duong) {
+  const im = new Image();
+  im.onload = () => { WALK_ANH[ten] = im; try { render(); } catch (e) {} };
+  im.onerror = () => console.warn('Thiếu walk sheet:', duong);
+  im.src = duong;
+}
+napWalk('w54', 'assets/char/walk54.png'); // nội thất: frame 24x55
+napWalk('w36', 'assets/char/walk36.png'); // phố: frame 16x37
+function veWalkFrame(x, y, flip, SC) {
+  const sheet = SC === 3 ? WALK_ANH.w54 : WALK_ANH.w36;
+  if (!sheet) return false;
+  const fw = sheet.width / 6, fh = sheet.height;
+  const idx = Math.floor(NGUOI.frameDem / 5) % 6; // ~7fps walk
+  CTX.save();
+  // phố đêm: hạ saturation + tối nhẹ để nhân vật chìm vào ánh đêm (vision feedback)
+  if (SCENE_HIEN === 'pho_dem') CTX.filter = 'saturate(0.82) brightness(0.88)';
+  if (flip) {
+    CTX.translate(x + fw, y);
+    CTX.scale(-1, 1);
+    CTX.drawImage(sheet, idx * fw, 0, fw, fh, 0, 0, fw, fh);
+  } else {
+    CTX.drawImage(sheet, idx * fw, 0, fw, fh, x, y, fw, fh);
+  }
+  CTX.restore();
+  return true;
+}
+
 // ---- hiệu ứng sống động phủ lên ảnh nền ----
 let TG = 0;
 const BUI = Array.from({ length: 9 }, (_, i) => ({
@@ -530,7 +559,18 @@ function veNguoiHien() {
   CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.38, SC*1.3, 0, 0, 7); CTX.fill();
   // nhấp nhô nhẹ theo nhịp bước cho đỡ cứng
   const nhun = frame === 'walk2' ? -SC : 0;
-  veChar(frame, x, y + nhun, di < 0, SC);
+  // khi ĐANG ĐI và có walk sheet meowa → vẽ frame side-view (chuẩn 9 To Life)
+  const dangDi = (frame === 'walk1' || frame === 'walk2') && (NGUOI.dichX !== null || PHIM1['ArrowLeft'] || PHIM1['ArrowRight'] || PHIM1['a'] || PHIM1['d']);
+  let veSheet = false;
+  if (dangDi) {
+    const sheet = SC === 3 ? WALK_ANH.w54 : WALK_ANH.w36;
+    if (sheet) {
+      const fw = sheet.width / 6, fh = sheet.height;
+      veWalkFrame(Math.round(x + spriteW/2 - fw/2), Math.round(y + spriteH - fh + nhun), di < 0, SC);
+      veSheet = true;
+    }
+  }
+  if (!veSheet) veChar(frame, x, y + nhun, di < 0, SC);
   // viền sáng ấm phía quay về nguồn đèn (đèn đường/quán nằm giữa phố)
   veRimSang(frame, x, y + nhun, di < 0, x + spriteW/2 > 150, SC);
   // ánh sáng ấm của phố hắt lên người (giúp nhân vật hòa vào cảnh)
