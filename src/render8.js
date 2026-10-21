@@ -276,7 +276,7 @@ SCENES.quan_pho = {
   diem: {
     ban: [30, 144, 220, 40, 'an_pho'],
     noi: [180, 76, 60, 40, 'noi_pho'],
-    cua: [4, 190, 28, 50, 've_phong'],
+    cua: [4, 190, 28, 50, 'ra_pho'],
   },
   viTriGoc: [120, 180],
 };
@@ -318,7 +318,7 @@ SCENES.van_phong = {
   diem: {
     ban_lam: [16, 106, 300, 56, 'lam'],
     bang: [96, 14, 128, 34, 'bang_hop'],
-    cua: [284, 180, 30, 60, 've_phong'],
+    cua: [284, 180, 30, 60, 'ra_pho'],
   },
   viTriGoc: [160, 200],
 };
@@ -418,6 +418,8 @@ SCENES.pho_dem = {
     quan: [136, 132, 80, 42, 'quan_bar'],
     ve_phong: [0, 128, 40, 64, 've_phong'],
     do_an: [96, 166, 52, 22, 'an_via_he'],
+    quan_pho: [224, 120, 90, 60, 'quan_pho'],
+    toa_van_phong: [48, 90, 60, 60, 'van_phong'],
   },
   viTriGoc: [172, 176],
   // vùng đi lại: chỉ cho đi trên dải vỉa hè + lòng đường (y = góc trên sprite, chân ở y+36)
@@ -425,9 +427,38 @@ SCENES.pho_dem = {
 };
 
 let SCENE_HIEN = 'phong_tro';
+
+// ===== ĐỒNG BỘ TÔNG MÀU (Phase 1) =====
+// 3 cảnh vẽ code được phủ grade ấm + vignette để cùng tông với phố đêm Meowa
+function dongBoTong(ten) {
+  if (ten === 'pho_dem') return; // ảnh Meowa đã chuẩn tông
+  CTX.save();
+  // ánh sáng ấm nhẹ toàn cảnh (đèn vàng hoài niệm)
+  CTX.globalCompositeOperation = 'lighter';
+  const g = CTX.createRadialGradient(160, 90, 30, 160, 120, 260);
+  g.addColorStop(0, 'rgba(244,230,178,0.07)');
+  g.addColorStop(1, 'rgba(244,230,178,0.015)');
+  CTX.fillStyle = g;
+  CTX.fillRect(0, 0, W, H);
+  CTX.globalCompositeOperation = 'source-over';
+  // vignette tối 4 góc — kéo mood về gần phố đêm
+  const v = CTX.createRadialGradient(160, 120, 120, 160, 120, 240);
+  v.addColorStop(0, 'rgba(19,17,30,0)');
+  v.addColorStop(1, 'rgba(19,17,30,0.30)');
+  CTX.fillStyle = v;
+  CTX.fillRect(0, 0, W, H);
+  // grain dithering rất nhẹ
+  CTX.fillStyle = 'rgba(244,230,178,0.03)';
+  for (let ty = 0; ty < H; ty += 4) {
+    for (let tx = (ty % 8 ? 2 : 0); tx < W; tx += 4) CTX.fillRect(tx, ty, 1, 1);
+  }
+  CTX.restore();
+}
+
 function render() {
   const sc = SCENES[SCENE_HIEN];
   sc.ve();
+  dongBoTong(SCENE_HIEN);
   veNguoiHien();
 }
 
@@ -586,25 +617,37 @@ function doiScene(ten) {
   NGUOI.x = sc.viTriGoc[0]; NGUOI.y = sc.viTriGoc[1];
   NGUOI.dichX = null; NGUOI.mucTieuAction = null;
   NGUOI.frame = 'idle';
+  if (typeof sauKhiDoiScene === 'function') sauKhiDoiScene(sc.ten);
   if (typeof hopThoai === 'function') hopThoai(sc.ten, 'Bạn đến: ' + sc.ten + '. Chạm vào đồ vật để tương tác, chạm sàn để đi.');
+  render();
+}
+function doiSceneImLang(ten) {
+  SCENE_HIEN = ten;
+  const sc = SCENES[ten];
+  NGUOI.x = sc.viTriGoc[0]; NGUOI.y = sc.viTriGoc[1];
+  NGUOI.dichX = null; NGUOI.mucTieuAction = null;
+  NGUOI.frame = 'idle';
+  if (typeof sauKhiDoiScene === 'function') sauKhiDoiScene(sc.ten);
   render();
 }
 
 function thucHienAction(act) {
   if (typeof G === 'undefined' || !G) { if (typeof hopThoai === 'function') hopThoai('??', 'Chọn thành phố để bắt đầu đã.'); return; }
   switch (act) {
-    case 'ngu':     ngu(); break;
-    case 'an':      anUong(); break;
-    case 'an_pho':  anUong(); break;
-    case 'an_via_he': anUong(); break;
-    case 'lam':     diLam(); break;
-    case 'tivi':    apDung({tamTrang:+6}); hopThoai('Tivi', 'Chương trình hài cũ chiếu lại — cười một mình cũng đỡ.'); break;
-    case 'tu_kinh': hopThoai('Tủ kính', 'Chén đĩa sáng bóng, trên cùng là hộp bánh Trung thu để dành. Mẹ gọi điện chưa?'); break;
-    case 'noi_pho': hopThoai('Nồi nước lèo', 'Hương xương sôi 6 tiếng. Bà Hạnh: "Cháu hớt tay không, đỡ hơn uống cà phê."'); break;
-    case 'bang_hop': hopThoai('Bảng họp', 'Sếp gạch đầu dòng: "Q4 chỉ tiêu +30%". Không ai dám hỏi lại.'); break;
-    case 'quan_bar': hopThoai('Quán', 'Vài người quen gật đầu. ❤️+10 — hẹn gặp lại.'); apDung({tamTrang:+10, nangLuong:-10}); break;
+    case 'ngu':     bamHoatDong('ngu_dem'); break;
+    case 'an':      bamHoatDong('an_com_bui'); break;
+    case 'an_pho':  bamHoatDong('an_quan_pho'); break;
+    case 'an_via_he': bamHoatDong('tra_da_via_he'); break;
+    case 'lam':     bamHoatDong('di_lam'); break;
+    case 'tivi':    bamHoatDong('xem_tivi'); break;
+    case 'tu_kinh': hopThoai('Tủ kính', 'Chén đĩa sáng bóng, trên cùng là hộp bánh Trung thu để dành. Má gọi điện chưa?'); break;
+    case 'noi_pho': hopThoai('Nồi nước lèo', 'Hương xương sôi 6 tiếng. Bà Hạnh: "Cháu ăn tô tái nạm ha, cô bớt hành cho".'); break;
+    case 'bang_hop': hopThoai('Bảng họp', 'Sếp Đức gạch đầu dòng: "Q4 chỉ tiêu +30%". Không ai dám hỏi lại.'); break;
+    case 'quan_bar': bamHoatDong('tam_su_ban'); break;
     case 'ra_pho':  doiScene('pho_dem'); return;
     case 've_phong': doiScene('phong_tro'); return;
+    case 'quan_pho': doiScene('quan_pho'); return;
+    case 'van_phong': doiScene('van_phong'); return;
   }
   render();
 }
