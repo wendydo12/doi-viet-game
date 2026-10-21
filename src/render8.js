@@ -355,6 +355,26 @@ napNen('pho_dem', 'assets/bg/pho-dem.png');
 napNen('phong_tro', 'assets/bg/phong-tro.png');
 napNen('quan_pho', 'assets/bg/quan-pho.png');
 napNen('van_phong', 'assets/bg/van-phong.png');
+napNen('bia_hoi', 'assets/bg/bia-hoi.png');
+
+// ===== QUÁN BIA HƠI (kiểu Bar 9 To Life) =====
+SCENES.bia_hoi = {
+  ten: 'Quán bia hơi',
+  ve() {
+    const bg = BG_ANH.bia_hoi;
+    if (bg) { CTX.drawImage(bg, 0, 0, W, H); return; }
+    CTX.fillStyle = P.dem; CTX.fillRect(0, 0, W, H);
+  },
+  diem: {
+    quan: [180, 100, 90, 60, 'nghe_gossip_act'],
+    ban_nhau: [60, 150, 90, 50, 'nhom_bia_act'],
+    ra_pho: [10, 120, 50, 90, 'ra_pho'],
+  },
+  viTriGoc: [150, 158],
+  charScale: 3,
+  charPx: 48,
+  vungDi: { x1: 8, x2: 288, y1: 140, y2: 168 },
+};
 
 // ===== WALK SHEET MEOWA (6 frame side-view, chuẩn 9 To Life) =====
 const WALK_ANH = {};
@@ -481,6 +501,40 @@ SCENES.pho_dem = {
 
 let SCENE_HIEN = 'phong_tro';
 
+// ===== MƯA RƠI ĐỘNG (kiểu 9 To Life — vệt mưa chéo + icon mây trên HUD) =====
+const GIO_MUA = []; // { x, y, spd }
+for (let i = 0; i < 46; i++) GIO_MUA.push({ x: Math.random() * W, y: Math.random() * H, spd: 3 + Math.random() * 3 });
+const NGOAI_TROI = { pho_dem: 1, bia_hoi: 0.4 }; // hệ số mưa hiển thị theo cảnh (nội thất: nhìn mưa ngoài cửa)
+function veMua() {
+  const tt = (typeof G !== 'undefined' && G && G.thoiTiet) || 'nang';
+  if (tt !== 'mua') return;
+  const he = NGOAI_TROI[SCENE_HIEN];
+  if (he === undefined) return; // trong nhà kín: không vẽ mưa
+  CTX.save();
+  CTX.globalAlpha = 0.55 * he;
+  CTX.strokeStyle = '#BFD8E8';
+  CTX.lineWidth = 1;
+  for (const g of GIO_MUA) {
+    CTX.beginPath();
+    CTX.moveTo(g.x, g.y);
+    CTX.lineTo(g.x - 2, g.y + 7); // vệt chéo
+    CTX.stroke();
+    g.y += g.spd; g.x -= 0.9;
+    if (g.y > H) { g.y = -8; g.x = Math.random() * (W + 40); }
+    if (g.x < -10) g.x = W + 5;
+  }
+  CTX.restore();
+  // phủ hơi ướt tím nhẹ cả cảnh khi mưa
+  CTX.fillStyle = 'rgba(40,60,90,0.12)';
+  CTX.fillRect(0, 0, W, H);
+}
+// icon thời tiết pixel bên cạnh giờ trên HUD (kiểu 9 To Life)
+const ICON_TT = { nang: '☀️', may: '☁️', mua: '🌧️', nong: '🔥', ret: '🥶' };
+function capNhatIconThoiTiet() {
+  const el = document.getElementById('hud-tt');
+  if (el && typeof G !== 'undefined' && G) el.textContent = ICON_TT[G.thoiTiet] || '☀️';
+}
+
 // ===== ĐỒNG BỘ TÔNG MÀU (Phase 1) =====
 // 3 cảnh vẽ code được phủ grade ấm + vignette để cùng tông với phố đêm Meowa
 function dongBoTong(ten) {
@@ -513,10 +567,12 @@ function render() {
   sc.ve();
   dongBoTong(SCENE_HIEN);
   veNguoiHien();
+  veMua();
   // crush ra canvas chính: 160x120 → 320x240 NEAREST (pixel cục 8-bit)
   MAIN_CTX.imageSmoothingEnabled = false;
   MAIN_CTX.clearRect(0, 0, W, H);
   MAIN_CTX.drawImage(OFF, 0, 0, 160, 120, 0, 0, W, H);
+  capNhatIconThoiTiet();
 }
 
 // viền sáng ấm: tô ô trống ngay sát silhouette ở phía hướng về nguồn đèn
@@ -734,6 +790,9 @@ function thucHienAction(act) {
     case 've_phong': doiScene('phong_tro'); return;
     case 'quan_pho': doiScene('quan_pho'); return;
     case 'van_phong': doiScene('van_phong'); return;
+    case 'bia_hoi': doiScene('bia_hoi'); return;
+    case 'nhom_bia_act': bamHoatDong('nhom_bia'); break;
+    case 'nghe_gossip_act': bamHoatDong('nghe_gossip'); break;
   }
   render();
 }

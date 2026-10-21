@@ -59,6 +59,10 @@ function taoNguoiChoi(tenThanhPho, tenNguoi) {
     // DREAM (kiểu Mansion Life LP)
     dream: { ten: 'Nhà Mặt Phố', lp: 0, moTa: 'Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.' },
     npc: NPC_GOC.map(n => ({ ...n, quanHe: 20, ban: 0, yeu: 0, tamTrang: 'bình thường' })),
+    // THỜI TIẾT kiểu 9 To Life (icon mây/mưa trên HUD): nang — mua — nong
+    thoiTiet: 'nang',
+    // bạn gái/chàng trai (làm quen kiểu Flirt/Ask on a date → bạn thân + Mến ≥ 60 = người yêu)
+    banGai: null, // { npcId, ngayChot }
     diary: [],
     songSot: { doi: 0, khat: 0, matNgu: 0 },
     daChet: null,
@@ -188,6 +192,10 @@ const HOAT_DONG = [
   { id: 'di_cho',      ten: 'Đi chợ mua đồ',      phut: 60,  tien: -50_000, chiSo: { com: +25, vui: +8, nangLuong: -8, sachSe: -5 }, scene: ['pho_dem'], moTa: 'Rau trứng mì gói — tủ lạnh hết trống trải.' },
   { id: 'nau_an',      ten: 'Nấu bữa tử tế',      phut: 60,  tien: -30_000, chiSo: { com: +50, vui: +10, sachSe: -10 }, khoa: { kyNang: 'nauAn', cap: 2 }, moTa: 'Món nhà làm — má dạy mà chưa thuộc.', scene: ['phong_tro'] },
   { id: 'tap_the_duc', ten: 'Chạy bộ công viên',  phut: 45,  tien: 0, chiSo: { sucKhoe: +12, nangLuong: -15, sachSe: -20, vui: +5 }, scene: ['pho_dem'], moTa: 'Sáng sớm hít thở — né ổ gà và xe buýt.' },
+  // ===== QUÁN BIA HƠI (tụ bạn nhậu kiểu 9 To Life at Bar) =====
+  { id: 'nhom_bia',     ten: 'Nhậu bia hơi với bạn',  phut: 120, tien: -80_000, chiSo: { xaHoi: +30, vui: +25, com: +15, nangLuong: -15, sachSe: -15, sucKhoe: -8 }, quest: 'ra_pho', scene: ['bia_hoi'], moTa: 'Đĩa đậu luộc lạc rang, cạn chai ngàn — chuyện công sở tụt hết.' },
+  { id: 'nghe_gossip',  ten: 'Nghe buôn chuyện',      phut: 30,  tien: -20_000, chiSo: { xaHoi: +15, vui: +18, nangLuong: -6 }, scene: ['bia_hoi'], moTa: 'Cả bàn bắt đầu câu chuyện "này nhớ đừng kể ai".' },
+  { id: 'ca_nuong',     ten: 'Gọi thêm đĩa cá nướng', phut: 45,  tien: -120_000, chiSo: { com: +30, xaHoi: +10, vui: +12, nangLuong: -8 }, scene: ['bia_hoi'], khoa: { kyNang: 'giaoTiep', cap: 2 }, moTa: 'Cá nướng giấy bạc, chanh ớt — phải quen chủ quán mới được kêu.' },
 ];
 
 function hoatDongKhaDung(state, sceneHien) {
@@ -297,6 +305,49 @@ function chet(state, lyDo, chiTiet) {
   return state;
 }
 
+// ===== THỜI TIẾT (kiểu icon mây/mưa trên HUD của 9 To Life) =====
+// 'nang' — 'may' — 'mua' — 'nong' — 'ret' (trời lạnh Hà Nội)
+const THOI_TIET_MO_TA = {
+  nang: 'Trời nắng vàng, như quên mất deadline.',
+  may: 'Mây râm, gió hiu quất — thời tiết để đi dạo.',
+  mua: 'Mưa rơi tí tách, mặt đường ướt loang loáng.',
+  nong: 'Nắng thiêu xăng dầu — đến quạt máy cũng đuối.',
+  ret: 'Trời lạnh cắn da, hơi thở khói.',
+};
+function quayThoiTiet(state) {
+  const tp = state.thanhPhoKey;
+  const r = Math.random();
+  let t = 'nang';
+  if (tp === 'hanoi') {
+    // Hà Nội: 4 mùa linh tinh, hay mưa và trở lạnh
+    t = r < 0.35 ? 'nang' : r < 0.55 ? 'may' : r < 0.72 ? 'mua' : r < 0.85 ? 'ret' : 'nong';
+  } else if (tp === 'danang') {
+    // Đà Nẵng: nắng nhiều, mưa lũ tháng cuối năm
+    t = r < 0.55 ? 'nang' : r < 0.75 ? 'nong' : 'mua';
+  } else {
+    // Sài Gòn: nắng nóng + mù mưa chiều
+    t = r < 0.45 ? 'nong' : r < 0.65 ? 'nang' : r < 0.85 ? 'may' : 'mua';
+  }
+  if (t !== state.thoiTiet) {
+    state.thoiTiet = t;
+    ghiNhatKy(state, 'thoi_tiet', THOI_TIET_MO_TA[t]);
+  }
+  return state;
+}
+// Mưa ảnh hưởng: đi bộ ngoài đường ướt, sạch sẽ tụt nhanh, vui giảm nếu không có ô
+function thoiTietAnhHuong(state, phut, sceneNgoaiTroi) {
+  if (!sceneNgoaiTroi) return state;
+  const h = phut / 60;
+  if (state.thoiTiet === 'mua') {
+    apDungChiSo(state, { sachSe: -3 * h, vui: -2 * h, nangLuong: -1 * h });
+  } else if (state.thoiTiet === 'nong') {
+    apDungChiSo(state, { nangLuong: -2.5 * h, com: -1.5 * h });
+  } else if (state.thoiTiet === 'ret') {
+    apDungChiSo(state, { nangLuong: -1.5 * h });
+  }
+  return state;
+}
+
 // ===== SỰ KIỆN VIỆT =====
 const SU_KIEN_VIET = [
   { id: 'ket_xe', ten: 'Kẹt xe', xacSuat: 0.10, chiSo: { nangLuong: -8, vui: -10 }, thoai: 'Đường kẹt cứng 40 phút. Một chú Grab vẫn cười: "kệ, sống chung với lũ em ơi".' },
@@ -307,6 +358,18 @@ const SU_KIEN_VIET = [
   { id: 've_so', ten: 'Trúng vé số', xacSuat: 0.02, chiSo: { vui: +20 }, tien: +100_000, thoai: 'Ông Sáng dúi tờ vé ế. Chiều dò: trúng 100 ngàn!' },
   { id: 'me_goi', ten: 'Má gọi', xacSuat: 0.06, chiSo: { vui: +15, xaHoi: +8, sucKhoe: +3 }, thoai: 'Má: "ngoài đó lạnh không con, nhớ mặc áo khoác".' },
   { id: 'cam_cum', ten: 'Trái gió trở trời', xacSuat: 0.05, chiSo: { sucKhoe: -15, nangLuong: -10 }, thoai: 'Hắt hơi sổ mũi — mùa này ai cũng dính. Uống nước ấm vào.' },
+  { id: 'mua_to', ten: 'Dông bất chợt', xacSuat: 0.06, chiSo: { sachSe: -15, vui: -4 }, thoai: 'Dông ập xuống bất chợt, ai cũng chạy tìm mái hiên. Một ông tài xế vẫn từ tốn đắp bạt xe.' },
+  { id: 'nghe_ban_gai', ten: 'Tin đồn tình ái', xacSuat: 0.04, chiSo: { vui: +8, xaHoi: +5 }, thoai: 'Lão Chương tám: "nghe đồn ông ở chung với người yêu rồi ha?" — mặt đỏ như gạch nung.' },
+];
+
+// Gossip kiểu 9 To Life "word gets around" — NPC buôn chuyện với nhau qua tin nhắn
+const GOSSIP = [
+  'Bà Tư khoe con gà ta nhà bà ủ lá chanh thơm lắm',
+  'ông Sáng lại giơ tờ vé số ế khoe "mai đổi đời"',
+  'chị Đào dọn xôi sáng giờ không kịp úp nồi xôi',
+  'Linh bảo sếp Đức giờ đã học gọi tên đồng nghiệp',
+  'đám ở phòng 404 khuya 3h vẫn hát karaoke',
+  'Mai mới đổi kiểu tóc — nửa quán nhắn tin hỏi nhau',
 ];
 
 function kiemTraSuKien(state) {
@@ -410,6 +473,20 @@ function lamVoiNpc(state, npcId, hanhDongId) {
   tienDo(state, hd.phut);
   capNhatQuest(state);
   ghiNhatKy(state, 'npc', hd.ten + ' với ' + n.ten + ' — ' + n.ten + ' có vẻ ' + (hd.yeu >= 8 ? 'cảm động' : 'vui hơn') + '.');
+  // ===== TÌNH YEU: bạn thân + Mến ≥ 60 → tỏ tình tự động thành người yêu (kiểu Ask on a date)
+  if (hd.id === 'moi_hen_ho' && n.ban >= 60 && n.yeu >= 60) {
+    if (!state.banGai) {
+      state.banGai = { npcId: n.id, ngayChot: state.thoiGian.ngay };
+      n.tamTrang = 'đang yêu';
+      apDungChiSo(state, { vui: +25, xaHoi: +15 });
+      ghiNhatKy(state, 'tinh_yeu', 'Sau bữa ăn tối, ' + n.ten + ' nắm tay bạn: "mình đi với nhau nha". Cả hai chính thức thành người yêu 💕');
+    }
+  }
+  // gossip ngẫu nhiên khi chat ở quán
+  if (hd.id === 'tro_chuyen' && Math.random() < 0.4) {
+    const g = GOSSIP[Math.floor(Math.random() * GOSSIP.length)];
+    ghiNhatKy(state, 'gossip', 'Chuyện bên bàn: ' + g + '.');
+  }
   return { ok: true, npc: n };
 }
 
@@ -552,6 +629,54 @@ function chayTest() {
     let threw = false;
     try { taoNguoiChoi('trape'); } catch { threw = true; }
     if (!threw) throw new Error('không chặn');
+  });
+  t('Thời tiết quay theo thành phố (Sài Gòn không bao giờ rét)', () => {
+    const stt = taoNguoiChoi('saigon');
+    for (let i = 0; i < 60; i++) {
+      quayThoiTiet(stt);
+      if (stt.thoiTiet === 'ret') throw new Error('Sài Gòn mà lạnh?');
+    }
+    const hn = taoNguoiChoi('hanoi');
+    let coMuaHoacRet = false;
+    for (let i = 0; i < 60; i++) { quayThoiTiet(hn); if (hn.thoiTiet === 'mua' || hn.thoiTiet === 'ret') coMuaHoacRet = true; }
+    if (!coMuaHoacRet) throw new Error('Hà Nội 60 lượt không mưa/lạnh?');
+  });
+  t('Thời tiết ảnh hưởng: mưa ngoài đường làm ướt + mệt; trong nhà vô sự', () => {
+    const s = taoNguoiChoi('saigon'); s.thoiTiet = 'mua';
+    const sachTruoc = s.chiSo.sachSe;
+    thoiTietAnhHuong(s, 60, true);
+    if (s.chiSo.sachSe >= sachTruoc) throw new Error('mưa mà sạch sẽ không tụt');
+    const sachTruoc2 = s.chiSo.sachSe;
+    thoiTietAnhHuong(s, 60, false);
+    if (s.chiSo.sachSe !== sachTruoc2) throw new Error('trong nhà vẫn bị mưa?');
+  });
+  t('Nhậu bia hơi: có ở quán bia, tốn tiền, Xã hội +30', () => {
+    const s = taoNguoiChoi('saigon'); s.tien = 500_000;
+    const ds = hoatDongKhaDung(s, 'bia_hoi');
+    const nh = ds.find(h => h.id === 'nhom_bia');
+    if (!nh) throw new Error('thiếu nhom_bia ở bia_hoi');
+    if (nh.chiSo.xaHoi !== 30) throw new Error('xaHoi sai: ' + nh.chiSo.xaHoi);
+    const kq = lamHoatDong(s, 'nhom_bia');
+    if (!kq.ok) throw new Error(kq.lyDo);
+    if (s.chiSo.xaHoi < 80) throw new Error('xaHoi không lên: ' + s.chiSo.xaHoi);
+  });
+  t('Tán tỉnh ở quán: trò chuyện sinh gossip + rủ ăn tối đủ điều kiện → người yêu', () => {
+    const s = taoNguoiChoi('saigon'); s.tien = 1_000_000;
+    const mai = s.npc.find(n => n.id === 'mai');
+    mai.ban = 65; mai.yeu = 55;
+    lamVoiNpc(s, 'mai', 'tro_chuyen'); // gossip có thể ghi nhật ký
+    lamVoiNpc(s, 'mai', 'tha_thinh'); // +8 Mến → 63
+    const kq = lamVoiNpc(s, 'mai', 'moi_hen_ho');
+    if (!kq.ok) throw new Error(kq.lyDo);
+    if (!s.banGai || s.banGai.npcId !== 'mai') throw new Error('chưa thành người yêu');
+    if (!s.diary.some(d => d.loai === 'tinh_yeu')) throw new Error('nhật ký thiếu tin tình yêu');
+  });
+  t('Mến < 60 thì rủ ăn tối không thành người yêu', () => {
+    const s = taoNguoiChoi('saigon'); s.tien = 1_000_000;
+    const hoa = s.npc.find(n => n.id === 'hoa');
+    hoa.ban = 65; hoa.yeu = 40;
+    lamVoiNpc(s, 'hoa', 'moi_hen_ho');
+    if (s.banGai) throw new Error('40 Mến mà lấy được?');
   });
   return kq;
 }

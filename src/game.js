@@ -95,12 +95,15 @@ const IDLE_TITLE = { phong_tro: 'ĐANG Ở NHÀ', pho_dem: 'ĐANG Ở PHỐ', qu
 function capNhatHUD() {
   if (!G) return;
   const t = G.thoiGian;
-  document.getElementById('hud-ten').textContent = G.ten;
+  document.getElementById('hud-ten').textContent = G.ten + (G.tuoi ? ' ' + G.tuoi : '');
   document.getElementById('hud-noi').textContent = 'Ngày ' + t.ngay + ' tại ' + (SCENES[SCENE_HIEN] ? SCENES[SCENE_HIEN].ten : 'phố');
   document.getElementById('hud-tg').textContent = (THU_VIET[t.thu] || '?') + ' ' + String(t.gio).padStart(2, '0') + ':' + String(t.phut).padStart(2, '0');
   document.getElementById('hud-tien').textContent = Math.round(G.tien).toLocaleString('vi-VN') + 'đ';
   document.getElementById('idle-title').textContent = IDLE_TITLE[SCENE_HIEN] || 'ĐANG Ở ĐÂU ĐÓ';
   document.getElementById('loc-hd').textContent = (SCENES[SCENE_HIEN] ? SCENES[SCENE_HIEN].ten.toUpperCase() : '') + (G.phong.conNo > 0 ? ' · NỢ TRỌ ' + G.phong.conNo.toLocaleString('vi-VN') + 'đ' : '');
+  // biểu tượng tim trên HUD khi có người yêu (kiểu 9 To Life hiện Love)
+  const coYeu = G.banGai ? ' 💕' + (G.npc.find(n => n.id === G.banGai.npcId) || {}).ten : '';
+  document.getElementById('hud-ten').textContent = G.ten + (G.tuoi ? ' ' + G.tuoi : '') + coYeu;
   // shift note kiểu "Your shift is on (9am-5pm)"
   const ca = G.thoiGian.thu >= 2 && G.thoiGian.thu <= 6;
   document.getElementById('shift-note').innerHTML = ca
@@ -403,8 +406,19 @@ setInterval(() => {
   if (!G || G.daChet || PAUSE) return;
   tienDo(G, 10);
   capNhatQuest(G);
+  quayThoiTiet(G);
   capNhatTatCa();
   kiemTraChet();
+}, 20000);
+// loop vẽ liên tục: mưa rơi động + thoiTietAnhHuong ngoài trời
+const NGOAI_TROI_SCENE = { pho_dem: true, bia_hoi: true };
+setInterval(() => {
+  if (!G || G.daChet) return;
+  render(); // mưa chuyển động qua các tick render
+}, 100);
+setInterval(() => {
+  if (!G || G.daChet || PAUSE) return;
+  thoiTietAnhHuong(G, 4, NGOAI_TROI_SCENE[SCENE_HIEN]);
 }, 20000);
 setInterval(() => { if (G && !G.daChet) luuGame(G); }, 60000);
 
