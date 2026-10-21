@@ -40,3 +40,12 @@ Tagline: "Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời
 ## Git
 - ce6b389 docs: chốt tên + scope Phase 1
 - (commit sau) phase(1): backend v2 + UI mới + art khôi phục + QA pass
+
+## Phase 1.5 — Nâng art chuẩn 9 To Life (21/10 tối khuya, theo 2 ảnh phu quân gửi)
+- Phu quân gửi 2 ảnh tham chiếu (9 To Life phòng khách + Kairosoft-style store card) kèm lệnh "art ít ra cũng phải này"
+- Rút chuẩn từ ảnh: grid pixel thống nhất, contact shadow, tỉ lệ nhân vật-nội thất ~1.7m, silhouette mạnh, chi tiết kể chuyện
+- 3 job meowa xlarge_4_3 (75cr, còn 355): phòng trọ / quán phở / văn phòng — cả 3 đạt 8.5/10 thô, không rò chữ, đúng chất Việt (gạch bông, TV CRT đỏ, máy may, chăn hoa, xe phở bốc khói, ghế nhựa đỏ/xanh, cây nước úp bình, máy photo)
+- Hậu kỳ: composite nền đêm → 320x240 → quantize 40 màu (tools pipeline như phố đêm)
+- Engine: BG_ANH cho cả 4 cảnh + fallback vẽ code; charScale=3 (36x54) cho nội thất vs 2 (24x36) cho phố; vungDi theo cảnh; contact shadow ellipse + rim light mọi cảnh nền ảnh
+- Vision QA sau fix: phòng trọ 8/10 (tỉ lệ OK, "người thật trong phòng thật"), văn phòng 8/10 (scale khớp 1.7m, bóng tiếp xúc có)
+- QA gameplay lại: ăn cơm bụi → phở → đi làm (+80k, 8h→16h) → "Ngủ một đêm" ẩn đúng ngoài giờ → tap giường ra action ngủ ✅

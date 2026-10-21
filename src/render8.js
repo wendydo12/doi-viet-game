@@ -96,14 +96,13 @@ function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
   }
 }
 
-function veChar(frame, x, y, flip) {
-  const rows = CHAR_FRAMES[frame];
-  const SC = 2; // 24x36 — nhân vật nhỏ chuẩn 9 To Life
+function veChar(frame, x, y, flip, SC) {
+  SC = SC || 2; // scale theo cảnh: 2 = phố (24x36), 3 = nội thất (36x54)
   // Outline đen dày đúng 1 pixel-art (bằng 1 ô sprite), ôm sát silhouette
   for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
-    veCharRaw(rows, x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
+    veCharRaw(CHAR_FRAMES[frame], x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
   }
-  veCharRaw(rows, x, y, SC, flip, (ch) => CHAR_COLOR[ch]);
+  veCharRaw(CHAR_FRAMES[frame], x, y, SC, flip, (ch) => CHAR_COLOR[ch]);
 }
 
 // ===== TIỆN ÍCH VẼ =====
@@ -164,6 +163,8 @@ const SCENES = {};
 SCENES.phong_tro = {
   ten: 'Phòng trọ',
   ve() {
+    const bg = BG_ANH.phong_tro;
+    if (bg) { CTX.drawImage(bg, 0, 0, W, H); return; }
     veTuongVang(0, 0, W, 96);
     veGachBong(0, 96, W, H-96);
     // cửa sổ + trăng
@@ -227,19 +228,22 @@ SCENES.phong_tro = {
     CTX.fillStyle = P.den; CTX.fillRect(186, 34, 2, 4);
   },
   diem: {
-    giuong: [16, 120, 84, 34, 'ngu'],
-    ban_an: [128, 150, 64, 28, 'an'],
-    cua: [8, 196, 30, 44, 'ra_pho'],
-    tivi: [248, 46, 56, 50, 'tivi'],
-    tu_kinh: [20, 52, 52, 44, 'tu_kinh'],
+    giuong: [20, 95, 95, 65, 'ngu'],
+    ban_an: [110, 95, 60, 55, 'tivi'],
+    cua: [285, 85, 32, 85, 'ra_pho'],
+    tu_kinh: [190, 100, 50, 55, 'tu_kinh'],
   },
-  viTriGoc: [150, 130],
+  viTriGoc: [150, 148],
+  charScale: 3,
+  vungDi: { x1: 8, x2: 280, y1: 141, y2: 160 },
 };
 
 // --- SCENE 2: QUÁN PHỞ ---
 SCENES.quan_pho = {
   ten: 'Quán phở Bà Hạnh',
   ve() {
+    const bg = BG_ANH.quan_pho;
+    if (bg) { CTX.drawImage(bg, 0, 0, W, H); return; }
     veTuongVang(0, 0, W, 88);
     veGachBong(0, 88, W, H-88);
     CTX.fillStyle = P.do2; CTX.fillRect(88, 8, 144, 24);
@@ -274,17 +278,21 @@ SCENES.quan_pho = {
     CTX.fillStyle = P.do2; CTX.fillRect(7, 194, 22, 46);
   },
   diem: {
-    ban: [30, 144, 220, 40, 'an_pho'],
-    noi: [180, 76, 60, 40, 'noi_pho'],
-    cua: [4, 190, 28, 50, 'ra_pho'],
+    ban: [110, 120, 90, 50, 'an_pho'],
+    noi: [230, 95, 75, 85, 'noi_pho'],
+    cua: [10, 90, 60, 90, 'ra_pho'],
   },
-  viTriGoc: [120, 180],
+  viTriGoc: [80, 148],
+  charScale: 3,
+  vungDi: { x1: 8, x2: 280, y1: 141, y2: 160 },
 };
 
 // --- SCENE 3: VĂN PHÒNG ---
 SCENES.van_phong = {
   ten: 'Văn phòng',
   ve() {
+    const bg = BG_ANH.van_phong;
+    if (bg) { CTX.drawImage(bg, 0, 0, W, H); return; }
     CTX.fillStyle = P.kem2; CTX.fillRect(0, 0, W, 92);
     CTX.fillStyle = '#B8B0A0';
     for (let i = 0; i < 10; i++) CTX.fillRect((i*67)%W, (i*29)%80, 2, 1);
@@ -316,11 +324,13 @@ SCENES.van_phong = {
     CTX.fillStyle = '#5A3A22'; CTX.fillRect(287, 184, 24, 56);
   },
   diem: {
-    ban_lam: [16, 106, 300, 56, 'lam'],
-    bang: [96, 14, 128, 34, 'bang_hop'],
-    cua: [284, 180, 30, 60, 'ra_pho'],
+    ban_lam: [20, 110, 120, 60, 'lam'],
+    nuoc: [160, 100, 30, 60, 'ca_phe'],
+    cua: [280, 80, 36, 90, 'ra_pho'],
   },
-  viTriGoc: [160, 200],
+  viTriGoc: [160, 148],
+  charScale: 3,
+  vungDi: { x1: 8, x2: 280, y1: 141, y2: 160 },
 };
 
 // --- SCENE 4: PHỐ ĐÊM ---
@@ -333,6 +343,9 @@ function napNen(ten, duong) {
   im.src = duong;
 }
 napNen('pho_dem', 'assets/bg/pho-dem.png');
+napNen('phong_tro', 'assets/bg/phong-tro.png');
+napNen('quan_pho', 'assets/bg/quan-pho.png');
+napNen('van_phong', 'assets/bg/van-phong.png');
 
 // ---- hiệu ứng sống động phủ lên ảnh nền ----
 let TG = 0;
@@ -431,7 +444,7 @@ let SCENE_HIEN = 'phong_tro';
 // ===== ĐỒNG BỘ TÔNG MÀU (Phase 1) =====
 // 3 cảnh vẽ code được phủ grade ấm + vignette để cùng tông với phố đêm Meowa
 function dongBoTong(ten) {
-  if (ten === 'pho_dem') return; // ảnh Meowa đã chuẩn tông
+  if (BG_ANH[ten]) return; // ảnh Meowa đã chuẩn tông — không phủ gì thêm
   CTX.save();
   // ánh sáng ấm nhẹ toàn cảnh (đèn vàng hoài niệm)
   CTX.globalCompositeOperation = 'lighter';
@@ -463,10 +476,10 @@ function render() {
 }
 
 // viền sáng ấm: tô ô trống ngay sát silhouette ở phía hướng về nguồn đèn
-function veRimSang(frame, x, y, flip, benPhai) {
-  if (SCENE_HIEN !== 'pho_dem') return;
+function veRimSang(frame, x, y, flip, benPhai, SC) {
+  SC = SC || 2;
+  if (SCENE_HIEN !== 'pho_dem' && !BG_ANH[SCENE_HIEN]) return;
   const rows = CHAR_FRAMES[frame];
-  const SC = 2;
   const day = (r, c) => {
     if (r < 0 || r >= rows.length || c < 0 || c >= 12) return false;
     const line = rows[r];
@@ -488,7 +501,9 @@ function veRimSang(frame, x, y, flip, benPhai) {
 
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
-  const chanY = y + 36;
+  const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+  const spriteH = 18 * SC, spriteW = 12 * SC;
+  const chanY = y + spriteH;
   // phản chiếu mờ trên mặt đường ướt (chỉ ở cảnh phố đêm)
   if (SCENE_HIEN === 'pho_dem' && BG_ANH.pho_dem) {
     CTX.save();
@@ -502,29 +517,30 @@ function veNguoiHien() {
         const mau = CHAR_COLOR[di < 0 ? line[line.length-1-c] : line[c]];
         if (!mau) continue;
         CTX.fillStyle = mau;
-        CTX.fillRect(x + c*2, ry, 2, 1);
+        CTX.fillRect(x + c*SC, ry, SC, 1);
       }
     }
     CTX.restore();
   }
   // vệt sáng ấm hắt xuống mặt đường dưới chân (đèn đường/ quán)
   CTX.fillStyle = 'rgba(232,196,106,0.10)';
-  CTX.beginPath(); CTX.ellipse(x+12, y+37, 14, 4, 0, 0, 7); CTX.fill();
-  CTX.fillStyle = 'rgba(8,6,12,0.45)';
-  CTX.beginPath(); CTX.ellipse(x+12, y+37, 9, 2.5, 0, 0, 7); CTX.fill();
-  // nhấp nhô nhẹ theo nhịp bước (1 pixel-art = 2px canvas) cho đỡ cứng
-  const nhun = frame === 'walk2' ? -2 : 0;
-  veChar(frame, x, y + nhun, di < 0);
+  CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.58, 4, 0, 0, 7); CTX.fill();
+  // bóng đổ tiếp xúc (contact shadow) — neo nhân vật xuống sàn
+  CTX.fillStyle = 'rgba(8,6,12,0.5)';
+  CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.38, SC*1.3, 0, 0, 7); CTX.fill();
+  // nhấp nhô nhẹ theo nhịp bước cho đỡ cứng
+  const nhun = frame === 'walk2' ? -SC : 0;
+  veChar(frame, x, y + nhun, di < 0, SC);
   // viền sáng ấm phía quay về nguồn đèn (đèn đường/quán nằm giữa phố)
-  veRimSang(frame, x, y + nhun, di < 0, x + 12 > 150);
+  veRimSang(frame, x, y + nhun, di < 0, x + spriteW/2 > 150, SC);
   // ánh sáng ấm của phố hắt lên người (giúp nhân vật hòa vào cảnh)
   CTX.save();
   CTX.globalCompositeOperation = 'lighter';
-  const g = CTX.createRadialGradient(x+12, y+26, 1, x+12, y+26, 18);
+  const g = CTX.createRadialGradient(x+spriteW/2, y+spriteH*0.7, 1, x+spriteW/2, y+spriteH*0.7, spriteH*0.5);
   g.addColorStop(0, 'rgba(244,230,178,0.085)');
   g.addColorStop(1, 'rgba(244,230,178,0)');
   CTX.fillStyle = g;
-  CTX.fillRect(x - 8, y + 6, 40, 44);
+  CTX.fillRect(x - SC*4, y + SC*3, spriteW + SC*8, spriteH + SC*4);
   CTX.restore();
 }
 
@@ -640,6 +656,7 @@ function thucHienAction(act) {
     case 'an_via_he': bamHoatDong('tra_da_via_he'); break;
     case 'lam':     bamHoatDong('di_lam'); break;
     case 'tivi':    bamHoatDong('xem_tivi'); break;
+    case 'ca_phe':  bamHoatDong('ca_phe_sua'); break;
     case 'tu_kinh': hopThoai('Tủ kính', 'Chén đĩa sáng bóng, trên cùng là hộp bánh Trung thu để dành. Má gọi điện chưa?'); break;
     case 'noi_pho': hopThoai('Nồi nước lèo', 'Hương xương sôi 6 tiếng. Bà Hạnh: "Cháu ăn tô tái nạm ha, cô bớt hành cho".'); break;
     case 'bang_hop': hopThoai('Bảng họp', 'Sếp Đức gạch đầu dòng: "Q4 chỉ tiêu +30%". Không ai dám hỏi lại.'); break;
