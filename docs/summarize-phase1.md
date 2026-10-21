@@ -57,3 +57,11 @@ Tagline: "Sáng chấm công, trưa cơm bụi, tối chạy deadline — đời
 - Portrait NPC trong hộp thoại (8 char meowa-r1 map theo 14 NPC) + mood box % kiểu 9 To Life (TUYỆT/ỔN/MỆT/KIỆT đổi mặt)
 - Nhân vật phố đêm: filter saturate(0.82) brightness(0.88) → hòa ánh đêm, vision 8/10; phòng trọ walk vision 9/10 "nhận nhầm là cùng vũ trụ 9 To Life"
 - QA: không lỗi JS, walk chạy 2 cảnh, tap-to-move OK
+
+## Phase 1.7 — Pixel crush 8bit + tỉ lệ nhân vật chuẩn 9 To Life (21/10 khuya, theo feedback phu quân)
+- Feedback: "nhân vật ko giống trong ảnh, to vs khung cảnh, ko phải 8bit — cần Y CHANG 9 To Life"
+- ĐO LẠI ảnh 9 To Life thật bằng vision: scene chỉ ~135x81 px game, pixel cục ~4px màn hình, nhân vật ~20% chiều cao cảnh
+- FIX 1 — **pixel crush**: vẽ 320x240 vào offscreen 160x120 (scale 0.5) → phóng NEAREST x2 lên canvas → khối 2x2 cục mịch đúng 8bit
+- FIX 2 — **tỉ lệ**: charPx 48/240 = đúng 20% cho phố đêm; walk sheet scale động theo charPx; idle dùng frame 0 của walk sheet (cùng nhân vật, hết cảnh 2 sprite khác nhau)
+- FIX 3 — vùng đi + viTriGoc theo chiều cao sprite mới
+- Vision QA sau fix: phố đêm 8/10 ("tỉ lệ đúng dải 9 To Life, pixel cục 2x2 đạt, chân bám vỉa hè"), phòng trọ 8/10 ("hòa cảnh, cùng outline, walk-sheet side-view")

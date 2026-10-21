@@ -1,10 +1,19 @@
 // RENDER v5 — 8bit THUẦN kiểu 9 To Life: tile-based, nhân vật 24px outline, tap-to-move
 // 4 bối cảnh VN: phòng trọ / quán phở / văn phòng / phố đêm + bloom + dithering
 const CANVAS = document.getElementById('man-choi');
-const CTX = CANVAS.getContext('2d');
-CTX.imageSmoothingEnabled = false;
+const MAIN_CTX = CANVAS.getContext('2d');
+MAIN_CTX.imageSmoothingEnabled = false;
 
 const W = 320, H = 240, T = 16;
+// ===== PIXEL CRUSH 8-BIT =====
+// 9 To Life thật đo được: scene chỉ ~135x81 px game, pixel CỤC TO.
+// Ta vẽ hệ tọa độ 320x240 vào offscreen 160x120 (scale 0.5) rồi phóng
+// ngược NEAREST lên canvas → mọi thứ thành khối 2x2, đúng chất 8-bit.
+const OFF = document.createElement('canvas');
+OFF.width = 160; OFF.height = 120;
+const CTX = OFF.getContext('2d');
+CTX.imageSmoothingEnabled = false;
+CTX.scale(0.5, 0.5);
 
 // ===== BẢNG MÀU 8BIT HOÀI NIỆM VN =====
 const P = {
@@ -463,9 +472,11 @@ SCENES.pho_dem = {
     quan_pho: [224, 120, 90, 60, 'quan_pho'],
     toa_van_phong: [48, 90, 60, 60, 'van_phong'],
   },
-  viTriGoc: [172, 176],
-  // vùng đi lại: chỉ cho đi trên dải vỉa hè + lòng đường (y = góc trên sprite, chân ở y+36)
-  vungDi: { x1: 8, x2: 296, y1: 174, y2: 190 },
+  viTriGoc: [172, 164],
+  charScale: 3,
+  charPx: 48, // ~20% chiều cao cảnh — chuẩn 9 To Life cho phố rộng
+  // vùng đi lại: y là GÓC TRÊN sprite cao 48px → chân ở y+48, trên dải vỉa hè
+  vungDi: { x1: 8, x2: 288, y1: 146, y2: 168 },
 };
 
 let SCENE_HIEN = 'phong_tro';
@@ -502,6 +513,10 @@ function render() {
   sc.ve();
   dongBoTong(SCENE_HIEN);
   veNguoiHien();
+  // crush ra canvas chính: 160x120 → 320x240 NEAREST (pixel cục 8-bit)
+  MAIN_CTX.imageSmoothingEnabled = false;
+  MAIN_CTX.clearRect(0, 0, W, H);
+  MAIN_CTX.drawImage(OFF, 0, 0, 160, 120, 0, 0, W, H);
 }
 
 // viền sáng ấm: tô ô trống ngay sát silhouette ở phía hướng về nguồn đèn
@@ -531,7 +546,9 @@ function veRimSang(frame, x, y, flip, benPhai, SC) {
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const spriteH = 18 * SC, spriteW = 12 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC; // chiều cao sprite thật (px)
+  const spriteW = 12 * SC * (charPx / (18 * SC));
+  const spriteH = charPx;
   const chanY = y + spriteH;
   // phản chiếu mờ trên mặt đường ướt (chỉ ở cảnh phố đêm)
   if (SCENE_HIEN === 'pho_dem' && BG_ANH.pho_dem) {
@@ -562,11 +579,23 @@ function veNguoiHien() {
   // khi ĐANG ĐI và có walk sheet meowa → vẽ frame side-view (chuẩn 9 To Life)
   const dangDi = (frame === 'walk1' || frame === 'walk2') && (NGUOI.dichX !== null || PHIM1['ArrowLeft'] || PHIM1['ArrowRight'] || PHIM1['a'] || PHIM1['d']);
   let veSheet = false;
-  if (dangDi) {
+  {
     const sheet = SC === 3 ? WALK_ANH.w54 : WALK_ANH.w36;
     if (sheet) {
-      const fw = sheet.width / 6, fh = sheet.height;
-      veWalkFrame(Math.round(x + spriteW/2 - fw/2), Math.round(y + spriteH - fh + nhun), di < 0, SC);
+      const fw0 = sheet.width / 6, fh0 = sheet.height;
+      const scH = charPx / fh0;               // scale theo chiều cao mong muốn
+      const fw = Math.round(fw0 * scH), fh = charPx;
+      const idx = dangDi ? Math.floor(NGUOI.frameDem / 5) % 6 : 0; // idle = frame 0
+      CTX.save();
+      if (SCENE_HIEN === 'pho_dem') CTX.filter = 'saturate(0.82) brightness(0.88)';
+      const dx = Math.round(x + spriteW/2 - fw/2), dy = Math.round(y + spriteH - fh + nhun);
+      if (di < 0) {
+        CTX.translate(dx + fw, dy); CTX.scale(-1, 1);
+        CTX.drawImage(sheet, idx * fw0, 0, fw0, fh0, 0, 0, fw, fh);
+      } else {
+        CTX.drawImage(sheet, idx * fw0, 0, fw0, fh0, dx, dy, fw, fh);
+      }
+      CTX.restore();
       veSheet = true;
     }
   }
