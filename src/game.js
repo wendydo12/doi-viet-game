@@ -228,15 +228,29 @@ function capNhatNpc() {
   for (const n of [...G.npc].sort((a, b) => b.quanHe - a.quanHe)) {
     const d = document.createElement('div');
     d.className = 'npc';
-    d.innerHTML = '<img src="assets/meowa-r1/' + portraitCua(n.ten) + '.png">' +
+    d.innerHTML = '<img src="assets/' + portraitCua(n.ten) + '">' +
       '<div class="info"><b>' + n.ten + '</b> <span style="color:#9AA5C9">· ' + n.vai + '</span><br>' +
       '<span class="rels"><span class="rel">Bạn ' + Math.round(n.ban) + '</span> <span class="rel">Mến ' + Math.round(n.yeu) + '</span> <span class="rel" style="color:' + (n.tamTrang.includes('vui') ? '#6FE06A' : '#9AA5C9') + '">' + n.tamTrang + '</span></span></div>';
     d.onclick = () => moNpc(n.id);
     wrap.appendChild(d);
   }
 }
-const PORTRAIT = { 'Bà Tư': 'char_01', 'Đức': 'char_06', 'Mai': 'char_04', 'Linh': 'char_02', 'Nam': 'char_07', 'Tuấn': 'char_06', 'Hùng': 'char_03', 'Cụ Long': 'char_06', 'Thảo': 'char_04', 'Hạnh': 'char_01', 'Chị Đào': 'char_01', 'Trung': 'char_07', 'Hoa': 'char_04', 'Ông Sáng': 'char_06' };
-function portraitCua(ten) { return PORTRAIT[ten] || 'char_07'; }
+// Portrait theo ĐÚNG giới tính + tuổi + nghề NPC:
+// nu_01 bà già (Bà Tư, bà Hạnh cỡ tuổi), nu_02 cô công sở (Mai, Linh),
+// nu_03 tạp dề teal (Thảo cà phê), nu_04 trung niên áo hoa (chị Hạnh hàng xóm),
+// nu_05 áo trắng (Hoa sinh viên), nu_06 áo vàng (chị Đào xôi)
+// char_0X (nam): Đức/Tuấn/Trung sếp+kỹ thuật, Hùng shipper (char_03 túi đeo),
+// Nam game thủ (char_08 reo hò), Cụ Long/Ông Sáng già (char_06), người kể chuyện (char_07)
+const PORTRAIT = {
+  'Bà Tư': 'portrait/nu_01', 'Mai': 'portrait/nu_02', 'Linh': 'portrait/nu_02',
+  'Thảo': 'portrait/nu_03', 'Hạnh': 'portrait/nu_04', 'Hoa': 'portrait/nu_05',
+  'Chị Đào': 'portrait/nu_06', 'Bà Hạnh': 'portrait/nu_01',
+  'Đức': 'meowa-r1/char_06', 'Tuấn': 'meowa-r1/char_06', 'Trung': 'meowa-r1/char_07',
+  'Hùng': 'meowa-r1/char_03', 'Nam': 'meowa-r1/char_07',
+  'Cụ Long': 'meowa-r1/char_06', 'Ông Sáng': 'meowa-r1/char_06',
+};
+function portraitCua(ten) { return (PORTRAIT[ten] || 'meowa-r1/char_07') + '.png'; }
+function duongDanPortrait(ten) { return 'assets/' + portraitCua(ten); }
 
 function moNpc(id) {
   const n = G.npc.find(x => x.id === id);
@@ -244,7 +258,7 @@ function moNpc(id) {
   const box = document.getElementById('npc-chi-tiet');
   box.style.display = 'block';
   box.innerHTML = '<div class="panel" style="border-color:var(--vang)">' +
-    '<div style="display:flex;gap:10px;align-items:center"><img src="assets/meowa-r1/' + portraitCua(n.ten) + '.png" style="width:64px;height:64px;image-rendering:pixelated;border:2px solid var(--vien);background:#10152A">' +
+    '<div style="display:flex;gap:10px;align-items:center"><img src="assets/' + portraitCua(n.ten) + '" style="width:64px;height:64px;image-rendering:pixelated;border:2px solid var(--vien);background:#10152A">' +
     '<div><b style="color:var(--vang);font-size:15px">' + n.ten + '</b><br><span style="font-size:11px;color:#9AA5C9">' + n.vai + ' · ' + n.tinhCach + '</span><br>' +
     '<span style="font-size:11px;color:#8FD4C8">Bạn ' + Math.round(n.ban) + ' · Mến ' + Math.round(n.yeu) + ' · ' + n.tamTrang + '</span></div></div>' +
     NPC_HANH_DONG.map(hd => {
@@ -341,8 +355,9 @@ let hopThoaiTimer = null;
 function hopThoai(nguoi, noiDung) {
   const box = document.getElementById('hop-thoai');
   box.style.display = 'block';
-  const p = PORTRAIT[nguoi.replace(/^⚡ /, '')] || (nguoi.includes('Bà Tư') ? 'char_01' : null);
-  const img = p ? '<img class="pt" src="assets/meowa-r1/' + p + '.png">' : '';
+  const tenSach = nguoi.replace(/^⚡ /, '').replace(' chủ trọ', '').replace(' Bà Hạnh', '');
+  const p = PORTRAIT[tenSach] || (tenSach.includes('Bà') ? 'portrait/nu_01' : (tenSach.includes('chị') || tenSach.includes('Chị') ? 'portrait/nu_04' : 'meowa-r1/char_07'));
+  const img = p ? '<img class="pt" src="assets/' + (p.endsWith('.png') ? p : p + '.png') + '">' : '';
   box.innerHTML = img + '<span class="nguoi">' + nguoi + '</span><br>' + noiDung.replace(/\n/g, '<br>') +
     '<br><span class="nut" onclick="dongHopThoai()">OK</span>';
   if (hopThoaiTimer) clearTimeout(hopThoaiTimer);
