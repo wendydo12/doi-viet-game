@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Phố Đêm Trở Về — Life-sim Việt</title>
+<style>
+  :root {
+    --vang-nge: #E8C46A; --teal-co: #47857D; --nau-go: #6D4A2E;
+    --do-do: #C0392B; --kem-nga: #E8D5B0; --dem: #1A1626;
+    --trang-nghe: #FFF6E0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--dem); color: var(--trang-nghe); font-family: 'Courier New', monospace;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden; }
+  #man-choi { image-rendering: pixelated; border: 4px solid var(--nau-go);
+    background: #E8D5B0; touch-action: none; }
+  #hud { width: 100%; max-width: 800px; background: var(--nau-go); padding: 6px 10px;
+    display:flex; justify-content:space-between; font-size: 13px; flex-wrap: wrap; gap:4px; }
+  #hop-thoai { width:100%; max-width:800px; background: var(--trang-nghe); color:#1A1626;
+    padding:10px 14px; font-size:14px; min-height:64px; border: 3px solid var(--nau-go);
+    display:none; }
+  #hop-thoai .nguoi { color: var(--do-do); font-weight: bold; }
+  #hop-thoai .nut { margin-top:6px; background: var(--vang-nge); padding:4px 12px;
+    display:inline-block; cursor:pointer; border:2px solid #1A1626; }
+  #dieukhien { width:100%; max-width:800px; padding:8px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+  .btn { background: var(--teal-co); color:var(--trang-nghe); border:2px solid #0d2b28;
+    padding:8px 14px; font-family:inherit; font-size:13px; cursor:pointer; }
+  .btn:active { background: var(--vang-nge); color:#1A1626; }
+  #man-choi-duoi { display:flex; gap:4px; }
+  #menu { position:fixed; inset:0; background:rgba(26,22,38,.96); display:flex;
+    flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:10; }
+  #menu h1 { color: var(--vang-nge); font-size: 26px; text-shadow: 2px 2px 0 var(--do-do); }
+  #menu p { color: var(--kem-nga); font-size: 14px; max-width: 500px; text-align:center; padding: 0 16px; }
+  .city-btn { width: 280px; padding: 14px; font-size: 16px; }
+  #man-hinh-nho { position:fixed; top:8px; right:8px; font-size:11px; color:var(--kem-nga);
+    background:rgba(0,0,0,.5); padding:2px 6px; }
+</style>
+</head>
+<body>
+  <div id="menu">
+    <h1>🏮 PHỐ ĐÊM TRỞ VỀ 🏮</h1>
+    <p>Đời sống pixel 100% Việt. Bạn vừa ra trọ, túi 150 ngàn, một hành lích cũ — chọn nơi bắt đầu:</p>
+    <button class="btn city-btn" onclick="batDau('saigon')">🌅 Sài Gòn — hẻm & mưa ngập</button>
+    <button class="btn city-btn" onclick="batDau('hanoi')">🍂 Hà Nội — phố cổ & rét</button>
+    <button class="btn city-btn" onclick="batDau('danang')">🌊 Đà Nẵng — biển & gió</button>
+  </div>
+  <div id="man-hinh-nho"></div>
+  <div id="hud">
+    <span id="hud-tg">—</span>
+    <span id="hud-tien">—</span>
+    <span id="hud-chiso">—</span>
+  </div>
+  <canvas id="man-choi" width="320" height="240"></canvas>
+  <div id="hop-thoai"></div>
+  <div id="dieukhien">
+    <button class="btn" onclick="hienThoiGian1h()">⏩ +1 giờ</button>
+    <button class="btn" onclick="hienThoiGian1h()">⏩ +3 giờ</button>
+    <button class="btn" onclick="anUong()">🍜 Ăn</button>
+    <button class="btn" onclick="ngu()">😴 Ngủ</button>
+    <button class="btn" onclick="diLam()">💼 Đi làm</button>
+    <button class="btn" onclick="diCho()">🛒 Chợ</button>
+    <button class="btn" onclick="moDiary()">📖 Nhật ký</button>
+  </div>
+<script src="src/core.js"></script>
+<script src="src/render.js"></script>
+<script src="src/game.js"></script>
+</body>
+</html>
