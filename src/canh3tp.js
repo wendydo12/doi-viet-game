@@ -485,24 +485,24 @@ function veDenTreoChaoKem(x, y) {
 
 function veTVCRTAntenTrenTuXanh() {
   // tủ xanh dương có ngăn kéo (chạm sàn y=142), TV CRT xám + ăng-ten V, vật đỏ dưới chân
-  // TỦ
-  CTX.fillStyle = '#3E2810'; CTX.fillRect(244, 82, 60, 62);
-  CTX.fillStyle = '#3868C8'; CTX.fillRect(245, 83, 58, 60);
+  // TỦ xanh 46px (chạm sàn 142, đỉnh y96)
+  CTX.fillStyle = '#3E2810'; CTX.fillRect(244, 100, 60, 44);
+  CTX.fillStyle = '#3868C8'; CTX.fillRect(245, 101, 58, 42);
   CTX.fillStyle = '#2C4E96';
-  CTX.fillRect(247, 108, 54, 2); CTX.fillRect(247, 134, 54, 2); // ngăn
-  CTX.fillStyle = '#F0E6D0'; CTX.fillRect(268, 118, 8, 3); CTX.fillRect(268, 144, 8, 3); // tay kéo
+  CTX.fillRect(247, 116, 54, 2); CTX.fillRect(247, 128, 54, 2); // ngăn
+  CTX.fillStyle = '#F0E6D0'; CTX.fillRect(268, 120, 8, 3); CTX.fillRect(268, 132, 8, 3); // tay kéo
   CTX.fillStyle = '#241B30'; CTX.fillRect(242, 142, 64, 3); // bóng chạm sàn
-  // TV CRT trên tủ (đáy TV = y82 = mặt tủ)
-  CTX.fillStyle = '#3E2810'; CTX.fillRect(252, 52, 44, 32);
-  CTX.fillStyle = '#B8B4A8'; CTX.fillRect(253, 53, 42, 30); // vỏ be/xám
-  CTX.fillStyle = '#241B30'; CTX.fillRect(257, 57, 30, 22); // màn tối
-  CTX.fillStyle = '#3A4A4A'; CTX.fillRect(259, 59, 26, 18); // phản chiếu mờ
-  CTX.fillStyle = '#8A8A92'; CTX.fillRect(290, 58, 4, 3); CTX.fillRect(290, 63, 4, 3); // núm
+  // TV CRT trên tủ (đáy TV = y95), cao 28px
+  CTX.fillStyle = '#3E2810'; CTX.fillRect(252, 73, 44, 28);
+  CTX.fillStyle = '#B8B4A8'; CTX.fillRect(253, 74, 42, 26); // vỏ be/xám
+  CTX.fillStyle = '#241B30'; CTX.fillRect(257, 78, 30, 18); // màn tối
+  CTX.fillStyle = '#3A4A4A'; CTX.fillRect(259, 80, 26, 14); // phản chiếu mờ
+  CTX.fillStyle = '#8A8A92'; CTX.fillRect(290, 79, 4, 3); CTX.fillRect(290, 83, 4, 3); // núm
   // ăng-ten chữ V
   CTX.strokeStyle = '#241B30'; CTX.lineWidth = 2;
-  CTX.beginPath(); CTX.moveTo(268, 53); CTX.lineTo(258, 36); CTX.stroke();
-  CTX.beginPath(); CTX.moveTo(274, 53); CTX.lineTo(286, 36); CTX.stroke();
-  CTX.fillStyle = '#241B30'; CTX.fillRect(266, 34, 6, 3); // đế ăng-ten
+  CTX.beginPath(); CTX.moveTo(268, 74); CTX.lineTo(259, 60); CTX.stroke();
+  CTX.beginPath(); CTX.moveTo(274, 74); CTX.lineTo(285, 60); CTX.stroke();
+  CTX.fillStyle = '#241B30'; CTX.fillRect(266, 57, 6, 3); // đế ăng-ten
   // ổ điện trắng trên tường cạnh tủ xanh (thay vật lơ lửng)
   CTX.fillStyle = '#F0EDE4'; CTX.fillRect(302, 122, 6, 8);
   CTX.fillStyle = '#3E2810'; CTX.fillRect(304, 125, 2, 2); CTX.fillRect(304, 128, 2, 2);
@@ -548,32 +548,32 @@ function veSofaNau2Cho() {
   CTX.fillStyle = '#241B30'; CTX.fillRect(sx - 2, 142, sw + 4, 3); // bóng chạm sàn
 }
 function veBanMayVanhCRT() {
-  // bàn máy tính xám + màn CRT trắng màn tối + ghế, chạm sàn
-  CTX.fillStyle = '#3E2810'; CTX.fillRect(186, 108, 56, 36);
-  CTX.fillStyle = '#9A9690'; CTX.fillRect(187, 109, 54, 34); // mặt bàn xám
+  // bàn máy tính xám + màn CRT trắng — tổng 54px (bàn 30 + CRT 24)
+  CTX.fillStyle = '#3E2810'; CTX.fillRect(186, 112, 56, 32);
+  CTX.fillStyle = '#9A9690'; CTX.fillRect(187, 113, 54, 30); // mặt bàn xám
   CTX.fillStyle = '#7E7A74'; CTX.fillRect(187, 138, 54, 5); // cạnh bàn
   CTX.fillStyle = '#3E2810'; CTX.fillRect(190, 142, 6, 2); CTX.fillRect(232, 142, 6, 2); // chân
-  // màn CRT trắng màn tối trên bàn
-  CTX.fillStyle = '#3E2810'; CTX.fillRect(196, 82, 34, 28);
-  CTX.fillStyle = '#F0EDE4'; CTX.fillRect(197, 83, 32, 26);
-  CTX.fillStyle = '#241B30'; CTX.fillRect(201, 87, 22, 16); // màn tối
-  CTX.fillStyle = '#5E6E88'; CTX.fillRect(203, 89, 10, 2); CTX.fillRect(203, 93, 16, 2); // dòng chữ trên màn
-  CTX.fillStyle = '#8A8A92'; CTX.fillRect(206, 110, 12, 3); // đế phím
+  // màn CRT trắng màn tối trên bàn (đáy y112)
+  CTX.fillStyle = '#3E2810'; CTX.fillRect(196, 90, 34, 24);
+  CTX.fillStyle = '#F0EDE4'; CTX.fillRect(197, 91, 32, 22);
+  CTX.fillStyle = '#241B30'; CTX.fillRect(201, 95, 22, 14); // màn tối
+  CTX.fillStyle = '#5E6E88'; CTX.fillRect(203, 97, 10, 2); CTX.fillRect(203, 101, 16, 2); // dòng chữ trên màn
+  CTX.fillStyle = '#8A8A92'; CTX.fillRect(206, 114, 12, 3); // đế phím
   // bóng
   CTX.fillStyle = '#241B30'; CTX.fillRect(186, 142, 56, 3);
 }
 
 function veTuLanhNamCham() {
-  // tủ lạnh trắng cao ~1.3x nhân vật, khe cửa + nam châm màu, chạm sàn
-  CTX.fillStyle = '#3E2810'; CTX.fillRect(60, 66, 34, 78);
-  CTX.fillStyle = '#F0F0EC'; CTX.fillRect(61, 67, 32, 76);
-  CTX.fillStyle = '#C4C4C0'; CTX.fillRect(61, 96, 32, 2); // khe ngăn đông
-  CTX.fillStyle = '#8A8A92'; CTX.fillRect(86, 74, 3, 10); CTX.fillRect(86, 104, 3, 14); // tay nắm
+  // tủ lạnh trắng 66px — đỉnh ngang ĐỊNH ĐẦU sprite 60px (đúng thị giác 9 To Life)
+  CTX.fillStyle = '#3E2810'; CTX.fillRect(60, 76, 34, 66);
+  CTX.fillStyle = '#F0F0EC'; CTX.fillRect(61, 77, 32, 64);
+  CTX.fillStyle = '#C4C4C0'; CTX.fillRect(61, 101, 32, 2); // khe ngăn đông
+  CTX.fillStyle = '#8A8A92'; CTX.fillRect(86, 82, 3, 9); CTX.fillRect(86, 107, 3, 12); // tay nắm
   // nam châm màu (như frame mẫu)
-  CTX.fillStyle = '#E08020'; CTX.fillRect(68, 76, 4, 4);
-  CTX.fillStyle = '#3868C8'; CTX.fillRect(74, 82, 4, 4);
-  CTX.fillStyle = '#C83838'; CTX.fillRect(68, 110, 4, 4);
-  CTX.fillStyle = '#3E8E4E'; CTX.fillRect(76, 116, 4, 4);
+  CTX.fillStyle = '#E08020'; CTX.fillRect(68, 83, 4, 4);
+  CTX.fillStyle = '#3868C8'; CTX.fillRect(74, 88, 4, 4);
+  CTX.fillStyle = '#C83838'; CTX.fillRect(68, 112, 4, 4);
+  CTX.fillStyle = '#3E8E4E'; CTX.fillRect(76, 118, 4, 4);
   CTX.fillStyle = '#241B30'; CTX.fillRect(58, 142, 38, 3); // bóng
 }
 

@@ -245,7 +245,7 @@ SCENES.phong_tro = {
   diem: {
     // khớp đồ v15: giường trái → tủ lạnh → sofa → bàn máy tính → TV/tủ xanh → cửa
     giuong: [8, 110, 54, 34, 'ngu'],
-    tu_lanh: [60, 70, 34, 72, 'tu_kinh'],
+    tu_lanh: [60, 70, 34, 72, 'tu_lanh_act'],
     sofa: [96, 105, 86, 40, 'tivi'], // ngồi sofa = nghỉ ngơi/xem TV
     may_vanh: [186, 82, 56, 60, 'may_vanh'], // bàn máy tính: browse internet
     tivi: [244, 34, 60, 108, 'tivi'], // TV CRT trên tủ xanh
@@ -616,9 +616,8 @@ function render() {
     const sc = SCENES[SCENE_HIEN];
     sc.ve();
   }
-  veNguoiHien();
   npcCapNhat();
-  veNpcTrongScene();
+  veNguoiVaNpcTheoSau(); // z-order: vẽ theo chân — ai thấp hơn (gần camera) vẽ sau
   veMua();
   // VẼ THẲNG 1:1 — OFF (320x240) → MAIN (320x240). KHÔNG crush (ô vuông 2x2)
   // và KHÔNG cắt 1/4 (bug cũ: chỉ lấy 160x120 rồi phóng 2x)
@@ -630,6 +629,104 @@ function render() {
 
 // rim light ĐÃ TẮT — flat style chuẩn 9 To Life không dùng glow/lighter
 function veRimSang() { return; }
+
+// ===== VẼ NGƯỜI + NPC THEO CHIỀU SÂU (9 To Life): chân y lớn hơn = gần camera = vẽ SAU = đè lên =====
+function veNguoiVaNpcTheoSau() {
+  const danhSach = [];
+  // người chơi
+  danhSach.push({ kind: 'player', yChan: NGUOI.y + ((SCENES[SCENE_HIEN].charPx || 20 * (SCENES[SCENE_HIEN].charScale || 2))) });
+  // NPC
+  for (const n of NPC_HIENTAI) {
+    const charPx = SCENES[SCENE_HIEN].charPx || 20 * (SCENES[SCENE_HIEN].charScale || 2);
+    danhSach.push({ kind: 'npc', id: n.id, yChan: n.y + charPx });
+  }
+  danhSach.sort((a, b) => a.yChan - b.yChan);
+  for (const item of danhSach) {
+    if (item.kind === 'player') veNguoiHien();
+    else veNpcTrongScene1(item.id);
+  }
+}
+// vẽ 1 NPC theo id (tách từ veNpcTrongScene)
+function veNpcTrongScene1(id) {
+  const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
+  const n = NPC_HIENTAI.find(x => x.id === id);
+  if (!n) return;
+  veMotNpc(n, SC, charPx);
+}
+function veMotNpc(n, SC, charPx) {
+    const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
+    const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
+    const y = n.y + bob;
+    // bóng tiếp xúc
+    CTX.fillStyle = 'rgba(8,6,12,0.5)';
+    CTX.beginPath(); CTX.ellipse(n.x + 6 * SC, n.y + charPx + 1, 6 * SC * 0.4, SC * 1.2, 0, 0, 7); CTX.fill();
+    // sprite: dùng CHAR_FRAMES nhưng đổi bảng màu theo NPC
+    const frame = (n.frameDem % 120 < 100) ? 'idle' : (n.frameDem % 120 < 110 ? 'walk1' : 'walk2');
+    const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc };
+    // outline 8 hướng
+    for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
+      veCharRaw(CHAR_FRAMES[frame], n.x + ox, y + oy, SC, n.di > 0, (ch) => mauRieng[ch] ? C.den || '#181420' : null);
+    }
+    veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
+    // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
+    CTX.fillStyle = look.ao[1];
+    for (let r = 8; r < 16; r++) {
+      const line = CHAR_FRAMES[frame][r];
+      for (let cc = 7; cc < 12; cc++) {
+        const ch = n.di > 0 ? line[cc] : line[line.length - 1 - cc];
+        if (ch === 'a') CTX.fillRect(n.x + cc * SC, y + r * SC, SC, SC);
+      }
+    }
+    veBubbleNpc(n);
+    veIconNpc(n);
+}
+// bubble + icon tách riêng để tái dùng
+function veBubbleNpc(n) {
+    if (!n.bubble) return;
+    const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+    const txt = n.bubble.text.slice(0, n.bubble.progress);
+    CTX.font = '7px monospace';
+    // NGẮT DÒNG nếu chữ dài hơn 110px — tối đa 2 dòng, không tràn khung
+    const maxW = 118;
+    const tu = txt.split(' ');
+    const dong = [''];
+    for (const t of tu) {
+      const thu = dong[dong.length - 1] ? dong[dong.length - 1] + ' ' + t : t;
+      if (CTXT_DO_W(thu) > maxW && dong[dong.length - 1]) { dong.push(t); } else { dong[dong.length - 1] = thu; }
+    }
+    const wBox = Math.max(...dong.map(d => CTXT_DO_W(d))) + 10;
+    const hBox = dong.length * 9 + 7;
+    const bx = Math.max(4, Math.min(n.x + 6 * SC - wBox / 2 - 4, W - wBox - 6));
+    const by = Math.max(20, n.y - 20);
+    // nền trắng viền đen
+    CTX.fillStyle = '#FFFFFF';
+    CTX.fillRect(bx, by - hBox + 4, wBox, hBox);
+    CTX.fillStyle = '#101010';
+    CTX.fillRect(bx - 1, by - hBox + 3, wBox + 2, 1); CTX.fillRect(bx - 1, by + 5, wBox + 2, 1);
+    CTX.fillRect(bx - 1, by - hBox + 3, 1, hBox + 3); CTX.fillRect(bx + wBox, by - hBox + 3, 1, hBox + 3);
+    // vẽ từng dòng
+    CTX.fillStyle = '#141414';
+    dong.forEach((d, i) => CTX.fillText(d, bx + 5, by - hBox + 12 + i * 9));
+    // đuôi bubble chỉ xuống NPC
+    CTX.fillStyle = '#FFFFFF';
+    CTX.fillRect(n.x + 5 * SC, by + 5, 4, 3); CTX.fillRect(n.x + 6 * SC, by + 8, 2, 2);
+    CTX.fillStyle = '#101010';
+    CTX.fillRect(n.x + 5 * SC, by + 7, 4, 1); CTX.fillRect(n.x + 6 * SC, by + 9, 2, 1);
+}
+function veIconNpc(n) {
+    if (!n.icon) return;
+    // giữ hành vi cũ: icon cảm xúc 8px trên đầu
+    const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+    const ic = n.icon.kind;
+    const ix = n.x + 4 * SC, iy = n.y - 14;
+    const M = { gian: '#E2585E', vui: '#6FE06A', yeu: '#FF5FA8', hoi: '#FFD040' };
+    CTX.fillStyle = M[ic] || '#FFD040';
+    CTX.fillRect(ix, iy, 7, 7);
+    CTX.fillStyle = '#101010';
+    CTX.fillRect(ix - 1, iy - 1, 9, 1); CTX.fillRect(ix - 1, iy + 7, 9, 1);
+    CTX.fillRect(ix - 1, iy - 1, 1, 9); CTX.fillRect(ix + 7, iy - 1, 1, 9);
+}
 
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
@@ -655,8 +752,8 @@ let NGUOI = { x: 150, y: 130, di: 1, frame: 'idle', dichX: null, mucTieuAction: 
 // Mỗi NPC: vị trí theo scene, màu áo/tóc riêng, idle bob, bubble thoại ambient,
 // icon cảm xúc trên đầu. Tap NPC → nhân vật TỰ ĐI TỚI → mở menu tương tác.
 const NPC_SCENE_MAP = {
-  phong_tro: ['ba_tu', 'hoa'],
-  quan_pho:  ['chi_dao', 'hung'],
+  phong_tro: ['ba_tu'],
+  quan_pho:  ['chi_dao', 'hung', 'hoa'],
   van_phong: ['linh', 'tuan', 'duc'],
   pho_dem:   ['mai', 'nam', 'hanh'],
   bia_hoi:   ['hung', 'trung', 'thao'],
@@ -680,8 +777,8 @@ const NPC_LOOK = {
 };
 // vị trí đứng theo scene (x = góc trên-trái sprite, y tự tính theo vungDi)
 const NPC_VI_TRI = {
-  phong_tro: { ba_tu: [188, 0], hoa: [70, 0] },
-  quan_pho:  { chi_dao: [160, 0], hung: [60, 0] },
+  phong_tro: { ba_tu: [20, 0] },
+  quan_pho:  { chi_dao: [160, 0], hung: [60, 0], hoa: [220, 0] },
   van_phong: { linh: [50, 0], tuan: [140, 0], duc: [240, 0] },
   pho_dem:   { mai: [60, 0], nam: [160, 0], hanh: [250, 0] },
   bia_hoi:   { hung: [120, 0], trung: [200, 0], thao: [270, 0] },
@@ -748,64 +845,7 @@ function npcCapNhat() {
 }
 
 function veNpcTrongScene() {
-  const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
-  for (const n of NPC_HIENTAI) {
-    const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
-    const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
-    const y = n.y + bob;
-    // bóng tiếp xúc
-    CTX.fillStyle = 'rgba(8,6,12,0.5)';
-    CTX.beginPath(); CTX.ellipse(n.x + 6 * SC, n.y + charPx + 1, 6 * SC * 0.4, SC * 1.2, 0, 0, 7); CTX.fill();
-    // sprite: dùng CHAR_FRAMES nhưng đổi bảng màu theo NPC
-    const frame = (n.frameDem % 120 < 100) ? 'idle' : (n.frameDem % 120 < 110 ? 'walk1' : 'walk2');
-    const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc };
-    // outline 8 hướng
-    for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
-      veCharRaw(CHAR_FRAMES[frame], n.x + ox, y + oy, SC, n.di > 0, (ch) => mauRieng[ch] ? C.den || '#181420' : null);
-    }
-    veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
-    // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
-    CTX.fillStyle = look.ao[1];
-    for (let r = 8; r < 16; r++) {
-      const line = CHAR_FRAMES[frame][r];
-      for (let cc = 7; cc < 12; cc++) {
-        const ch = n.di > 0 ? line[cc] : line[line.length - 1 - cc];
-        if (ch === 'a') CTX.fillRect(n.x + cc * SC, y + r * SC, SC, SC);
-      }
-    }
-    // (không vẽ tên trên đầu — 9 To Life không có; pixel-crush làm chữ 7px không đọc được)
-    // BUBBLE THOẠI kiểu 9 To Life: hộp trắng viền đen + đuôi + typewriter
-    if (n.bubble) {
-      const txt = n.bubble.text.slice(0, n.bubble.progress);
-      CTX.font = '7px monospace';
-      const wTxt = Math.min(CTXT_DO_W(txt), 90);
-      const bx = Math.max(4, Math.min(n.x + 6 * SC - wTxt / 2 - 4, W - wTxt - 14));
-      const by = Math.max(16, n.y - 26);
-      CTX.fillStyle = '#FFFFFF';
-      CTX.fillRect(bx, by - 12, wTxt + 8, 16);
-      CTX.fillStyle = '#101010'; // viền 1px
-      CTX.fillRect(bx - 1, by - 13, wTxt + 10, 1); CTX.fillRect(bx - 1, by + 4, wTxt + 10, 1);
-      CTX.fillRect(bx - 1, by - 13, 1, 18); CTX.fillRect(bx + wTxt + 8, by - 13, 1, 18);
-      CTX.fillRect(bx + 8, by + 5, 3, 3); CTX.fillRect(bx + 9, by + 8, 2, 2); // đuôi
-      CTX.fillStyle = '#141414';
-      CTX.fillText(txt, bx + 4, by);
-    }
-    // ICON CẢM XÚC trên đầu (8x8 rõ — đọc được qua pixel crush)
-    if (n.icon) {
-      const ix = n.x + 6 * SC - 4, iy = n.y - 14;
-      if (n.icon.kind === 'gian') { CTX.fillStyle = '#E03030'; CTX.fillRect(ix, iy, 2, 8); CTX.fillRect(ix + 6, iy, 2, 8); CTX.fillRect(ix - 1, iy + 3, 10, 2); }
-      if (n.icon.kind === 'vui')   { CTX.fillStyle = '#FFD040'; CTX.fillRect(ix + 3, iy, 2, 3); CTX.fillRect(ix + 6, iy + 3, 2, 3); CTX.fillRect(ix + 3, iy + 6, 2, 3); CTX.fillRect(ix, iy + 3, 2, 3); CTX.fillRect(ix + 3, iy + 3, 2, 2); }
-      if (n.icon.kind === 'yeu')   { CTX.fillStyle = '#FF5FA8'; CTX.fillRect(ix, iy + 1, 3, 3); CTX.fillRect(ix + 5, iy + 1, 3, 3); CTX.fillRect(ix, iy + 4, 8, 2); CTX.fillRect(ix + 1, iy + 6, 6, 1); CTX.fillRect(ix + 3, iy + 7, 2, 1); }
-      if (n.icon.kind === 'hoi')   { CTX.fillStyle = '#9AA0B0'; CTX.fillRect(ix, iy + 2, 7, 5); CTX.fillRect(ix + 2, iy + 7, 2, 2); CTX.fillRect(ix + 3, iy + 9, 1, 1); }
-    }
-    // MARKER sao xanh nếu là người yêu
-    if (typeof G !== 'undefined' && G && G.banGai && G.banGai.npcId === n.id) {
-      const mx = n.x + 6 * SC - 2, my = n.y - 24 + Math.sin(TG * 0.1) * 2;
-      CTX.fillStyle = '#40D850';
-      CTX.fillRect(mx + 1, my, 2, 5); CTX.fillRect(mx, my + 1, 4, 2);
-    }
-  }
+  for (const n of NPC_HIENTAI) veNpcTrongScene1(n.id);
 }
 // đo chiều rộng text (canvas font 7px) — cache
 const _wCache = {};
@@ -960,6 +1000,7 @@ function thucHienAction(act) {
     case 'tivi':    bamHoatDong('xem_tivi'); break;
     case 'ca_phe':  bamHoatDong('ca_phe_sua'); break;
     case 'tu_kinh': hopThoai('Tủ kính', 'Chén đĩa sáng bóng, trên cùng là hộp bánh Trung thu để dành. Má gọi điện chưa?'); break;
+    case 'tu_lanh_act': hopThoai('Tủ lạnh', 'Tủ lạnh trắng dán 4 nam châm quà má gửi: quả cam nhựa, ngôi sao, chú ếch, cái chuông. Bên trong có trứng, nước mắm và nửa hộp sữa để dành.'); break;
     case 'noi_pho': hopThoai('Nồi nước lèo', 'Hương xương sôi 6 tiếng. Bà Hạnh: "Cháu ăn tô tái nạm ha, cô bớt hành cho".'); break;
     case 'bang_hop': hopThoai('Bảng họp', 'Sếp Đức gạch đầu dòng: "Q4 chỉ tiêu +30%". Không ai dám hỏi lại.'); break;
     case 'may_vanh': bamHoatDong('xem_tivi'); break; // tạm dùng xem tivi (Fun+) — browse

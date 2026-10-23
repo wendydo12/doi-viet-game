@@ -131,7 +131,8 @@
   #hop-thoai { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(92vw,560px);
     background:linear-gradient(180deg,#4D5AA8 0%,#465198 50%,#3F4C96 100%);
     border:3px solid #fff; box-shadow: 0 0 0 2px #14142C, 6px 6px 0 rgba(0,0,0,.6);
-    padding:12px 14px; font-size:13px; display:none; z-index:50; }
+    padding:12px 14px; font-size:13px; display:none; z-index:50;
+    word-wrap:break-word; overflow-wrap:break-word; max-height:40vh; overflow-y:auto; }
   #hop-thoai .nguoi { color: #F8D400; font-weight:bold; text-shadow: 1px 1px 0 #000;
     display:block; padding-bottom:6px; margin-bottom:8px; border-bottom:2px solid #8B93D6; }
   #hop-thoai .noi-dung { color:#F2F2F2; text-shadow: 1px 1px 0 #22224A; line-height:1.5; }
@@ -308,11 +309,11 @@
     <div class="khach" style="font-size:11px;margin-top:6px">LP dành dụm truyền sang kiếp sau (tab MƠ)</div>
   </div>
 
-<script src="src/core.js?v=17"></script>
-<script src="src/pixelicons.js?v=17"></script>
-<script src="src/canh3tp.js?v=17"></script>
-<script src="src/render8.js?v=17"></script>
-<script src="src/game.js?v=17"></script>
+<script src="src/core.js?v=22"></script>
+<script src="src/pixelicons.js?v=22"></script>
+<script src="src/canh3tp.js?v=22"></script>
+<script src="src/render8.js?v=22"></script>
+<script src="src/game.js?v=22"></script>
 <script>
   // PWA: đăng ký service worker (offline hoàn toàn — chơi không mạng)
   if ('serviceWorker' in navigator) {
