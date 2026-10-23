@@ -173,6 +173,17 @@ function veMayBay(x, y, w) { // mây phẳng
   K(x + 4, y - 4, w - 8, 5, C.xam, C.den2);
   CTX.fillStyle = C.trang2; CTX.fillRect(x + 2, y + 1, w - 4, 2);
 }
+// chữ trên biển hiệu — monospace nhỏ, khớp style chữ R.I.P/bong bóng thoại
+function veChu(cx, y, txt, mau, size) {
+  CTX.fillStyle = mau;
+  CTX.font = 'bold ' + (size || 9) + 'px monospace';
+  CTX.textAlign = 'center'; CTX.textBaseline = 'middle';
+  CTX.fillText(txt, cx, y);
+  CTX.textAlign = 'left'; CTX.textBaseline = 'alphabetic';
+}
+function veBong(x, y, w) { // bóng tiếp xúc dưới vật đứng sàn
+  CTX.fillStyle = C.den2; CTX.fillRect(x, y, w, 3);
+}
 
 // ============ SÀI GÒN ============
 const SG = {};
@@ -182,16 +193,27 @@ SG.phong_tro = function () { // phòng trọ hẻm: tường xanh bạc, cửa s
   K(250, 20, 54, 40, C.kinh, C.den); // cửa sổ chấn song sắt
   CTX.fillStyle = C.den2; for (let i = 0; i < 4; i++) CTX.fillRect(254 + i * 13, 22, 3, 36);
   CTX.fillStyle = C.troi; CTX.fillRect(252, 22, 50, 8);
-  K(0, 16, 68, 8, C.go2, C.den); // gác lửng gỗ — dính sát mép trái
-  CTX.fillStyle = C.go; CTX.fillRect(0, 24, 66, 4); // mặt ván sàn gác
-  CTX.fillStyle = C.go3; CTX.fillRect(0, 14, 68, 2); CTX.fillRect(0, 10, 3, 6); CTX.fillRect(20, 10, 3, 6); CTX.fillRect(40, 10, 3, 6); CTX.fillRect(64, 10, 3, 6); // lan can
+  // GÁC LỬNG THẬT: sàn gác dày 4px + cột chống xuống sàn + lan can + THANG 2 thành nghiêng
+  CTX.fillStyle = C.den; CTX.fillRect(0, 30, 78, 6); // viền gác
+  CTX.fillStyle = C.go; CTX.fillRect(0, 31, 76, 4); // mặt ván sáng
+  CTX.fillStyle = C.go2; for (let i = 0; i < 10; i++) CTX.fillRect(i * 8, 32, 2, 2); // khe ván
+  K(4, 34, 5, 108, C.go2, C.go3); // cột chống 1 CHẠM SÀN y=142
+  K(64, 34, 5, 108, C.go2, C.go3); // cột chống 2
+  CTX.fillStyle = C.go3; CTX.fillRect(2, 26, 74, 3); // lan can gác
+  CTX.fillStyle = C.den; CTX.fillRect(0, 141, 78, 3); // bóng cột
   // đồ trên gác: thùng carton + gối
   CTX.fillStyle = C.den; CTX.fillRect(8, 4, 16, 11); CTX.fillStyle = '#C8A878'; CTX.fillRect(9, 5, 14, 9);
   CTX.fillStyle = C.go3; CTX.fillRect(9, 9, 14, 1);
   K(34, 8, 14, 7, C.trang, C.trang2); CTX.fillStyle = C.xanhNc; CTX.fillRect(34, 8, 4, 7); // gối
-  K(56, 28, 6, 114, C.go, C.go3); // thang chạm HẲN xuống sàn
-  CTX.fillStyle = C.go2; for (let i = 0; i < 12; i++) CTX.fillRect(57, 32 + i * 9, 4, 2);
-  veCuaSat(280, 96, 34, 88); // cửa sắt kéo
+  // THANG 2 thành DỰA VÀO MÉP GÁC: 2 thanh dọc x=58/x=70, từ sàn (142) lên mép gác (34)
+  CTX.fillStyle = C.den;
+  CTX.fillRect(57, 33, 3, 110); CTX.fillRect(69, 33, 3, 110); // 2 thành (có viền tối)
+  CTX.fillStyle = C.go;
+  CTX.fillRect(58, 34, 2, 108); CTX.fillRect(70, 34, 2, 108); // thân thành sáng
+  CTX.fillStyle = C.go2;
+  for (let s = 0; s < 11; s++) CTX.fillRect(59, 40 + s * 10, 11, 3); // bậc ngang
+  CTX.fillStyle = C.go3; CTX.fillRect(55, 142, 20, 3); // bóng thang chạm sàn
+  veCuaSat(280, 58, 34, 84); // cửa sắt kéo — đáy y=142 CHẠM chân tường (bug cũ: lấn sàn tới 184)
   veXeMay(200, 160, C.do); // xe máy dựng trong nhà — rất SG
   K(16, 112, 32, 10, C.go, C.go3); // kệ gỗ trước
   veTV(20, 92); // TV chân đế chạm mặt kệ 112
@@ -217,6 +239,7 @@ SG.quan_pho = function () { // quán cơm tấm vỉa hè: tủ kính thịt nư
   CTX.fillStyle = C.xam2; CTX.fillRect(132, 4, 2, 6); CTX.fillRect(186, 4, 2, 6); // móc treo
   K(120, 10, 80, 22, C.do, C.do2);
   CTX.fillStyle = C.vang; CTX.fillRect(128, 18, 64, 6);
+  veChu(160, 21, 'CƠM TẤM', C.do, 8);
   // TỦ KÍNH thịt nướng ĐỨNG TRÊN QUẦY, quầy chạm sàn
   K(170, 100, 110, 30, C.sat, C.sat2); // thân quầy inox chạm sàn y=130
   CTX.fillStyle = C.xam2; CTX.fillRect(174, 110, 102, 3);
@@ -260,7 +283,7 @@ SG.van_phong = function () { // văn phòng Q1: vách kính, bàn dài, monitor 
   CTX.fillStyle = C.kinh2; CTX.fillRect(14, 48, 292, 18); // bóng thành phố xa
   CTX.fillStyle = C.xam; CTX.fillRect(40, 30, 18, 34); CTX.fillRect(120, 24, 14, 40); CTX.fillRect(220, 32, 22, 32);
   CTX.fillStyle = C.sat2; for (let i = 0; i < 5; i++) CTX.fillRect(14 + i * 62, 16, 4, 52); // đố kính
-  for (let i = 0; i < 3; i++) { // 3 bàn làm việc
+  for (let i = 0; i < 3; i++) { // 3 bàn làm việc + GHẾ ĐỎ rõ trước bàn
     const bx = 16 + i * 100;
     K(bx, 120, 84, 8, C.trang, C.xam2);
     CTX.fillStyle = C.xam2; CTX.fillRect(bx + 6, 128, 5, 20); CTX.fillRect(bx + 72, 128, 5, 20);
@@ -269,10 +292,17 @@ SG.van_phong = function () { // văn phòng Q1: vách kính, bàn dài, monitor 
     CTX.fillStyle = C.vang; CTX.fillRect(bx + 30, 102, 14, 2); CTX.fillRect(bx + 30, 106, 20, 2);
     K(bx + 36, 118, 10, 3, C.xam);
     K(bx + 62, 112, 12, 8, C.xanhDuong, C.den2); // ly cà phê
+    veNhuaGhe(bx + 34, 150, C.do, C.do2); // GHẾ đỏ rõ trước bàn (y=150 giữa sàn)
+    CTX.fillStyle = C.den2; CTX.fillRect(bx + 32, 158, 18, 3); // bóng ghế
   }
   veQuatTreo(280, 0);
   K(4, 96, 8, 46, C.xanhLa, C.go3); // cây cảnh
   CTX.fillStyle = C.xanhLa2; CTX.fillRect(2, 84, 12, 12);
+  K(2, 142, 12, 8, C.cam2, C.go3); // chậu cây CHẠM SÀN
+  CTX.fillStyle = C.den2; CTX.fillRect(0, 148, 16, 3); // bóng chậu
+  for (let i = 0; i < 3; i++) { // GHẾ nhựa sau mỗi bàn (vision bắt thiếu ghế)
+    veNhuaGhe(16 + i * 100 + 40, 140, C.xam, C.xam2);
+  }
   CTX.fillStyle = C.den; CTX.fillRect(0, 140, 320, 2);
 };
 SG.pho_dem = function () { // phố đêm kiểu Bùi Viện: nhà ống cao, neon phẳng, dây điện
@@ -325,6 +355,7 @@ SG.bia_hoi = function () { // quán nhậu SG: quầy lẩu chạm sàn, bàn in
   veSanGach(142, '#B0A898', '#968E7E');
   K(100, 12, 120, 26, C.do, C.do2); // biển hiệu
   CTX.fillStyle = C.vang; CTX.fillRect(110, 20, 100, 10);
+  veChu(160, 25, 'LẨU ĐÁ', C.do, 10);
   CTX.fillStyle = C.do2; CTX.fillRect(140, 22, 40, 6); // vạch trang trí biển
   // QUẦY chạm sàn: thân quầy từ y=60 xuống 150, nồi lẩu TRÊN MẶT quầy
   K(20, 78, 64, 66, C.sat, C.sat2); // thân quầy inox
@@ -419,6 +450,7 @@ HN.quan_pho = function () { // quán phở gánh: nồi hơi nghi ngút, bát s�
   veSanGach(130, '#B8A488', '#9E8A6E');
   K(90, 8, 140, 26, C.do2, C.den); // biển hiệu đỏ gold viền
   CTX.fillStyle = C.vang; CTX.fillRect(100, 16, 120, 10);
+  veChu(160, 21, 'PHỞ THÌN', C.do, 10);
   CTX.fillStyle = C.do; CTX.fillRect(140, 18, 40, 6); // vạch trang trí
   // quầy phở CHẠM SÀN: thân xuống y=130 + chân + bóng
   K(200, 70, 100, 54, C.go, C.go3);
@@ -464,7 +496,7 @@ HN.van_phong = function () { // VP nhà nước cũ: tường vàng, quạt tr�
   K(20, 30, 46, 34, C.trang, C.xam2); // bảng tin
   CTX.fillStyle = C.do; CTX.fillRect(26, 36, 14, 8); CTX.fillRect(44, 36, 14, 8);
   CTX.fillStyle = C.xam; CTX.fillRect(26, 48, 32, 2); CTX.fillRect(26, 53, 26, 2);
-  for (let i = 0; i < 2; i++) { // 2 bàn gỗ to
+  for (let i = 0; i < 2; i++) { // 2 bàn gỗ to + GHẾ ĐỎ rõ
     const bx = 30 + i * 150;
     K(bx, 118, 120, 8, C.go, C.go3);
     CTX.fillStyle = C.go2; CTX.fillRect(bx + 8, 126, 8, 22); CTX.fillRect(bx + 104, 126, 8, 22);
@@ -472,9 +504,14 @@ HN.van_phong = function () { // VP nhà nước cũ: tường vàng, quạt tr�
     CTX.fillStyle = '#3A4A3A'; CTX.fillRect(bx + 34, 98, 22, 12);
     K(bx + 70, 108, 16, 8, C.go2, C.den); // cặp tài liệu
     K(bx + 94, 110, 6, 7, C.trang, C.xam); // cốc trà
+    veNhuaGhe(bx + 50, 152, C.do, C.do2); // GHẾ đỏ trước bàn
+    CTX.fillStyle = C.den2; CTX.fillRect(bx + 48, 160, 18, 3); // bóng ghế
   }
   veQuatTreo(160, 0);
   K(8, 100, 10, 42, C.xanhLa, C.go3); CTX.fillStyle = C.xanhLa2; CTX.fillRect(4, 86, 18, 14);
+  K(6, 142, 14, 8, C.cam2, C.go3); // chậu cây chạm sàn
+  CTX.fillStyle = C.den2; CTX.fillRect(4, 148, 18, 3); // bóng
+  veNhuaGhe(80, 140, C.xam, C.xam2); veNhuaGhe(230, 140, C.xam, C.xam2); // 2 ghế sau bàn
   CTX.fillStyle = C.den; CTX.fillRect(0, 140, 320, 2);
 };
 HN.pho_dem = function () { // phố cổ đêm: nhà vàng cửa gỗ, lồng đèn đỏ, xích lô
@@ -536,6 +573,7 @@ HN.bia_hoi = function () { // bia hơi Tạ Hiện: cốc vại vàng, ghế nh�
   veSanGach(142, '#A8A090', '#8E8676');
   K(60, 8, 200, 24, C.xanhLa, C.xanhLa2); // biển xanh
   CTX.fillStyle = C.vang; CTX.fillRect(70, 14, 180, 12);
+  veChu(160, 20, 'BIA HƠI HÀ NỘI', C.do, 10); // chữ nhận diện Tạ Hiện
   // QUẦY chạm sàn (y 70→152): thân inox + mặt quầy + vòi rót từ bom bia xuống cốc
   K(16, 70, 78, 82, C.sat, C.sat2);
   CTX.fillStyle = C.xam2; CTX.fillRect(20, 90, 70, 3); CTX.fillRect(20, 118, 70, 3); // panel
@@ -588,6 +626,12 @@ DN.phong_tro = function () { // phòng trọ gần biển: tường sáng, cửa
   CTX.fillStyle = C.hong2;
   for (let i = 0; i < 20; i++) { const v = Math.sin(i * 0.32) * 8; CTX.fillRect(126 + i * 3, 92 + v, 3, 3); } // lưới võng
   CTX.fillStyle = C.hong; CTX.fillRect(140, 100, 24, 4); // thân võng dày hơn ở đáy
+  // rõ võng hơn: 2 mép võng buộc DÂY vào cột (đọc ra là võng, không phải squiggle)
+  CTX.fillStyle = C.den2;
+  CTX.fillRect(120, 92, 8, 2); CTX.fillRect(188, 92, 8, 2); // dây buộc 2 đầu
+  CTX.fillRect(122, 96, 2, 6); CTX.fillRect(192, 96, 2, 6); // mõm võng
+  CTX.fillStyle = C.hong2;
+  for (let i = 0; i < 7; i++) CTX.fillRect(132 + i * 8, 104, 3, 6); // sợi dọc lưới võng
   K(220, 120, 60, 12, C.go, C.go3); // bàn
   CTX.fillStyle = C.go2; CTX.fillRect(226, 132, 5, 14); CTX.fillRect(268, 132, 5, 14);
   K(236, 108, 12, 10, C.kinh, C.xam); // ly nước
@@ -600,6 +644,7 @@ DN.quan_pho = function () { // quán mì Quảng: tô vàng nghệ, bánh tráng
   veSanGach(130, '#C8B898', '#AE9E7E');
   K(100, 8, 120, 26, C.cam, C.cam2); // biển cam
   CTX.fillStyle = C.trang; CTX.fillRect(110, 16, 100, 10);
+  veChu(160, 21, 'MÌ QUẢNG', C.do, 10);
   K(210, 66, 90, 64, C.go, C.go3); // quầy CHẠM SÀN (y 66→130)
   CTX.fillStyle = C.go2; CTX.fillRect(214, 84, 82, 3); CTX.fillRect(214, 108, 82, 3); // panel
   K(206, 60, 98, 8, C.go2, C.den); // mặt quầy nhô
@@ -634,7 +679,7 @@ DN.van_phong = function () { // VP hiện đại view biển
   CTX.fillStyle = C.bot; CTX.fillRect(40, 50, 30, 2); CTX.fillRect(150, 54, 40, 2); CTX.fillRect(230, 50, 26, 2);
   CTX.fillStyle = C.cat; CTX.fillRect(24, 62, 272, 6); // bãi cát xa
   CTX.fillStyle = C.sat2; CTX.fillRect(120, 18, 4, 56); CTX.fillRect(216, 18, 4, 56); // đố kính
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i++) { // VP biển ĐN: 2 bàn + GHẾ ĐỎ rõ
     const bx = 40 + i * 160;
     K(bx, 122, 120, 8, C.trang, C.xam2);
     CTX.fillStyle = C.xam2; CTX.fillRect(bx + 10, 130, 6, 20); CTX.fillRect(bx + 104, 130, 6, 20);
@@ -642,11 +687,14 @@ DN.van_phong = function () { // VP hiện đại view biển
     CTX.fillStyle = '#3A5A6A'; CTX.fillRect(bx + 43, 103, 30, 13);
     CTX.fillStyle = C.vang; CTX.fillRect(bx + 47, 106, 16, 2); CTX.fillRect(bx + 47, 110, 22, 2);
     K(bx + 12, 114, 8, 8, C.kinh, C.xam); // cốc
+    veNhuaGhe(bx + 55, 152, C.do, C.do2); // GHẾ đỏ trước bàn
+    CTX.fillStyle = C.den2; CTX.fillRect(bx + 53, 160, 18, 3); // bóng ghế
   }
   K(10, 108, 14, 34, C.xanhLa, C.go3); // thân cây trong chậu
   CTX.fillStyle = C.xanhLa2; CTX.fillRect(4, 90, 26, 20); // tán
   K(8, 130, 18, 14, C.cam2, C.go3); // CHẬU chạm sàn
   CTX.fillStyle = C.den2; CTX.fillRect(8, 142, 18, 3); // bóng chậu
+  veNhuaGhe(150, 140, C.xam, C.xam2); veNhuaGhe(260, 140, C.xam, C.xam2); // 2 ghế văn phòng
   CTX.fillStyle = C.den; CTX.fillRect(0, 140, 320, 2);
 };
 DN.pho_dem = function () { // đường biển đêm: cầu Rồng xa, dừa, thuyền thúng
@@ -665,16 +713,21 @@ DN.pho_dem = function () { // đường biển đêm: cầu Rồng xa, dừa, th
   CTX.fillRect(178, 118, 8, 30); CTX.fillRect(238, 118, 8, 26); CTX.fillRect(298, 118, 8, 22);
   CTX.fillStyle = '#2A2440';
   CTX.fillRect(176, 146, 12, 4); CTX.fillRect(236, 142, 12, 4); // chân trụ loe
-  // đầu rồng bên trái cầu (mỏ há + mào)
-  CTX.fillStyle = '#4A4266';
-  CTX.fillRect(158, 104, 14, 10); // đầu
-  CTX.fillRect(150, 106, 10, 5); // mõm
-  CTX.fillStyle = C.hong; CTX.fillRect(152, 110, 6, 2); // lửa phun khe miệng
-  CTX.fillStyle = C.vang; CTX.fillRect(162, 107, 2, 2); // mắt rồng
-  CTX.fillStyle = '#4A4266';
-  CTX.fillRect(164, 96, 4, 8); CTX.fillRect(170, 92, 4, 12); // mào
+  // đầu rồng TO + RÕ bên trái cầu: đầu, mõm, sừng, mắt vàng, miệng
+  CTX.fillStyle = '#5A5080';
+  CTX.fillRect(150, 100, 20, 14); // đầu to
+  CTX.fillRect(140, 104, 12, 7); // mõm dài
+  CTX.fillRect(148, 94, 6, 8); CTX.fillRect(156, 90, 5, 10); // 2 sừng
+  CTX.fillStyle = C.vang; CTX.fillRect(146, 104, 3, 3); // mắt vàng sáng
+  CTX.fillStyle = C.den; CTX.fillRect(141, 109, 8, 2); // miệng há
+  CTX.fillStyle = C.vang; CTX.fillRect(142, 107, 2, 2); CTX.fillRect(146, 107, 2, 2); CTX.fillRect(150, 107, 2, 2); // răng
+  CTX.fillStyle = C.hong; CTX.fillRect(136, 108, 5, 2); // lửa phun
   CTX.fillStyle = C.vang; for (let i = 0; i < 13; i++) CTX.fillRect(174 + i * 11, 114, 3, 3); // đèn cầu
-  CTX.fillStyle = C.hong; CTX.fillRect(192, 90, 4, 4); CTX.fillRect(232, 90, 4, 4); CTX.fillRect(272, 90, 4, 4); // đèn đỉnh vòm
+  // đèn vòm ĐÈN VÀNG KIM (đọc ra Cầu Rồng — hồng cũ bị chấm nhầm sao)
+  CTX.fillStyle = C.vang; CTX.fillRect(192, 90, 4, 4); CTX.fillRect(232, 90, 4, 4); CTX.fillRect(272, 90, 4, 4);
+  // vảy rồng: vệt VÀNG ĐẬM dọc thân cầu (màu cũ #4A4266 tít mù trên cầu #3A3450)
+  CTX.fillStyle = '#C8A83A';
+  for (let i = 0; i < 11; i++) { CTX.fillRect(180 + i * 13, 118, 3, 3); CTX.fillRect(186 + i * 13, 116, 2, 2); }
   // phản chiếu đèn cầu trên biển (pixel phẳng, không gradient)
   CTX.fillStyle = '#3E4A68';
   CTX.fillRect(60, 128, 24, 2); CTX.fillRect(120, 134, 30, 2); CTX.fillRect(30, 140, 20, 2); CTX.fillRect(140, 144, 24, 2);
@@ -712,6 +765,7 @@ DN.bia_hoi = function () { // quán hải sản ven biển: bàn ốc, bia, dừ
   veSanGach(142, '#C8BC9C', '#AEA284');
   K(80, 10, 160, 24, C.xanhNc, '#22486E'); // biển xanh biển cả
   CTX.fillStyle = C.vang; CTX.fillRect(90, 16, 140, 12);
+  veChu(160, 22, 'HẢI SẢN ĐN', C.do, 10);
   K(20, 78, 64, 64, C.sat, C.sat2); // quầy CHẠM SÀN (78→142)
   CTX.fillStyle = C.xam2; CTX.fillRect(24, 98, 56, 3); CTX.fillRect(24, 120, 56, 3); // panel
   K(16, 72, 72, 8, C.xam, C.xam2); // mặt quầy nhô

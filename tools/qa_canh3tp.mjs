@@ -33,7 +33,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const tab = await newTab('http://localhost:8210/index.html?nocache=' + Date.now());
 const c = new CDP(tab.webSocketDebuggerUrl);
 await c.open();
-await c.send('Page.enable'); await c.send('Runtime.enable');
+await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Network.enable');
+await c.send('Network.clearBrowserCache'); // ÉP nạp JS mới — SW đã unregister, HTTP cache cũng phải xóa
 await sleep(3000);
 // CHỐNG SW CACHE CŨ: unregister + xóa caches + nạp lại với cache-buster
 await c.eval(`(async () => {
