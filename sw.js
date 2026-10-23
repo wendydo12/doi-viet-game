@@ -1,10 +1,10 @@
 // SW — "Cơm Bụi & Deadline": precache toàn bộ game (1 file index + src + assets)
 // Chơi offline hoàn toàn; save lives in localStorage (không thuộc SW)
-const V = 'com-bui-v8';
+const V = 'com-bui-v9';
 const PRECACHE = [
   '/index.html',
   '/manifest.webmanifest',
-  '/src/core.js?v=8', '/src/pixelicons.js?v=8', '/src/canh3tp.js?v=8', '/src/game.js?v=8', '/src/render8.js?v=8',
+  '/src/core.js?v=9', '/src/pixelicons.js?v=9', '/src/canh3tp.js?v=9', '/src/game.js?v=9', '/src/render8.js?v=9',
   // meowa-r1
   '/assets/meowa-r1/char_00.png', '/assets/meowa-r1/char_01.png', '/assets/meowa-r1/char_02.png',
   '/assets/meowa-r1/char_03.png', '/assets/meowa-r1/char_04.png', '/assets/meowa-r1/char_05.png',
@@ -17,7 +17,7 @@ const PRECACHE = [
   '/assets/portrait/nu_01.png', '/assets/portrait/nu_02.png', '/assets/portrait/nu_03.png',
   '/assets/portrait/nu_04.png', '/assets/portrait/nu_05.png', '/assets/portrait/nu_06.png',
   // sfx + bgm
-  '/assets/sfx/bgm_arcade_melody.mp3', '/assets/sfx/sfx_8bit_game_1.mp3',
+  '/assets/sfx/bgm_lofi_16bit.mp3', '/assets/sfx/sfx_8bit_game_1.mp3',
   '/assets/sfx/sfx_8bit_game_2.mp3', '/assets/sfx/sfx_8bit_game_3.mp3',
   '/assets/sfx/sfx_8bit_game_5.mp3', '/assets/sfx/sfx_peach_game_over_3.mp3',
   // icons

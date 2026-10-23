@@ -12,7 +12,7 @@ const SFX = {
   yeu:  { src: 'assets/sfx/sfx_8bit_game_5.mp3', vol: 0.5 },     // tình cảm / thành đôi
   chet: { src: 'assets/sfx/sfx_peach_game_over_3.mp3', vol: 0.55 }, // văn bia
 };
-const BGM = { src: 'assets/sfx/bgm_arcade_melody.mp3', vol: 0.18 };
+const BGM = { src: 'assets/sfx/bgm_lofi_16bit.mp3', vol: 0.3 };
 let MUTE = false, amKhoi = false, bgmAudio = null;
 const sfxCache = {};
 function amBat() { // trình duyệt chỉ cho autoplay sau tương tác
