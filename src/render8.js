@@ -27,61 +27,65 @@ const P = {
 // ===== NHÂN VẬT V3 — 10x20: chibi đầu to kiểu 9 To Life, cao 60px nội thất (75% tủ lạnh) =====
 // ===== NHÂN VẬT v4 — 12x15: NHỎ + MẢNH (45px nội thất = 1m chuẩn 9 To Life) =====
 const CHAR_FRAMES = {
+  // u = tóc sáng (đỉnh đầu highlight), d = da, m = mắt, a = áo, b = áo tối (hem/shading),
+  // h = bàn tay da, q = quần, e = quần tối, g = giày, j = khe chân viền tối
   idle: [
     '...tttttt...',
-    '..tttttttt..',
-    '..tddddddt..',
+    '..tutttttt..',
+    '..ttddddtt..',
     '..tdmddmdt..',
     '..ttddddtt..',
     '...dddddd...',
-    '..aaaaaaaa..',
+    '..aAaaaaaA..',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.daabbbbaad.',
+    '..abbbbbba..',
+    '...qqjqqj...',
     '...qq..qq...',
-    '...qq..qq...',
-    '..ggg..ggg..',
+    '...ee..ee...',
     '..ggg..ggg..',
   ],
   walk1: [
-    '...tttttt...',
-    '..tttttttt..',
-    '..tddddddt..',
+    '...uuuuuu...',
+    '..tutttttt..',
+    '..ttddddtt..',
     '..tdmddmdt..',
     '..ttddddtt..',
     '...dddddd...',
     '..aaaaaaaa..',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.daabbbbaad.',
+    '..abbbbbba..',
     '..qq....qq..',
     '.qq......qq.',
-    '.ggg....ggg.',
+    '.eee....eee.',
     '.gg......gg.',
   ],
   walk2: [
-    '...tttttt...',
-    '..tttttttt..',
-    '..tddddddt..',
+    '...uuuuuu...',
+    '..tutttttt..',
+    '..ttddddtt..',
     '..tdmddmdt..',
     '..ttddddtt..',
     '...dddddd...',
     '..aaaaaaaa..',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.daabbbbaad.',
+    '..abbbbbba..',
     '...qq.qq....',
     '....qqqq....',
-    '....gggg....',
+    '....eeee....',
     '....gggg....',
   ],
 };
 
-// Bảng màu nhân vật chuẩn 9 To Life: da peach ấm, tóc nâu, jean xanh, giày nâu đen
-const CHAR_COLOR = { t: '#5A3A24', d: '#EFC39A', m: '#202020', a: '#4E9A8F', q: '#3E5A8A', g: '#54402A', ' ': null, '.': null };
+// Bảng màu nhân vật theo char_00 meowa-r1 (đúng palette 9 To Life) + SHADING 2 TÔNG:
+// tóc #2A2828 (u sáng #4A4646), da #E4A561, áo teal #38928E (b tối #267575),
+// quần ghi #5D5B5C (e tối #434142), giày nâu đỏ #5E2F1C — outline than #3A3540 (tách tóc đen)
+const CHAR_COLOR = { u: '#3E3A3A', t: '#2A2828', d: '#E4A561', m: '#050404', a: '#38928E', b: '#267575', A: '#4A9EA0', h: '#E4A561', q: '#5D5B5C', e: '#434142', g: '#5E2F1C', j: '#3A3540', ' ': null, '.': null };
 
 function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
   sy = sy || sx;
@@ -101,7 +105,7 @@ function veChar(frame, x, y, flip, SC) {
   SC = SC || 2; // scale theo cảnh: 2 = phố (24x30), 3 = nội thất (36x45)
   // Outline đen dày đúng 1 pixel-art (bằng 1 ô sprite), ôm sát silhouette
   for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
-    veCharRaw(CHAR_FRAMES[frame], x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
+    veCharRaw(CHAR_FRAMES[frame], x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? '#3A3540' : null);
   }
   veCharRaw(CHAR_FRAMES[frame], x, y, SC, flip, (ch) => CHAR_COLOR[ch]);
 }
@@ -692,10 +696,10 @@ function veMotNpc(n, SC, charPx) {
     CTX.fillRect(n.x + 4 * SC, n.y + charPx + 1 + 2 * SC, 4 * SC, SC);
     // sprite: dùng CHAR_FRAMES nhưng đổi bảng màu theo NPC
     const frame = (n.frameDem % 120 < 100) ? 'idle' : (n.frameDem % 120 < 110 ? 'walk1' : 'walk2');
-    const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc };
+    const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc, u: look.ao[0] };
     // outline 8 hướng
     for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
-      veCharRaw(CHAR_FRAMES[frame], n.x + ox, y + oy, SC, n.di > 0, (ch) => mauRieng[ch] ? C.den || '#181420' : null);
+      veCharRaw(CHAR_FRAMES[frame], n.x + ox, y + oy, SC, n.di > 0, (ch) => mauRieng[ch] ? '#3A3540' : null);
     }
     veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
     // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
