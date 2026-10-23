@@ -1,6 +1,6 @@
 // SW — "Cơm Bụi & Deadline": precache toàn bộ game (1 file index + src + assets)
 // Chơi offline hoàn toàn; save lives in localStorage (không thuộc SW)
-const V = 'com-bui-v5';
+const V = 'com-bui-v6';
 const PRECACHE = [
   '/index.html',
   '/manifest.webmanifest',
