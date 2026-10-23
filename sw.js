@@ -1,15 +1,10 @@
 // SW — "Cơm Bụi & Deadline": precache toàn bộ game (1 file index + src + assets)
 // Chơi offline hoàn toàn; save lives in localStorage (không thuộc SW)
-const V = 'com-bui-v1';
+const V = 'com-bui-v2';
 const PRECACHE = [
   '/index.html',
   '/manifest.webmanifest',
-  '/src/core.js', '/src/game.js', '/src/render8.js',
-  // bg
-  '/assets/bg/bia-hoi.png', '/assets/bg/pho-dem.png', '/assets/bg/phong-tro.png',
-  '/assets/bg/quan-pho.png', '/assets/bg/van-phong.png',
-  // char + walk
-  '/assets/char/walk36.png', '/assets/char/walk54.png', '/assets/char/walk_native.png',
+  '/src/core.js', '/src/canh3tp.js', '/src/game.js', '/src/render8.js',
   // meowa-r1
   '/assets/meowa-r1/char_00.png', '/assets/meowa-r1/char_01.png', '/assets/meowa-r1/char_02.png',
   '/assets/meowa-r1/char_03.png', '/assets/meowa-r1/char_04.png', '/assets/meowa-r1/char_05.png',

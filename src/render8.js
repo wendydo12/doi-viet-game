@@ -344,18 +344,9 @@ SCENES.van_phong = {
 
 // --- SCENE 4: PHỐ ĐÊM ---
 // ===== ẢNH NỀN MEOWA — pixel art phố Việt, chuẩn 9 To Life =====
+// ẢNH NỀN MEOWA đã LOẠI BỎ (style painterly — phu quân không muốn).
+// Mọi cảnh giờ vẽ code thuần flat side-view theo thành phố trong canh3tp.js.
 const BG_ANH = {};
-function napNen(ten, duong) {
-  const im = new Image();
-  im.onload = () => { BG_ANH[ten] = im; try { render(); } catch (e) {} };
-  im.onerror = () => console.warn('Thiếu ảnh nền:', duong);
-  im.src = duong;
-}
-napNen('pho_dem', 'assets/bg/pho-dem.png');
-napNen('phong_tro', 'assets/bg/phong-tro.png');
-napNen('quan_pho', 'assets/bg/quan-pho.png');
-napNen('van_phong', 'assets/bg/van-phong.png');
-napNen('bia_hoi', 'assets/bg/bia-hoi.png');
 
 // ===== QUÁN BIA HƠI (kiểu Bar 9 To Life) =====
 SCENES.bia_hoi = {
@@ -376,34 +367,9 @@ SCENES.bia_hoi = {
   vungDi: { x1: 8, x2: 288, y1: 140, y2: 168 },
 };
 
-// ===== WALK SHEET MEOWA (6 frame side-view, chuẩn 9 To Life) =====
+// WALK SHEET MEOWA đã bỏ — sprite code-drawn flat, đúng style 9 To Life
 const WALK_ANH = {};
-function napWalk(ten, duong) {
-  const im = new Image();
-  im.onload = () => { WALK_ANH[ten] = im; try { render(); } catch (e) {} };
-  im.onerror = () => console.warn('Thiếu walk sheet:', duong);
-  im.src = duong;
-}
-napWalk('w54', 'assets/char/walk54.png'); // nội thất: frame 24x55
-napWalk('w36', 'assets/char/walk36.png'); // phố: frame 16x37
-function veWalkFrame(x, y, flip, SC) {
-  const sheet = SC === 3 ? WALK_ANH.w54 : WALK_ANH.w36;
-  if (!sheet) return false;
-  const fw = sheet.width / 6, fh = sheet.height;
-  const idx = Math.floor(NGUOI.frameDem / 5) % 6; // ~7fps walk
-  CTX.save();
-  // phố đêm: hạ saturation + tối nhẹ để nhân vật chìm vào ánh đêm (vision feedback)
-  if (SCENE_HIEN === 'pho_dem') CTX.filter = 'saturate(0.82) brightness(0.88)';
-  if (flip) {
-    CTX.translate(x + fw, y);
-    CTX.scale(-1, 1);
-    CTX.drawImage(sheet, idx * fw, 0, fw, fh, 0, 0, fw, fh);
-  } else {
-    CTX.drawImage(sheet, idx * fw, 0, fw, fh, x, y, fw, fh);
-  }
-  CTX.restore();
-  return true;
-}
+function veWalkFrame() { return false; }
 
 // ---- hiệu ứng sống động phủ lên ảnh nền ----
 let TG = 0;
@@ -563,9 +529,15 @@ function dongBoTong(ten) {
 }
 
 function render() {
-  const sc = SCENES[SCENE_HIEN];
-  sc.ve();
-  dongBoTong(SCENE_HIEN);
+  // cảnh theo THÀNH PHỐ (canh3tp.js) — flat side-view chuẩn 9 To Life, không Meowa
+  const tpKey = (typeof G !== 'undefined' && G && G.thanhPhoKey) || 'saigon';
+  const cityFn = window.CANH && window.CANH[tpKey] && window.CANH[tpKey][SCENE_HIEN];
+  if (cityFn) {
+    cityFn();
+  } else {
+    const sc = SCENES[SCENE_HIEN];
+    sc.ve();
+  }
   veNguoiHien();
   veMua();
   // crush ra canvas chính: 160x120 → 320x240 NEAREST (pixel cục 8-bit)
@@ -575,29 +547,8 @@ function render() {
   capNhatIconThoiTiet();
 }
 
-// viền sáng ấm: tô ô trống ngay sát silhouette ở phía hướng về nguồn đèn
-function veRimSang(frame, x, y, flip, benPhai, SC) {
-  SC = SC || 2;
-  if (SCENE_HIEN !== 'pho_dem' && !BG_ANH[SCENE_HIEN]) return;
-  const rows = CHAR_FRAMES[frame];
-  const day = (r, c) => {
-    if (r < 0 || r >= rows.length || c < 0 || c >= 12) return false;
-    const line = rows[r];
-    return !!CHAR_COLOR[flip ? line[line.length-1-c] : line[c]];
-  };
-  CTX.save();
-  CTX.fillStyle = 'rgba(244,230,178,0.42)';
-  for (let r = 0; r < rows.length; r++) {
-    for (let c = 0; c < 12; c++) {
-      const nc = benPhai ? c + 1 : c - 1;
-      if (day(r, c) && !day(r, nc)) {
-        const px = x + (benPhai ? Math.min(nc, 11) : Math.max(nc, 0)) * SC;
-        CTX.fillRect(px, y + r*SC, SC, SC);
-      }
-    }
-  }
-  CTX.restore();
-}
+// rim light ĐÃ TẮT — flat style chuẩn 9 To Life không dùng glow/lighter
+function veRimSang() { return; }
 
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
@@ -606,67 +557,14 @@ function veNguoiHien() {
   const spriteW = 12 * SC * (charPx / (18 * SC));
   const spriteH = charPx;
   const chanY = y + spriteH;
-  // phản chiếu mờ trên mặt đường ướt (chỉ ở cảnh phố đêm)
-  if (SCENE_HIEN === 'pho_dem' && BG_ANH.pho_dem) {
-    CTX.save();
-    CTX.globalAlpha = 0.24;
-    const rows = CHAR_FRAMES[frame];
-    for (let r = 0; r < rows.length; r++) {
-      const ry = chanY + 2 + (rows.length - 1 - r);
-      if (ry > 239) break;
-      const line = rows[r];
-      for (let c = 0; c < line.length; c++) {
-        const mau = CHAR_COLOR[di < 0 ? line[line.length-1-c] : line[c]];
-        if (!mau) continue;
-        CTX.fillStyle = mau;
-        CTX.fillRect(x + c*SC, ry, SC, 1);
-      }
-    }
-    CTX.restore();
-  }
-  // vệt sáng ấm hắt xuống mặt đường dưới chân (đèn đường/ quán)
-  CTX.fillStyle = 'rgba(232,196,106,0.10)';
-  CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.58, 4, 0, 0, 7); CTX.fill();
   // bóng đổ tiếp xúc (contact shadow) — neo nhân vật xuống sàn
   CTX.fillStyle = 'rgba(8,6,12,0.5)';
   CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.38, SC*1.3, 0, 0, 7); CTX.fill();
   // nhấp nhô nhẹ theo nhịp bước cho đỡ cứng
   const nhun = frame === 'walk2' ? -SC : 0;
-  // khi ĐANG ĐI và có walk sheet meowa → vẽ frame side-view (chuẩn 9 To Life)
-  const dangDi = (frame === 'walk1' || frame === 'walk2') && (NGUOI.dichX !== null || PHIM1['ArrowLeft'] || PHIM1['ArrowRight'] || PHIM1['a'] || PHIM1['d']);
-  let veSheet = false;
-  {
-    const sheet = SC === 3 ? WALK_ANH.w54 : WALK_ANH.w36;
-    if (sheet) {
-      const fw0 = sheet.width / 6, fh0 = sheet.height;
-      const scH = charPx / fh0;               // scale theo chiều cao mong muốn
-      const fw = Math.round(fw0 * scH), fh = charPx;
-      const idx = dangDi ? Math.floor(NGUOI.frameDem / 5) % 6 : 0; // idle = frame 0
-      CTX.save();
-      if (SCENE_HIEN === 'pho_dem') CTX.filter = 'saturate(0.82) brightness(0.88)';
-      const dx = Math.round(x + spriteW/2 - fw/2), dy = Math.round(y + spriteH - fh + nhun);
-      if (di < 0) {
-        CTX.translate(dx + fw, dy); CTX.scale(-1, 1);
-        CTX.drawImage(sheet, idx * fw0, 0, fw0, fh0, 0, 0, fw, fh);
-      } else {
-        CTX.drawImage(sheet, idx * fw0, 0, fw0, fh0, dx, dy, fw, fh);
-      }
-      CTX.restore();
-      veSheet = true;
-    }
-  }
-  if (!veSheet) veChar(frame, x, y + nhun, di < 0, SC);
-  // viền sáng ấm phía quay về nguồn đèn (đèn đường/quán nằm giữa phố)
-  veRimSang(frame, x, y + nhun, di < 0, x + spriteW/2 > 150, SC);
-  // ánh sáng ấm của phố hắt lên người (giúp nhân vật hòa vào cảnh)
-  CTX.save();
-  CTX.globalCompositeOperation = 'lighter';
-  const g = CTX.createRadialGradient(x+spriteW/2, y+spriteH*0.7, 1, x+spriteW/2, y+spriteH*0.7, spriteH*0.5);
-  g.addColorStop(0, 'rgba(244,230,178,0.085)');
-  g.addColorStop(1, 'rgba(244,230,178,0)');
-  CTX.fillStyle = g;
-  CTX.fillRect(x - SC*4, y + SC*3, spriteW + SC*8, spriteH + SC*4);
-  CTX.restore();
+  // sprite bitmap code-drawn: flat + outline 1px — ĐÚNG chất 9 To Life
+  // (walk sheet Meowa đã bỏ: style painterly không hợp)
+  veChar(frame, x, y + nhun, di < 0, SC);
 }
 
 // NGUOI: x,y là góc trên-trái sprite 24x36
