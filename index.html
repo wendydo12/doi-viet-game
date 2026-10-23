@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Cơm Bụi &amp; Deadline — life-sim 100% Việt</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1D2440">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cơm Bụi">
+<link rel="icon" href="assets/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <style>
   :root {
     --navy: #1D2440; --navy2: #2A3157; --vien: #5B6CB5; --kem: #F2F2F2;
@@ -278,5 +286,13 @@
 <script src="src/core.js"></script>
 <script src="src/render8.js"></script>
 <script src="src/game.js"></script>
+<script>
+  // PWA: đăng ký service worker (offline hoàn toàn — chơi không mạng)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e.message));
+    });
+  }
+</script>
 </body>
 </html>
