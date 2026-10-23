@@ -402,6 +402,18 @@ const SU_KIEN_VIET = [
   { id: 'duoc_nguoi_yeu_qua', ten: 'Quà bất ngờ', xacSuat: 0.03, onlyCoNguoiYeu: true, chiSo: { vui: +18, xaHoi: +8 }, thoai: 'Người ấy dúi vào tay hộp quà nhỏ: "thấy hợp với anh/em nên mua". Không dịp gì cả. Tự nhiên thế.' },
   { id: 'song_than', ten: 'Sóng thần tin đồn', xacSuat: 0.02, chiSo: { vui: -6, xaHoi: +8 }, thoai: 'Tin đồn công ty cắt giảm lan nhanh hơn wifi. Hóa ra chỉ là chuyển phòng ban. Thở phào nhưng cũng chột dạ.' },
   { id: 'mat_dien_thoai', ten: 'Suýt mất điện thoại', xacSuat: 0.025, chiSo: { vui: -15, nangLuong: -5 }, thoai: 'Móc túi quần trống trơn — tim rơi cái bịch. May quá, nó trượt nằm trong lớp áo khoác. Thọ thêm vài năm.' },
+  // ===== ĐỢT 3: sự kiện đặc trưng từng thành phố (verify test 'Sự kiện theo TP') =====
+  { id: 'troi_re_hn', ten: 'Rét đậm rét hại', xacSuat: 0.05, onlyTp: 'hanoi', chiSo: { sucKhoe: -12, nangLuong: -8, vui: -6 }, thoai: '5 độ, gió bấc cắt da cắt thịt. Cả xóm muối dưa quây quần quanh nồi lẩu bò kêu: "rét thế này không lẩu là không sống được".' },
+  { id: 'ro_rua_hn', ten: 'Phố cổ bịt đường', xacSuat: 0.04, onlyTp: 'hanoi', chiSo: { nangLuong: -10, vui: -8 }, thoai: 'Đào mặt đường toàn phố cổ. Đi vòng 3 lối vẫn vào ngõ cụt, chú xe ôm: "phố này răm răm lắm chú ơi".' },
+  { id: 'la_ca_hn', ten: 'Quán chè cô lá ca', xacSuat: 0.03, onlyTp: 'hanoi', chiSo: { vui: +12, xaHoi: +6 }, tien: -20_000, thoai: 'Nhà thơ lá ca sáng tác luôn tay: "bạn uống gì đi bạn...". Cả quán bật cười — một buổi chiều Hà Nội trôi thật êm.' },
+  { id: 'nang_ha_noi_hn', ten: 'Nắng vụ mùa đẹp lạ', xacSuat: 0.035, onlyTp: 'hanoi', chiSo: { vui: +12, nangLuong: +6 }, thoai: 'Nắng vàng vụ mùa phủ lên mặt hồ Gươm. Tháp Rùa soi bóng, ai cũng nhấc điện thoại lên chụp.' },
+  { id: 'bien_dn', ten: 'Biển xanh cát trắng', xacSuat: 0.05, onlyTp: 'danang', chiSo: { vui: +18, sucKhoe: +6, nangLuong: +6 }, thoai: 'My Khe cát trắng nước trong, sóng vỗ rì rào. Ai bảo Đà Nẵng là thành phố đáng sống là đúng — nhưng mà đang giờ làm mà!' },
+  { id: 'bao_dn', ten: 'Bão đổ bộ', xacSuat: 0.03, onlyTp: 'danang', chiSo: { sachSe: -20, nangLuong: -12, vui: -14 }, thoai: 'Bão số 8 đổ bộ thẳng mặt. Cắm trại lấy yến, cả căn hộ chạy gió — sáng ra sân đáy đầy lá cây bay từ đâu tới.' },
+  { id: 'cau_tinh_yeu_dn', ten: 'Cầu Tình Yêu sáng đèn', xacSuat: 0.035, onlyTp: 'danang', chiSo: { vui: +15, xaHoi: +10 }, thoai: 'Cầu Tình Yêu thắp đèn tim hồng khắp mặt sông Hàn. Cặp đôi chìa khóa tình yêu, mình thì... tự thưởng cho mình ly trà đá.' },
+  { id: 'sai_gon_xe_om_sg', ten: 'Xe ôm chở quá tải', xacSuat: 0.045, onlyTp: 'saigon', chiSo: { nangLuong: -8, vui: -6, xaHoi: +5 }, thoai: 'Bắt xe ôm đi công tác, chú chở thêm 2 người nữa. Ba người trên một chiếc Wave — có lẽ đây là kỹ năng sống còn của Sài Gòn.' },
+  { id: 'com_tam_sg', ten: 'Cơm tấm quán quen', xacSuat: 0.04, onlyTp: 'saigon', chiSo: { com: +25, vui: +10 }, tien: -35_000, thoai: 'Dì Sáu quán cơm tấm gỏi mặn tay giơ vòng: "thêm chả quýt em?". Lòng đầy ắp, ví nhẹ đi tí — đáng.' },
+  { id: 'ngap_nuoc_sg', ten: 'Biển lũ chặn lối về', xacSuat: 0.04, onlyTp: 'saigon', chiSo: { sachSe: -20, nangLuong: -10, vui: -10 }, thoai: 'Mưa 30 phút, nước ngập cả lối về. Người ta cõng nhau qua lề đường, ai đó còn chụp ảnh sống ảo giữa biển nước.' },
+  { id: 'ho_guom_hn', ten: 'Đi bộ hồ Gươm', xacSuat: 0.035, onlyTp: 'hanoi', chiSo: { vui: +12, xaHoi: +5, nangLuong: +4 }, thoai: 'Chủ nhật đi bộ quanh hồ Gươm, nghe nhạc đường phố. Cà phê trứng nóng hổi giữa tiết trời se lạnh — bình yên khó giải thích.' },
 ];
 
 // Gossip kiểu 9 To Life "word gets around" — NPC buôn chuyện với nhau qua tin nhắn
