@@ -49,9 +49,15 @@ const TP_MO_TA = {
 };
 const NGHE_LIST = [
   { id: 'van_phong', ten: 'Dân văn phòng', moTa: 'Thực tập sinh với 200 ngàn, phòng trọ 12m² và nhiều hoài bão.' },
-  { id: 'shipper', ten: 'Shipper', moTa: 'Xe máy cũ, app đơn và đôi chân không mỏi. (Phase 3)' },
-  { id: 'ban_quan', ten: 'Phụ quán', moTa: 'Bưng bê ở quán phở Bà Hạnh, tối về đếm tiền lẻ. (Phase 3)' },
+  { id: 'shipper', ten: 'Shipper', moTa: 'Xe máy cũ, app đơn và đôi chân không mỏi. Trời mưa đơn cháy — kiếm mưa mới mặn.' },
+  { id: 'ban_quan', ten: 'Phụ quán', moTa: 'Bưng bê ở quán phở Bà Hạnh từ tờ mờ sáng, tối về đếm tiền tip.' },
 ];
+// mô tả lương + ca theo nghề (đồng bộ NGHE_HE_THONG trong core.js)
+const NGHE_LUONG_UI = {
+  van_phong: 'Lương 80.000đ/ca · ca 7h30–17h30 · thăng chức tới Phó phòng 260k/ca.',
+  shipper: 'Kiếm theo đơn: ~35.000đ/chuyến · chạy từ 6h tới 22h · mưa thì đơn cháy.',
+  ban_quan: 'Kíp sáng 25.000đ + tip khách quen · ca 5h–13h · nấu giỏi thì tip giàu.',
+};
 const DREAM_LIST = [
   { ten: 'Nhà Mặt Phố', moTa: 'Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.' },
   { ten: 'Về Quê Nuôi Cá', moTa: 'Bỏ phố về quê, ao cá vườn rau, wifi đầy đủ.' },
@@ -60,7 +66,7 @@ const DREAM_LIST = [
 let chonTp = 0, chonNghe = 0, chonDream = 0;
 
 function chinhTp(d) { chonTp = (chonTp + d + 3) % 3; document.getElementById('tao-tp').textContent = THANH_PHO[TP_KEYS[chonTp]].ten; document.getElementById('tao-tp-mo-ta').textContent = TP_MO_TA[TP_KEYS[chonTp]]; }
-function chinhNghe(d) { chonNghe = (chonNghe + d + NGHE_LIST.length) % NGHE_LIST.length; document.getElementById('tao-nghe').textContent = NGHE_LIST[chonNghe].ten; document.getElementById('tao-nghe-mo-ta').textContent = NGHE_LIST[chonNghe].moTa; }
+function chinhNghe(d) { chonNghe = (chonNghe + d + NGHE_LIST.length) % NGHE_LIST.length; document.getElementById('tao-nghe').textContent = NGHE_LIST[chonNghe].ten; document.getElementById('tao-nghe-mo-ta').textContent = NGHE_LIST[chonNghe].moTa; document.getElementById('tao-nghe-luong').textContent = NGHE_LUONG_UI[NGHE_LIST[chonNghe].id]; }
 function chinhDream(d) { chonDream = (chonDream + d + DREAM_LIST.length) % DREAM_LIST.length; document.getElementById('tao-dream').textContent = DREAM_LIST[chonDream].ten; document.getElementById('tao-dream-mo-ta').textContent = DREAM_LIST[chonDream].moTa; }
 function doiTen() {
   const t = prompt('Tên nhân vật của bạn:', document.getElementById('tao-ten').textContent);
@@ -95,16 +101,20 @@ function doiTen() {
 
 function batDauTuMenu() {
   const ten = document.getElementById('tao-ten').textContent;
-  G = taoNguoiChoi(TP_KEYS[chonTp], ten);
+  G = taoNguoiChoiSau(TP_KEYS[chonTp], ten, NGHE_LIST[chonNghe].id);
   playSfx('chon');
-  G.nghe = NGHE_LIST[chonNghe].ten.toLowerCase();
   G.dream.ten = DREAM_LIST[chonDream].ten;
   G.dream.moTa = DREAM_LIST[chonDream].moTa;
   questMoi(G);
   khoiDongUI();
   bgmBat();
   G.diary.push({ ngay: 1, loai: 'chuyen_den', noiDung: 'Chuyển tới ' + G.thanhPho.ten + ', thuê phòng trọ 12m². Túi còn đúng 200 ngàn — giấc mơ: ' + G.dream.ten + '.' });
-  hopThoai('Bà Tư chủ trọ', 'Chào con! Phòng 12m², 1 triệu 5 một tháng, điện nước riêng. Quên tiền trọ thì bà cho đúng 5 ngày đó nha. Ráng đi làm, đầu tháng nhớ tiền phòng.');
+  const chaoNghe = {
+    van_phong: 'Sếp Đức gật đầu: "thực tập sinh mới hả? 7h30 có mặt, deadline thứ 5." Lương ca 80 ngàn — cố lên.',
+    shipper: 'Hùng chìa chìa khóa xe: "app nè, đơn tự bốc. Trời mưa đơn cháy đừng ngại ướt — mưa là mày giàu."',
+    ban_quan: 'Bà Hạnh dúi tạp dề: "5h sáng có mặt, nồi phở không chờ ai. Ráng mà học được tay nghề, khách quen tip hậu hĩnh."',
+  };
+  hopThoai('Bà Tư chủ trọ', 'Chào con! Phòng 12m², 1 triệu 5 một tháng, điện nước riêng. Quên tiền trọ thì bà cho đúng 5 ngày đó nha. ' + chaoNghe[G.ngheKey]);
 }
 
 function tiepTuc() {
@@ -145,10 +155,13 @@ function capNhatHUD() {
   // biểu tượng tim trên HUD khi có người yêu (kiểu 9 To Life hiện Love)
   const coYeu = G.banGai ? ' 💕' + (G.npc.find(n => n.id === G.banGai.npcId) || {}).ten : '';
   document.getElementById('hud-ten').textContent = G.ten + (G.tuoi ? ' ' + G.tuoi : '') + coYeu;
-  // shift note kiểu "Your shift is on (9am-5pm)"
+  // shift note kiểu "Your shift is on (9am-5pm)" — theo NGHỀ thật
+  const ngheH = NGHE_HE_THONG[G.ngheKey];
   const ca = G.thoiGian.thu >= 2 && G.thoiGian.thu <= 6;
+  const bac = bacNghe(G);
+  const gioCa = (x) => String(Math.floor(x)).padStart(2, '0') + 'h' + (x % 1 ? '30' : '00');
   document.getElementById('shift-note').innerHTML = ca
-    ? '<b>Ca làm hôm nay:</b> 7h30 – 17h30 · ' + G.nghe + ' · lương ca ' + G.luong.ca.toLocaleString('vi-VN') + 'đ'
+    ? '<b>Ca làm hôm nay:</b> ' + gioCa(ngheH.caLam.tu) + ' – ' + gioCa(ngheH.caLam.den) + ' · ' + bac.ten + ' · ' + (ngheH.kieu === 'ca' ? 'lương ca ' + (bac.luongCa || ngheH.luongCa).toLocaleString('vi-VN') + 'đ' : ngheH.kieu === 'don' ? '~' + ngheH.tienDon.toLocaleString('vi-VN') + 'đ/đơn' : 'kíp ' + ngheH.luongKip.toLocaleString('vi-VN') + 'đ + tip')
     : '<b>Cuối tuần!</b> Không ca làm — dành ngày cho mình, cho bạn bè, cho gia đình.';
 }
 
@@ -231,6 +244,9 @@ function capNhatActions() {
   wrap.innerHTML = '';
   if (!list.length) { wrap.innerHTML = '<div class="panel" style="font-size:12px;color:#8A90B0">Ở đây giờ này không có gì để làm.</div>'; return; }
   for (const h of list) {
+    // 'di_lam' chỉ dành cho dân văn phòng — 2 nghề kia có nút làm việc riêng bên dưới
+    if (h.id === 'di_lam' && G.ngheKey !== 'van_phong') continue;
+    if (h.id === 'lam_them_gio' && G.ngheKey !== 'van_phong') continue;
     const b = document.createElement('button');
     b.className = 'act' + (h.khoaLyDo ? ' locked' : '');
     const chips = (h.tien ? '<span class="chip">' + (h.tien > 0 ? '+' : '−') + Math.abs(h.tien) / 1000 + 'k</span>' : '') +
@@ -240,6 +256,38 @@ function capNhatActions() {
     if (!h.khoaLyDo) b.onclick = () => bamHoatDong(h.id);
     wrap.appendChild(b);
   }
+  // NÚT LÀM VIỆC THEO NGHỀ (shipper / phụ quán) — chặn theo ca + thứ trong hàm backend
+  if (G.ngheKey && G.ngheKey !== 'van_phong') {
+    const ngheH = NGHE_HE_THONG[G.ngheKey];
+    const dungScene = ngheH.sceneLam.includes(SCENE_HIEN);
+    const t = G.thoiGian;
+    const ngayLam = t.thu >= 2 && t.thu <= 6;
+    const trongCa = t.gio >= ngheH.caLam.tu && t.gio <= ngheH.caLam.den;
+    const tenNui = G.ngheKey === 'shipper' ? 'Chạy ship một vòng' : 'Trực kíp quán phở';
+    const moTaNui = G.ngheKey === 'shipper' ? 'Bốc đơn trên app, chạy hết đoạn đường hôm nay.' : 'Bưng bê kíp sáng, đón khách quen — bà Hạnh trông nồi.';
+    const khoaLyDo = !dungScene ? 'Phải đến ' + (G.ngheKey === 'shipper' ? 'phố' : 'quán phở') + '.' :
+      !ngayLam ? 'Cuối tuần, khách cũng nghỉ.' :
+      !trongCa ? 'Ngoài ca làm (' + ngheH.caLam.tu + 'h–' + ngheH.caLam.den + 'h).' : null;
+    const b2 = document.createElement('button');
+    b2.className = 'act' + (khoaLyDo ? ' locked' : '');
+    const tienUi = G.ngheKey === 'shipper' ? '~35k' : '25k+tip';
+    b2.innerHTML = '<span class="ten">' + tenNui + '<span class="mui">' + muiTen({ nangLuong: -22, com: -12 }) +
+      (khoaLyDo ? '<span class="canhkhoa">🔒 ' + khoaLyDo + '</span>' : '') + '</span></span><span class="chips"><span class="chip">+' + tienUi + '</span><span class="chip gio">' + (G.ngheKey === 'shipper' ? '1h30m' : '4h') + '</span></span>';
+    if (!khoaLyDo) b2.onclick = () => bamLamViecNghe();
+    wrap.appendChild(b2);
+  }
+}
+// bấm làm việc theo nghề (shipper/phụ quán) — bỏ qua filter scene của hoatDongKhaDung
+function bamLamViecNghe() {
+  if (!G || G.daChet || PAUSE) return;
+  const kq = lamViecNghe(G);
+  if (!kq.ok) { hopThoai('Khoan đã', kq.lyDo); capNhatTatCa(); return; }
+  hopThoai(kq.ten || 'Đi làm', 'Túi thêm ' + (kq.tien || 0).toLocaleString('vi-VN') + 'đ. ' + (G.ngheKey === 'shipper' ? 'Xe xăng đầy, app còn ping.' : 'Tạp dề bẩn rồi mà vui vui.'));
+  capNhatTatCa();
+  kiemTraPhanUngQuest();
+  chaySuKien();
+  kiemTraChet();
+  render();
 }
 const ICON_NHU_CAU = { com: 'com', nangLuong: 'set', vui: 'vui', xaHoi: 'noi', sachSe: 'nuoc', sucKhoe: 'tim' };
 const MUI = { com: 'com', nangLuong: 'set', vui: 'vui', xaHoi: 'noi', sachSe: 'nuoc', sucKhoe: 'tim' };
@@ -315,14 +363,20 @@ function moNpc(id) {
     '<button class="hd-npc" style="margin-top:8px;background:#1A2040" onclick="document.getElementById(\'npc-chi-tiet\').style.display=\'none\'">← Quay lại</button></div>';
   document.getElementById('npc-list').style.display = 'none';
 }
+// NPC sống sâu: tin nhắn theo tính cách + quan hệ tụt khi bỏ bê (thay luồng nhắn tin cũ)
+function npcSongSieu(phut) {
+  npcSongSau(G, phut);
+}
+// hook khi tương tác NPC từ UI: dùng bản sau (ghi nhớ + cảm xúc lây)
 function lamVoiNpcUI(npcId, hdId) {
   const truoc = G.banGai;
-  const kq = lamVoiNpc(G, npcId, hdId);
+  const kq = lamVoiNpcSau(G, npcId, hdId);
   if (!kq.ok) { hopThoai('Khoan đã', kq.lyDo); capNhatTatCa(); return; }
   const n = kq.npc;
   // khoảnh khắc thành đôi: SFX tình cảm + banner vàng (kiểu 9 To Life)
   if (!truoc && G.banGai && G.banGai.npcId === n.id) { playSfx('yeu'); toast('💕 <b>' + n.ten + '</b> nắm tay bạn — hai người chính thức thành đôi!'); }
-  const camNhan = n.yeu >= 40 ? 'má hơi đỏ' : n.ban >= 40 ? 'cười tươi' : 'gật gù';
+  const gian = n.tamTrang === 'đang giận';
+  const camNhan = gian ? 'vẫn còn hờn dỗi, nhưng có lắng nghe' : n.yeu >= 40 ? 'má hơi đỏ' : n.ban >= 40 ? 'cười tươi' : 'gật gù';
   hopThoai(n.ten, camNhan.charAt(0).toUpperCase() + camNhan.slice(1) + '. ' + n.ten + ' nhớ bạn đấy — tình cảm là thứ không mua được bằng deadline.');
   document.getElementById('npc-chi-tiet').style.display = 'none';
   document.getElementById('npc-list').style.display = 'flex';
@@ -388,6 +442,18 @@ function chaySuKien() {
       setTimeout(() => { hopThoai(nn.ten, nn.thoai); capNhatTatCa(); kiemTraChet(); }, 1400);
     }
   }
+  // sự kiện TẾT theo mốc lịch (mỗi mốc 1 lần/life) — toast vàng riêng cho rực rỡ
+  const tet = kiemTraTet(G);
+  for (const tk of tet) {
+    const t = tk;
+    setTimeout(() => {
+      if (t.dem === 0) playSfx('coin');
+      toast('🧨 <b>' + t.ten + '</b>');
+      hopThoai('Tết trong hẻm', t.thoai);
+      capNhatTatCa();
+      kiemTraChet();
+    }, 600);
+  }
 }
 
 // ===== KỸ NĂNG (tab SỐNG) =====
@@ -398,8 +464,49 @@ function capNhatKyNang() {
     const cap = Math.floor(v);
     return '<div>' + tenKyNang(k) + ': <b style="color:var(--vang)">' + '★'.repeat(cap) + '☆'.repeat(5 - cap) + '</b> <span style="color:#9AA5C9">cấp ' + cap + '</span></div>';
   }).join('') +
-    '<div style="margin-top:6px">Nghề: <b style="color:var(--vang)">' + G.nghe + '</b> · lương ca ' + G.luong.ca.toLocaleString('vi-VN') + 'đ</div>' +
-    '<div>Tiền trọ: ' + G.phong.tienThue.toLocaleString('vi-VN') + 'đ/tháng' + (G.phong.conNo > 0 ? ' · <b style="color:var(--do)">đang nợ ' + G.phong.conNo.toLocaleString('vi-VN') + 'đ</b>' : '') + '</div>';
+    '<div style="margin-top:6px">Nghề: <b style="color:var(--vang)">' + bacNghe(G).ten + '</b>' +
+    (G.thongKe && G.thongKe.don ? ' · ' + G.thongKe.don + ' đơn đã chạy' : '') +
+    (G.thongKe && G.thongKe.kip ? ' · ' + G.thongKe.kip + ' kíp đã trực' : '') +
+    ' · ' + (NGHE_HE_THONG[G.ngheKey].kieu === 'ca' ? 'lương ca ' + (bacNghe(G).luongCa || 0).toLocaleString('vi-VN') + 'đ' : NGHE_HE_THONG[G.ngheKey].kieu === 'don' ? '~' + NGHE_HE_THONG[G.ngheKey].tienDon.toLocaleString('vi-VN') + 'đ/đơn' : 'kíp ' + NGHE_HE_THONG[G.ngheKey].luongKip.toLocaleString('vi-VN') + 'đ + tip') + '</div>' +
+    '<div>Tiền trọ: ' + G.phong.tienThue.toLocaleString('vi-VN') + 'đ/tháng' + (G.phong.conNo > 0 ? ' · <b style="color:var(--do)">đang nợ ' + G.phong.conNo.toLocaleString('vi-VN') + 'đ</b>' : '') + '</div>' +
+    capNhatTetDem();
+  // hàng thăng chức: bậc kế tiếp + điều kiện
+  const thangEl = document.getElementById('nghe-thang');
+  if (thangEl) {
+    const h = NGHE_HE_THONG[G.ngheKey];
+    const cur = bacNghe(G);
+    const bacAll = h.thang.bac;
+    const idx = bacAll.findIndex(b => b.cap === cur.cap);
+    if (idx >= bacAll.length - 1) {
+      thangEl.innerHTML = '<div style="color:#8FD4C8">🏆 Đã đỉnh nghề <b>' + cur.ten + '</b> — giữ lửa thôi.</div>';
+    } else {
+      const next = bacAll[idx + 1];
+      const kyn = G.kyNang[h.kyNangChinh] || 0;
+      const sep = h.thang.sep ? (G.npc.find(n => n.id === h.thang.sep) || {}).quanHe || 0 : 0;
+      const okKyn = kyn >= next.ycKyNang, okSep = sep >= (next.ycSep || 0);
+      thangEl.innerHTML = '<div style="font-size:11px;color:#9AA5C9">Bậc kế tiếp: <b style="color:var(--vang)">' + next.ten + '</b>' +
+        ' — cần ' + tenKyNang(h.kyNangChinh) + ' cấp ' + next.ycKyNang + ' (' + (okKyn ? '<span style="color:#8FD4C8">✔ ' + (Math.floor(kyn * 10) / 10) + '</span>' : '<span style="color:#E88A90">' + (Math.floor(kyn * 10) / 10) + '</span>') + ')' +
+        (next.ycSep ? ' · quan hệ sếp ' + next.ycSep + ' (' + (okSep ? '<span style="color:#8FD4C8">✔ ' + Math.round(sep) + '</span>' : '<span style="color:#E88A90">' + Math.round(sep) + '</span>') + ')' : '') + '</div>' +
+        '<button class="btn" style="margin-top:5px;' + (okKyn && okSep ? '' : 'opacity:.5') + '" onclick="bamThangChuc()">🏅 Xin thăng chức</button>';
+    }
+  }
+}
+function bamThangChuc() {
+  if (!G || G.daChet) return;
+  const kq = thangChuc(G);
+  if (!kq.ok) { hopThoai('Khoan đã', kq.lyDo); return; }
+  playSfx('coin');
+  toast('🏅 THĂNG CHỨC: <b>' + kq.ten + '</b>! +2 LP "' + G.dream.ten + '"');
+  hopThoai('Sếp / bà chủ', 'Chứng kiến sự cố gắng của con. Từ hôm nay: <b>' + kq.ten + '</b>. ' + (G.ngheKey === 'van_phong' ? 'Lương ca mới đã ghi sổ.' : 'Khách quen sẽ dần dần tin tưởng con hơn.'));
+  capNhatTatCa();
+}
+// đếm ngược Tết (hiện từ 30 ngày trước mùng 1) — + mốc sự kiện lịch lớn
+function capNhatTetDem() {
+  const { conLaiTet } = ngayAmLich(G);
+  if (conLaiTet > 30 || conLaiTet < -7) return '';
+  if (conLaiTet === 0) return '<div style="margin-top:5px;color:#E8A05A">🧨 <b>HÔM NAY MÙNG 1 TẾT</b> — lì xì với chúc thọ nhé!</div>';
+  if (conLaiTet > 0) return '<div style="margin-top:5px;color:#E8A05A">🧨 Còn <b>' + conLaiTet + '</b> ngày tới Tết — ' + (conLaiTet > 8 ? 'tháng Chạp, bao vỏ, gói bánh.' : 'Tất niên, thắp hương, chờ giao thừa.') + '</div>';
+  return '<div style="margin-top:5px;color:#E8A05A">🧨 Mùng ' + (1 - conLaiTet) + ' Tết — ' + (1 - conLaiTet <= 3 ? 'ăn chơi thảnh thơi, đi chùa lấy lộc.' : 'Tết tắt dần, sắp về lại phố.') + '</div>';
 }
 function capNhatDoi() {
   const el = document.getElementById('nhat-ky-list');
@@ -513,6 +620,7 @@ setInterval(() => {
   if (!G || G.daChet || PAUSE) return;
   tienDo(G, 10);
   capNhatQuest(G);
+  npcSongSieu(10);
   kiemTraPhanUngQuest();
   quayThoiTiet(G);
   capNhatTatCa();

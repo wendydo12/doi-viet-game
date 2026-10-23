@@ -198,6 +198,7 @@
         <div class="row-tao"><label>Xuất phát</label>
           <button class="nut-mui" onclick="chinhNghe(-1)">◄</button><div class="gia-tri" id="tao-nghe">Dân văn phòng</div><button class="nut-mui" onclick="chinhNghe(1)">►</button></div>
         <div class="mo-ta" id="tao-nghe-mo-ta">Thực tập sinh với 200 ngàn, phòng trọ 12m² và nhiều hoài bão.</div>
+        <div class="mo-ta" id="tao-nghe-luong" style="color:#8FD4C8">Lương 80.000đ/ca · ca 7h30–17h30 · thăng chức lên Phó phòng 260k/ca.</div>
         <div class="row-tao"><label>Giấc mơ</label>
           <button class="nut-mui" onclick="chinhDream(-1)">◄</button><div class="gia-tri" id="tao-dream">Nhà Mặt Phố</div><button class="nut-mui" onclick="chinhDream(1)">►</button></div>
         <div class="mo-ta" id="tao-dream-mo-ta" style="color:var(--vang)">Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.</div>
@@ -269,6 +270,7 @@
       <div id="tab-song" style="display:none" class="panel">
         <div style="font-size:11px; color:var(--vang); letter-spacing:1px; margin-bottom:5px;">KỸ NĂNG &amp; TÌNH TRẠNG</div>
         <div id="ky-nang-list" style="font-size:12px; line-height:1.8; color:#C9D2F0;"></div>
+        <div id="nghe-thang" style="margin-top:8px;"></div>
         <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn" onclick="luuVaBao()">Lưu game</button>
           <button class="btn" onclick="hoiLaiChoi()">🔄 Chơi lại</button>
@@ -306,11 +308,11 @@
     <div class="khach" style="font-size:11px;margin-top:6px">LP dành dụm truyền sang kiếp sau (tab MƠ)</div>
   </div>
 
-<script src="src/core.js"></script>
-<script src="src/pixelicons.js"></script>
-<script src="src/canh3tp.js"></script>
-<script src="src/render8.js"></script>
-<script src="src/game.js"></script>
+<script src="src/core.js?v=8"></script>
+<script src="src/pixelicons.js?v=8"></script>
+<script src="src/canh3tp.js?v=8"></script>
+<script src="src/render8.js?v=8"></script>
+<script src="src/game.js?v=8"></script>
 <script>
   // PWA: đăng ký service worker (offline hoàn toàn — chơi không mạng)
   if ('serviceWorker' in navigator) {
