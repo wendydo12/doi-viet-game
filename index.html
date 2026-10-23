@@ -118,6 +118,13 @@
     padding:5px 16px; display:inline-block; cursor:pointer; font-size:12px; color:#fff; }
   #hop-thoai img.pt { width:56px; height:56px; image-rendering:pixelated; float:left; margin-right:10px;
     background:#10152A; border:2px solid #9AA5C9; }
+
+  /* toast banner kiểu 9 To Life */
+  #toast { position:fixed; top:14px; left:50%; transform:translate(-50%,-160%); z-index:60;
+    background:linear-gradient(#3A2B10,#241A08); border:2px solid var(--vang); color:var(--kem);
+    padding:9px 18px; font-size:13px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,.6);
+    transition:transform .28s cubic-bezier(0.23,1,0.32,1); max-width:min(92vw,520px); }
+  #toast.hi { transform:translate(-50%,0); }
   /* menu chọn thành phố */
   #menu { position:fixed; inset:0; background:rgba(15,18,38,.98); display:flex; z-index:60; overflow:auto; }
   #menu .bg { position:absolute; inset:0; }
@@ -180,7 +187,7 @@
   <div id="app">
     <div id="hud">
       <div class="trai"><b id="hud-ten">Nhân</b> <span id="hud-noi">Ngày 1 tại phòng trọ</span></div>
-      <div class="giua"><span id="hud-tt">☀️</span> <span id="hud-tg">—</span> <span id="hud-pause" style="cursor:pointer" onclick="togglePause()">‖</span></div>
+      <div class="giua"><span id="hud-tt">☀️</span> <span id="hud-tg">—</span> <span id="hud-pause" style="cursor:pointer" onclick="togglePause()">‖</span> <span id="hud-am" style="cursor:pointer" onclick="taoMute()">🔊</span></div>
       <div class="phai">🪙 <span id="hud-tien">—</span></div>
     </div>
 

@@ -555,6 +555,9 @@ function chayTest() {
   t('Đi làm đúng ca: +80k, trôi 8h', () => {
     const s7 = taoNguoiChoi('saigon');
     s7.thoiGian = { ngay: 2, thu: 3, gio: 8, phut: 0, tuan: 1, thang: 10, nam: 2026 };
+    // Cố định quest ngày = việc KHÔNG thể xong qua di_lam → test deterministic
+    // (trước: questMoi bốc ngẫu nhiên, 37.5% rơi đúng quest 'di_lam' → +15k → flaky)
+    s7.questNgay = { ngay: 2, viec: [{ id: 'tam_giat', ten: 'Tắm giặt sạch sẽ', thuong: 10_000, xong: false }], thuongHet: 50_000, daLanhHet: false };
     const t0 = s7.tien;
     const kq7 = lamHoatDong(s7, 'di_lam');
     if (!kq7.ok) throw new Error('fail: ' + kq7.lyDo);
