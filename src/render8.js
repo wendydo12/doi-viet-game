@@ -539,6 +539,8 @@ function render() {
     sc.ve();
   }
   veNguoiHien();
+  npcCapNhat();
+  veNpcTrongScene();
   veMua();
   // crush ra canvas chính: 160x120 → 320x240 NEAREST (pixel cục 8-bit)
   MAIN_CTX.imageSmoothingEnabled = false;
@@ -570,10 +572,197 @@ function veNguoiHien() {
 // NGUOI: x,y là góc trên-trái sprite 24x36
 let NGUOI = { x: 150, y: 130, di: 1, frame: 'idle', dichX: null, mucTieuAction: null, mucTieuX: 0, mucTieuY: 0, vanToc: 1.6, frameDem: 0 };
 
+// ===== NPC TRONG SCENE — "npcs have feelings" kiểu 9 To Life =====
+// Mỗi NPC: vị trí theo scene, màu áo/tóc riêng, idle bob, bubble thoại ambient,
+// icon cảm xúc trên đầu. Tap NPC → nhân vật TỰ ĐI TỚI → mở menu tương tác.
+const NPC_SCENE_MAP = {
+  phong_tro: ['ba_tu', 'hoa'],
+  quan_pho:  ['chi_dao', 'hung'],
+  van_phong: ['linh', 'tuan', 'duc'],
+  pho_dem:   ['mai', 'nam', 'hanh'],
+  bia_hoi:   ['hung', 'trung', 'thao'],
+};
+// màu áo/tóc riêng từng NPC (áo: [main, shadow], tóc, quần)
+const NPC_LOOK = {
+  linh:   { ao: ['#F080A8', '#C05888'], toc: '#3A2A20', quan: '#3A3A58' },
+  tuan:   { ao: ['#4A6A9A', '#36507A'], toc: '#20202A', quan: '#2A2A38' },
+  ba_tu:  { ao: ['#8A6A9A', '#6A4E7A'], toc: '#C8C8D0', quan: '#4A4A52' },
+  hung:   { ao: ['#E0A030', '#B07818'], toc: '#20202A', quan: '#3A5A8A' },
+  mai:    { ao: ['#E85880', '#B83860'], toc: '#5A3A28', quan: '#585870' },
+  cu_long:{ ao: ['#7A8A6A', '#5A6A4A'], toc: '#D8D8E0', quan: '#4A4A52' },
+  thao:   { ao: ['#48B8A0', '#2E8E78'], toc: '#3A2A20', quan: '#E8E8E8' },
+  duc:    { ao: ['#3A3A48', '#26262E'], toc: '#20202A', quan: '#2A2A38' },
+  hanh:   { ao: ['#C05878', '#983858'], toc: '#2A2028', quan: '#585870' },
+  nam:    { ao: ['#58A858', '#3E8A3E'], toc: '#20202A', quan: '#3A5A8A' },
+  chi_dao:{ ao: ['#D8B040', '#A88828'], toc: '#2A2028', quan: '#4A4A52' },
+  trung:  { ao: ['#5878A8', '#3E5C88'], toc: '#20202A', quan: '#3A3A48' },
+  hoa:    { ao: ['#F0C0D0', '#D098B0'], toc: '#3A2A20', quan: '#585870' },
+  ong_sang:{ ao: ['#9A8A6A', '#7A6A4A'], toc: '#D0D0D8', quan: '#4A4A52' },
+};
+// vị trí đứng theo scene (x = góc trên-trái sprite, y tự tính theo vungDi)
+const NPC_VI_TRI = {
+  phong_tro: { ba_tu: [70, 0], hoa: [230, 0] },
+  quan_pho:  { chi_dao: [160, 0], hung: [60, 0] },
+  van_phong: { linh: [50, 0], tuan: [140, 0], duc: [240, 0] },
+  pho_dem:   { mai: [60, 0], nam: [160, 0], hanh: [250, 0] },
+  bia_hoi:   { hung: [120, 0], trung: [200, 0], thao: [270, 0] },
+};
+// câu ambient chatter theo tính cách (word gets around!)
+const NPC_CHATTER = {
+  linh:   ['Nghe nói sếp Đức lại tăng chỉ tiêu đó...', 'Trưa nay ăn gì ta? Cơm tấm hông?', 'Ê bộ đồ mới đẹp dữ!'],
+  tuan:   ['...Ừ.', 'Cà phê không?', 'Deadline thứ sáu.'],
+  ba_tu:  ['Đầu tháng nhớ tiền phòng đó con!', 'Trời ơi rác để trước cửa hoài à?', 'Bà nấu chè, ai ăn hông?'],
+  hung:   ['Đơn nổ quá trời luôn anh ơi!', 'Chạy kịp 30 cuốc hôm nay!', 'Xe tui mới thay bình, bốc lắm!'],
+  mai:    ['Tối nay rảnh hông? Đi ăn đi!', 'Dạo này trông bạn khác khác nha...', 'Ê ê nghe chuyện này hay lắm!'],
+  thao:   ['Nay vẫn như cũ ha anh? Đen không đường!', 'Trời nóng làm ly cà phê muối đi!', 'Em giữ chỗ quen cho anh rồi đó.'],
+  duc:    ['Q4 chỉ tiêu +30%.', 'Báo cáo chưa thấy trên mail?', 'Cuối tuần này OT nha mọi người.'],
+  hanh:   ['Nghe nói con bà Tư... thôi không nói!', 'Xóm mình sắp có điện mới đó!', 'Cháu ăn cơm chưa?'],
+  nam:    ['Tối nay leo rank không bạn?', 'Game mới ra hay lắm!', 'Rủ thêm đứa nữa cho đủ team!'],
+  chi_dao:['Xôi nóng đây! Thêm ruốc không con?', 'Nay cô bán đắt lắm nghen!', 'Trời lạnh ăn xôi là đúng bài!'],
+  trung:  ['Máy chủ lại sập rồi.', 'Sửa xong rồi, khỏi lo.', '...wifi tầng 3 yếu lắm.'],
+  hoa:    ['Con sắp thi cuối kỳ rồi bà ơi!', 'Học bổng kỳ này con được nè!', 'Tối nay con nấu canh chua nghen bà!'],
+  cu_long:['Hồi xưa chỗ này là ruộng hết đó con.', 'Giờ tụi bây sướng, có máy lạnh.', 'Trà sáng với tao không?'],
+  ong_sang:['Báo mới! Tin nóng đây!', 'Thời buổi này ai còn đọc báo giấy ha?', 'Cho ông tờ Tuổi Trẻ như mọi khi nha!'],
+};
+let NPC_HIENTAI = []; // { id, x, y, frame, bobOffset, bubble: null|{text, progress, until}, icon: null|{kind, until} }
+
+function napNpcScene() {
+  const sc = SCENES[SCENE_HIEN];
+  const ids = NPC_SCENE_MAP[SCENE_HIEN] || [];
+  NPC_HIENTAI = [];
+  for (const id of ids) {
+    const vt = (NPC_VI_TRI[SCENE_HIEN] || {})[id];
+    if (!vt) continue;
+    const sc2 = (SCENES[SCENE_HIEN].charScale) || 2;
+    const charPx = SCENES[SCENE_HIEN].charPx || 18 * sc2;
+    // đứng trong vùng đi được, y = đáy vungDi trừ chiều cao sprite
+    const v = sc.vungDi || { y1: 141, y2: 160 };
+    const y = Math.max(v.y1, v.y2) - charPx + 6;
+    NPC_HIENTAI.push({ id, x: vt[0], y, frameDem: Math.floor(Math.random() * 60),
+      bubble: null, icon: null, di: Math.random() < 0.5 ? -1 : 1 });
+  }
+}
+
+// bubble thoại + typewriter: mỗi tick render tiến 1 ký tự
+function npcCapNhat() {
+  const now = TG;
+  // ambient chatter ngẫu nhiên: mỗi NPC ~0.4%/tick nói 1 câu
+  for (const n of NPC_HIENTAI) {
+    if (!n.bubble && Math.random() < 0.004) {
+      const arr = NPC_CHATTER[n.id] || ['...'];
+      const txt = arr[Math.floor(Math.random() * arr.length)];
+      n.bubble = { text: txt, progress: 0, until: now + 180 + txt.length * 6 };
+      n.icon = null;
+    }
+    if (n.bubble) {
+      if (n.bubble.progress < n.bubble.text.length) n.bubble.progress++; // typewriter
+      if (now > n.bubble.until) n.bubble = null;
+    }
+    // icon cảm xúc ngẫu nhiên (giận đỏ khi bị nhắc tiền trọ, sao khi vui...)
+    if (!n.icon && !n.bubble && Math.random() < 0.0015) {
+      const kinds = ['vui', 'gian', 'yeu', 'hoi'];
+      n.icon = { kind: kinds[Math.floor(Math.random() * kinds.length)], until: now + 150 };
+    }
+    if (n.icon && now > n.icon.until) n.icon = null;
+    n.frameDem++;
+  }
+}
+
+function veNpcTrongScene() {
+  const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC;
+  for (const n of NPC_HIENTAI) {
+    const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
+    const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
+    const y = n.y + bob;
+    // bóng tiếp xúc
+    CTX.fillStyle = 'rgba(8,6,12,0.5)';
+    CTX.beginPath(); CTX.ellipse(n.x + 6 * SC, n.y + charPx + 1, 6 * SC * 0.4, SC * 1.2, 0, 0, 7); CTX.fill();
+    // sprite: dùng CHAR_FRAMES nhưng đổi bảng màu theo NPC
+    const frame = (n.frameDem % 120 < 100) ? 'idle' : (n.frameDem % 120 < 110 ? 'walk1' : 'walk2');
+    const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc };
+    // outline 8 hướng
+    for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
+      veCharRaw(CHAR_FRAMES[frame], n.x + ox, y + oy, SC, n.di > 0, (ch) => mauRieng[ch] ? C.den || '#181420' : null);
+    }
+    veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
+    // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
+    CTX.fillStyle = look.ao[1];
+    for (let r = 7; r < 12; r++) {
+      const line = CHAR_FRAMES[frame][r];
+      for (let cc = 7; cc < 12; cc++) {
+        const ch = n.di > 0 ? line[cc] : line[line.length - 1 - cc];
+        if (ch === 'a') CTX.fillRect(n.x + cc * SC, y + r * SC, SC, SC);
+      }
+    }
+    // (không vẽ tên trên đầu — 9 To Life không có; pixel-crush làm chữ 7px không đọc được)
+    // BUBBLE THOẠI kiểu 9 To Life: hộp trắng viền đen + đuôi + typewriter
+    if (n.bubble) {
+      const txt = n.bubble.text.slice(0, n.bubble.progress);
+      CTX.font = '7px monospace';
+      const wTxt = Math.min(CTXT_DO_W(txt), 90);
+      const bx = Math.max(4, Math.min(n.x + 6 * SC - wTxt / 2 - 4, W - wTxt - 14));
+      const by = Math.max(16, n.y - 26);
+      CTX.fillStyle = '#FFFFFF';
+      CTX.fillRect(bx, by - 12, wTxt + 8, 16);
+      CTX.fillStyle = '#101010'; // viền 1px
+      CTX.fillRect(bx - 1, by - 13, wTxt + 10, 1); CTX.fillRect(bx - 1, by + 4, wTxt + 10, 1);
+      CTX.fillRect(bx - 1, by - 13, 1, 18); CTX.fillRect(bx + wTxt + 8, by - 13, 1, 18);
+      CTX.fillRect(bx + 8, by + 5, 3, 3); CTX.fillRect(bx + 9, by + 8, 2, 2); // đuôi
+      CTX.fillStyle = '#141414';
+      CTX.fillText(txt, bx + 4, by);
+    }
+    // ICON CẢM XÚC trên đầu (8x8 rõ — đọc được qua pixel crush)
+    if (n.icon) {
+      const ix = n.x + 6 * SC - 4, iy = n.y - 14;
+      if (n.icon.kind === 'gian') { CTX.fillStyle = '#E03030'; CTX.fillRect(ix, iy, 2, 8); CTX.fillRect(ix + 6, iy, 2, 8); CTX.fillRect(ix - 1, iy + 3, 10, 2); }
+      if (n.icon.kind === 'vui')   { CTX.fillStyle = '#FFD040'; CTX.fillRect(ix + 3, iy, 2, 3); CTX.fillRect(ix + 6, iy + 3, 2, 3); CTX.fillRect(ix + 3, iy + 6, 2, 3); CTX.fillRect(ix, iy + 3, 2, 3); CTX.fillRect(ix + 3, iy + 3, 2, 2); }
+      if (n.icon.kind === 'yeu')   { CTX.fillStyle = '#FF5FA8'; CTX.fillRect(ix, iy + 1, 3, 3); CTX.fillRect(ix + 5, iy + 1, 3, 3); CTX.fillRect(ix, iy + 4, 8, 2); CTX.fillRect(ix + 1, iy + 6, 6, 1); CTX.fillRect(ix + 3, iy + 7, 2, 1); }
+      if (n.icon.kind === 'hoi')   { CTX.fillStyle = '#9AA0B0'; CTX.fillRect(ix, iy + 2, 7, 5); CTX.fillRect(ix + 2, iy + 7, 2, 2); CTX.fillRect(ix + 3, iy + 9, 1, 1); }
+    }
+    // MARKER sao xanh nếu là người yêu
+    if (typeof G !== 'undefined' && G && G.banGai && G.banGai.npcId === n.id) {
+      const mx = n.x + 6 * SC - 2, my = n.y - 24 + Math.sin(TG * 0.1) * 2;
+      CTX.fillStyle = '#40D850';
+      CTX.fillRect(mx + 1, my, 2, 5); CTX.fillRect(mx, my + 1, 4, 2);
+    }
+  }
+}
+// đo chiều rộng text (canvas font 7px) — cache
+const _wCache = {};
+function CTXT_DO_W(t) {
+  if (_wCache[t] !== undefined) return _wCache[t];
+  CTX.font = '7px monospace';
+  return (_wCache[t] = CTX.measureText(t).width);
+}
+
+// tap NPC: hit-test trong tapToMove — đi tới rồi mở menu
+let NPC_MUC_TIEU = null; // { id, x }
+function npcHitTest(mx, my) {
+  const SC = (SCENES[SCENE_HIEN].charScale) || 2;
+  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC;
+  for (const n of NPC_HIENTAI) {
+    if (mx >= n.x - 4 && mx <= n.x + 12 * SC + 4 && my >= n.y - 6 && my <= n.y + charPx + 4) return n;
+  }
+  return null;
+}
+
 function tapToMove(mx, my) {
   const sc = SCENES[SCENE_HIEN];
   NGUOI.dichX = mx - 12;
   NGUOI.mucTieuAction = null;
+  NPC_MUC_TIEU = null;
+  // ưu tiên NPC: chạm NPC → đi tới cạnh NPC rồi mở menu
+  const npcCham = npcHitTest(mx, my);
+  if (npcCham) {
+    NPC_MUC_TIEU = npcCham;
+    const SCt = (sc.charScale) || 2;
+    NGUOI.mucTieuAction = 'npc:' + npcCham.id;
+    NGUOI.mucTieuX = npcCham.x + (NGUOI.x < npcCham.x ? -14 : 12 * SCt + 2);
+    NGUOI.mucTieuY = npcCham.y;
+    [NGUOI.mucTieuX, NGUOI.mucTieuY] = gioiHan(sc, NGUOI.mucTieuX, NGUOI.mucTieuY);
+    return;
+  }
   for (const [ten, [px, py, pw, ph, action]] of Object.entries(sc.diem)) {
     if (mx >= px && mx <= px+pw && my >= py && my <= py+ph) {
       NGUOI.mucTieuAction = action;
@@ -652,6 +841,7 @@ function buocChuyen() {
 // ===== ACTION =====
 function doiScene(ten) {
   SCENE_HIEN = ten;
+  napNpcScene();
   const sc = SCENES[ten];
   NGUOI.x = sc.viTriGoc[0]; NGUOI.y = sc.viTriGoc[1];
   NGUOI.dichX = null; NGUOI.mucTieuAction = null;
@@ -662,6 +852,7 @@ function doiScene(ten) {
 }
 function doiSceneImLang(ten) {
   SCENE_HIEN = ten;
+  napNpcScene();
   const sc = SCENES[ten];
   NGUOI.x = sc.viTriGoc[0]; NGUOI.y = sc.viTriGoc[1];
   NGUOI.dichX = null; NGUOI.mucTieuAction = null;
@@ -672,6 +863,15 @@ function doiSceneImLang(ten) {
 
 function thucHienAction(act) {
   if (typeof G === 'undefined' || !G) { if (typeof hopThoai === 'function') hopThoai('??', 'Chọn thành phố để bắt đầu đã.'); return; }
+  if (typeof act === 'string' && act.startsWith('npc:')) {
+    const id = act.slice(4);
+    NPC_MUC_TIEU = null;
+    // NPC quay mặt về phía nhân vật
+    const npc = NPC_HIENTAI.find(n => n.id === id);
+    if (npc) npc.di = NGUOI.x < npc.x ? -1 : 1;
+    if (typeof moNpc === 'function') moNpc(id);
+    return;
+  }
   switch (act) {
     case 'ngu':     bamHoatDong('ngu_dem'); break;
     case 'an':      bamHoatDong('an_com_bui'); break;
