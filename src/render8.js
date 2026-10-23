@@ -25,24 +25,20 @@ const P = {
 
 // ===== NHÂN VẬT V2 — 12x18: tóc gọn, 2 mắt, 2 tay nối, quần riêng, giày =====
 // ===== NHÂN VẬT V3 — 10x20: chibi đầu to kiểu 9 To Life, cao 60px nội thất (75% tủ lạnh) =====
+// ===== NHÂN VẬT v4 — 12x15: NHỎ + MẢNH (45px nội thất = 1m chuẩn 9 To Life) =====
 const CHAR_FRAMES = {
   idle: [
     '...tttttt...',
     '..tttttttt..',
     '..tddddddt..',
     '..tdmddmdt..',
-    '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '....dddd....',
     '..aaaaaaaa..',
-    '.aaaaaaaaaa.',
-    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
     '..aaaaaaaa..',
-    '...qq..qq...',
     '...qq..qq...',
     '...qq..qq...',
     '..ggg..ggg..',
@@ -53,18 +49,13 @@ const CHAR_FRAMES = {
     '..tttttttt..',
     '..tddddddt..',
     '..tdmddmdt..',
-    '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '....dddd....',
     '..aaaaaaaa..',
-    '.aaaaaaaaaa.',
-    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
     '..aaaaaaaa..',
-    '...qq..qq...',
     '..qq....qq..',
     '.qq......qq.',
     '.ggg....ggg.',
@@ -75,27 +66,22 @@ const CHAR_FRAMES = {
     '..tttttttt..',
     '..tddddddt..',
     '..tdmddmdt..',
-    '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '....dddd....',
     '..aaaaaaaa..',
-    '.aaaaaaaaaa.',
-    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
     '..aaaaaaaa..',
-    '...qq..qq...',
     '...qq.qq....',
     '....qqqq....',
     '....gggg....',
-    '....gg......',
+    '....gggg....',
   ],
 };
 
 // Bảng màu nhân vật chuẩn 9 To Life: da peach ấm, tóc nâu, jean xanh, giày nâu đen
-const CHAR_COLOR = { t: '#5A3A24', d: '#EFC39A', m: '#202020', a: '#4E9A8F', q: '#3E5A8A', g: '#2E241B', ' ': null, '.': null };
+const CHAR_COLOR = { t: '#5A3A24', d: '#EFC39A', m: '#202020', a: '#4E9A8F', q: '#3E5A8A', g: '#54402A', ' ': null, '.': null };
 
 function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
   sy = sy || sx;
@@ -112,7 +98,7 @@ function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
 }
 
 function veChar(frame, x, y, flip, SC) {
-  SC = SC || 2; // scale theo cảnh: 2 = phố (24x40), 3 = nội thất (36x60)
+  SC = SC || 2; // scale theo cảnh: 2 = phố (24x30), 3 = nội thất (36x45)
   // Outline đen dày đúng 1 pixel-art (bằng 1 ô sprite), ôm sát silhouette
   for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
     veCharRaw(CHAR_FRAMES[frame], x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
@@ -373,7 +359,7 @@ SCENES.bia_hoi = {
   },
   viTriGoc: [150, 158],
   charScale: 3,
-  charPx: 60,
+  charPx: 45,
   vungDi: { x1: 8, x2: 288, y1: 140, y2: 168 },
 };
 
@@ -472,7 +458,7 @@ SCENES.pho_dem = {
   },
   viTriGoc: [172, 164],
   charScale: 3,
-  charPx: 60, // ~24% chiều cao cảnh — sprite mới 24 hàng
+  charPx: 45, // ~24% chiều cao cảnh — sprite mới 24 hàng
   // vùng đi lại: y là GÓC TRÊN sprite cao 48px → chân ở y+48, trên dải vỉa hè
   vungDi: { x1: 8, x2: 288, y1: 146, y2: 168 },
 };
@@ -618,6 +604,7 @@ function render() {
   }
   npcCapNhat();
   veNguoiVaNpcTheoSau(); // z-order: vẽ theo chân — ai thấp hơn (gần camera) vẽ sau
+  veVienNhay(); // viền trắng nhấp nháy đồ đang hover
   veMua();
   // VẼ THẲNG 1:1 — OFF (320x240) → MAIN (320x240). KHÔNG crush (ô vuông 2x2)
   // và KHÔNG cắt 1/4 (bug cũ: chỉ lấy 160x120 rồi phóng 2x)
@@ -649,7 +636,7 @@ function veNguoiVaNpcTheoSau() {
 // vẽ 1 NPC theo id (tách từ veNpcTrongScene)
 function veNpcTrongScene1(id) {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 15 * SC;
   const n = NPC_HIENTAI.find(x => x.id === id);
   if (!n) return;
   veMotNpc(n, SC, charPx);
@@ -658,9 +645,13 @@ function veMotNpc(n, SC, charPx) {
     const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
     const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
     const y = n.y + bob;
-    // bóng tiếp xúc
-    CTX.fillStyle = 'rgba(8,6,12,0.5)';
-    CTX.beginPath(); CTX.ellipse(n.x + 6 * SC, n.y + charPx + 1, 6 * SC * 0.4, SC * 1.2, 0, 0, 7); CTX.fill();
+    // bóng tiếp xúc PIXEL (3 vạch giảm dần)
+    CTX.fillStyle = 'rgba(8,6,12,0.45)';
+    CTX.fillRect(n.x + 2 * SC, n.y + charPx + 1, 8 * SC, SC);
+    CTX.fillStyle = 'rgba(8,6,12,0.3)';
+    CTX.fillRect(n.x + 3 * SC, n.y + charPx + 1 + SC, 6 * SC, SC);
+    CTX.fillStyle = 'rgba(8,6,12,0.18)';
+    CTX.fillRect(n.x + 4 * SC, n.y + charPx + 1 + 2 * SC, 4 * SC, SC);
     // sprite: dùng CHAR_FRAMES nhưng đổi bảng màu theo NPC
     const frame = (n.frameDem % 120 < 100) ? 'idle' : (n.frameDem % 120 < 110 ? 'walk1' : 'walk2');
     const mauRieng = { ...CHAR_COLOR, a: look.ao[0], q: look.quan, t: look.toc };
@@ -671,7 +662,7 @@ function veMotNpc(n, SC, charPx) {
     veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
     // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
     CTX.fillStyle = look.ao[1];
-    for (let r = 8; r < 16; r++) {
+    for (let r = 6; r < 11; r++) {
       const line = CHAR_FRAMES[frame][r];
       for (let cc = 7; cc < 12; cc++) {
         const ch = n.di > 0 ? line[cc] : line[line.length - 1 - cc];
@@ -731,13 +722,17 @@ function veIconNpc(n) {
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC; // chiều cao sprite thật (px)
-  const spriteW = 12 * SC * (charPx / (20 * SC));
+  const charPx = SCENES[SCENE_HIEN].charPx || 15 * SC; // chiều cao sprite thật (px)
+  const spriteW = 12 * SC * (charPx / (15 * SC));
   const spriteH = charPx;
   const chanY = y + spriteH;
-  // bóng đổ tiếp xúc (contact shadow) — neo nhân vật xuống sàn
-  CTX.fillStyle = 'rgba(8,6,12,0.5)';
-  CTX.beginPath(); CTX.ellipse(x+spriteW/2, chanY+1, spriteW*0.38, SC*1.3, 0, 0, 7); CTX.fill();
+  // bóng tiếp xúc PIXEL (3 vạch giảm dần — flat 9 To Life, không ellipse mềm)
+  CTX.fillStyle = 'rgba(8,6,12,0.45)';
+  CTX.fillRect(x + 2*SC, chanY + 1, spriteW - 4*SC, SC);
+  CTX.fillStyle = 'rgba(8,6,12,0.3)';
+  CTX.fillRect(x + 3*SC, chanY + 1 + SC, spriteW - 6*SC, SC);
+  CTX.fillStyle = 'rgba(8,6,12,0.18)';
+  CTX.fillRect(x + 4*SC, chanY + 1 + 2*SC, spriteW - 8*SC, SC);
   // nhấp nhô nhẹ theo nhịp bước cho đỡ cứng
   const nhun = frame === 'walk2' ? -SC : 0;
   // sprite bitmap code-drawn: flat + outline 1px — ĐÚNG chất 9 To Life
@@ -810,7 +805,7 @@ function napNpcScene() {
     const vt = (NPC_VI_TRI[SCENE_HIEN] || {})[id];
     if (!vt) continue;
     const sc2 = (SCENES[SCENE_HIEN].charScale) || 2;
-    const charPx = SCENES[SCENE_HIEN].charPx || 20 * sc2;
+    const charPx = SCENES[SCENE_HIEN].charPx || 15 * sc2;
     // đứng trong vùng đi được, y = đáy vungDi trừ chiều cao sprite
     const v = sc.vungDi || { y1: 141, y2: 160 };
     const y = Math.max(v.y1, v.y2) - charPx + 6;
@@ -859,7 +854,7 @@ function CTXT_DO_W(t) {
 let NPC_MUC_TIEU = null; // { id, x }
 function npcHitTest(mx, my) {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 15 * SC;
   for (const n of NPC_HIENTAI) {
     if (mx >= n.x - 4 && mx <= n.x + 12 * SC + 4 && my >= n.y - 6 && my <= n.y + charPx + 4) return n;
   }
@@ -894,6 +889,50 @@ function tapToMove(mx, my) {
   [NGUOI.mucTieuX, NGUOI.mucTieuY] = gioiHan(sc, NGUOI.mucTieuX, NGUOI.mucTieuY);
   const [dx, dy] = gioiHan(sc, NGUOI.dichX, NGUOI.y);
   NGUOI.dichX = dx; NGUOI.mucTieuY = NGUOI.mucTieuAction ? NGUOI.mucTieuY : dy;
+}
+
+// ===== HOVER ĐỒ VẬT: viền trắng nhấp nháy kiểu 9 To Life =====
+let HOVER_DIEM = null; // { ten, px, py, pw, ph, action }
+CANVAS.addEventListener('pointermove', (ev) => {
+  const rect = CANVAS.getBoundingClientRect();
+  const mx = (ev.clientX - rect.left) / rect.width * W;
+  const my = (ev.clientY - rect.top) / rect.height * H;
+  const sc = SCENES[SCENE_HIEN];
+  HOVER_DIEM = null;
+  if (!sc) return;
+  for (const [ten, [px, py, pw, ph, action]] of Object.entries(sc.diem)) {
+    if (mx >= px && mx <= px + pw && my >= py && my <= py + ph) {
+      HOVER_DIEM = { ten, px, py, pw, ph, action };
+      break;
+    }
+  }
+  CANVAS.style.cursor = HOVER_DIEM ? 'pointer' : 'default';
+});
+// vẽ viền nhấp nháy: gọi trong render() khi HOVER_DIEM có + TG nhấp nháy 400ms 2 tông
+function veVienNhay() {
+  if (!HOVER_DIEM) return;
+  const { px, py, pw, ph } = HOVER_DIEM;
+  // 2 tông: trắng đậm ↔ trắng nhạt (nhấp nháy 400ms) — dùng Date.now() (không phụ thuộc rAF throttle)
+  const t = (Date.now() % 800) < 400;
+  CTX.fillStyle = t ? '#FFFFFF' : '#D8D8C8';
+  // viền 2px quanh vùng đồ (nở ra 2px)
+  CTX.fillRect(px - 3, py - 3, pw + 6, 2); // trên
+  CTX.fillRect(px - 3, py + ph + 1, pw + 6, 2); // dưới
+  CTX.fillRect(px - 3, py - 1, 2, ph + 2); // trái
+  CTX.fillRect(px + pw + 1, py - 1, 2, ph + 2); // phải
+  // nhãn tên đồ nền vàng góc trên-trái (kiểu "Bed" trong video)
+  CTX.font = 'bold 8px monospace';
+  const tenUc = HOVER_DIEM.ten.replace(/_/g, ' ');
+  const wLabel = CTXT_DO_W(tenUc) + 8;
+  const lx = Math.max(2, Math.min(px - 3, W - wLabel - 2));
+  const ly = Math.max(2, py - 14);
+  CTX.fillStyle = '#FFD040';
+  CTX.fillRect(lx, ly, wLabel, 11);
+  CTX.fillStyle = '#101010';
+  CTX.fillRect(lx, ly, wLabel, 1); CTX.fillRect(lx, ly + 10, wLabel, 1);
+  CTX.fillRect(lx, ly, 1, 11); CTX.fillRect(lx + wLabel - 1, ly, 1, 11);
+  CTX.fillStyle = '#241B30';
+  CTX.fillText(tenUc, lx + 4, ly + 8);
 }
 
 CANVAS.addEventListener('pointerdown', (ev) => {
@@ -980,6 +1019,118 @@ function doiSceneImLang(ten) {
   render();
 }
 
+// ===== HỘP THOẠI CHỌN WIN95 (đúng mẫu video): tiêu đề + stat + nút lựa chọn + chip giờ =====
+// MENU_DO: menu riêng từng đồ — luaChon: { ten, phut, tien, act (bamHoatDong id) hoặc thuDialog {nguoi, nd} }
+const MENU_DO = {
+  tivi: {
+    tieuDe: 'Tivi CRT',
+    moTa: 'Phim cũ chiếu lại, quảng cáo vẫn hay.',
+    luaChon: [
+      { ten: 'Xem tivi CRT', phut: 60, tien: 0, act: 'xem_tivi', chiSo: '+Vui +18' },
+      { ten: 'Chuyển kênh opera', phut: 45, tien: 0, act: 'xem_tivi', chiSo: '+Vui +14' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  may_vanh: {
+    tieuDe: 'Máy tính',
+    moTa: 'Máy cũ chạy ù ù, màn hình xanh cổ điển.',
+    luaChon: [
+      { ten: 'Lướt web xem phim', phut: 60, tien: 0, act: 'xem_tivi', chiSo: '+Vui +18' },
+      { ten: 'Nhận việc freelance', phut: 60, tien: 45_000, act: 'di_lam', chiSo: '+Tiền −Năng lượng' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  tu_lanh_act: {
+    tieuDe: 'Tủ lạnh',
+    moTa: 'Nam châm quà má gửi. Bên trong có trứng, nước mắm, nửa hộp sữa.',
+    luaChon: [
+      { ten: 'Lấy đồ ăn vặt', phut: 15, tien: 0, act: 'an_com_bui', chiSo: '+Đồ ăn +15' },
+      { ten: 'Nấu bữa tử tế', phut: 60, tien: -30_000, act: 'nau_an', chiSo: '+Đồ ăn +50', khoaKyNang: 'nauAn', khoaCap: 2 },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  sofa: {
+    tieuDe: 'Sofa nâu',
+    moTa: 'Gối mềm, khung gỗ — chỗ ngồi thương mến nhất phòng.',
+    luaChon: [
+      { ten: 'Ngồi nghỉ ngơi', phut: 30, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Ngủ một giấc trưa', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  giuong: {
+    tieuDe: 'Giường',
+    moTa: 'Nệm mỏng mền xanh — giấc ngủ không deadline.',
+    luaChon: [
+      { ten: 'Ngủ một đêm', phut: 420, tien: 0, act: 'ngu_dem', chiSo: '+Năng lượng MAX', dem: true },
+      { ten: 'Ngủ trưa chợp mắt', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  tu_lanh: {
+    tieuDe: 'Tủ lạnh',
+    moTa: 'Nam châm quà má gửi. Bên trong có trứng, nước mắm, nửa hộp sữa.',
+    luaChon: [
+      { ten: 'Lấy đồ ăn vặt', phut: 15, tien: 0, act: 'an_com_bui', chiSo: '+Đồ ăn +15' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+};
+
+// mở hộp thoại chọn — vẽ bằng DOM overlay đúng chất Win95
+function moMenuDo(act, tenDo) {
+  const m = MENU_DO[act];
+  if (!m) return false; // không có menu → chạy hành động mặc định
+  if (typeof G === 'undefined' || !G) return false;
+  const box = document.createElement('div');
+  box.id = 'menu-do';
+  box.style.cssText = 'position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);width:min(88vw,300px);' +
+    'background:#C0C0C0;border:2px solid #FFFFFF;box-shadow:inset -1px -1px 0 #404040, inset 1px 1px 0 #DFDFDF, 4px 4px 0 rgba(0,0,0,.5);' +
+    'z-index:70;font-family:inherit;';
+  // title bar navy Win95
+  let html = '<div style="background:#000080;color:#fff;font-weight:bold;font-size:11px;padding:4px 8px;' +
+    'display:flex;justify-content:space-between;align-items:center">' + m.tieuDe +
+    '<button id="md-dong" style="background:#C0C0C0;border:2px solid #404040;font-family:inherit;font-size:9px;' +
+    'font-weight:bold;padding:0 5px;cursor:pointer;box-shadow:inset -1px -1px 0 #404040, inset 1px 1px 0 #fff">×</button></div>';
+  html += '<div style="padding:8px 10px 10px">';
+  html += '<div style="font-size:11px;color:#101010;margin-bottom:8px">' + m.moTa + '</div>';
+  for (const lc of m.luaChon) {
+    if (lc.huy) {
+      html += '<button class="md-nut" data-huy="1" style="display:block;width:100%;margin-top:6px;background:#C0C0C0;' +
+        'border:2px solid #404040;box-shadow:inset -1px -1px 0 #404040, inset 1px 1px 0 #fff;padding:5px 8px;' +
+        'font-size:11px;font-family:inherit;cursor:pointer;text-align:center;color:#101010">Hủy</button>';
+      continue;
+    }
+    // chip giờ + tiền + stat bên phải nút
+    const gio = lc.phut >= 60 ? (lc.phut / 60) + 'h' : lc.phut + 'm';
+    const tien = lc.tien > 0 ? '+' + (lc.tien / 1000) + 'k' : lc.tien < 0 ? '−' + (-lc.tien / 1000) + 'k' : '';
+    html += '<button class="md-nut" data-act="' + lc.act + '" data-phut="' + lc.phut + '" data-tien="' + (lc.tien || 0) + '"' +
+      ' style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:6px;background:#C0C0C0;' +
+      'border:2px solid #404040;box-shadow:inset -1px -1px 0 #404040, inset 1px 1px 0 #fff;padding:5px 8px;' +
+      'font-size:11px;font-family:inherit;cursor:pointer;color:#101010"' +
+      ' onmouseover="this.style.background=\'#000080\';this.style.color=\'#fff\'"' +
+      ' onmouseout="this.style.background=\'#C0C0C0\';this.style.color=\'#101010\'">' +
+      '<span>' + lc.ten + '</span>' +
+      '<span style="display:flex;gap:4px;align-items:center">' +
+      (tien ? '<span style="font-size:10px">' + tien + '</span>' : '') +
+      '<span style="background:#D4D0C8;border:1px solid #808080;padding:1px 4px;font-size:10px;color:#101010">' + gio + '</span>' +
+      '</span></button>';
+  }
+  html += '</div>';
+  box.innerHTML = html;
+  document.body.appendChild(box);
+  // đóng
+  box.querySelector('#md-dong').onclick = () => box.remove();
+  box.querySelectorAll('.md-nut[data-huy]').forEach(b => b.onclick = () => box.remove());
+  box.querySelectorAll('.md-nut[data-act]').forEach(b => b.onclick = () => {
+    box.remove();
+    const actId = b.getAttribute('data-act');
+    bamHoatDong(actId);
+  });
+  playSfx('nut');
+  return true;
+}
+
 function thucHienAction(act) {
   if (typeof G === 'undefined' || !G) { if (typeof hopThoai === 'function') hopThoai('??', 'Chọn thành phố để bắt đầu đã.'); return; }
   if (typeof act === 'string' && act.startsWith('npc:')) {
@@ -991,6 +1142,8 @@ function thucHienAction(act) {
     if (typeof moNpc === 'function') moNpc(id);
     return;
   }
+  // có menu riêng? → mở hộp thoại Win95 thay vì chạy trực tiếp
+  if (moMenuDo(act, act)) return;
   switch (act) {
     case 'ngu':     bamHoatDong('ngu_dem'); break;
     case 'an':      bamHoatDong('an_com_bui'); break;
