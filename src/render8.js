@@ -249,8 +249,7 @@ const DIEM_THEO_TP = {
       sofa: [96, 105, 86, 40, 'sofa'],
       may_vanh: [186, 90, 56, 52, 'may_vanh'],
       tivi: [244, 57, 60, 85, 'tivi'],
-      cua_sgt: [0, 58, 34, 84, 'ra_pho'],
-      quat: [292, 112, 26, 30, 'ra_pho'], // radiator mép phải = lối ra
+      cua_sgt: [0, 58, 34, 52, 'ra_pho'], // cửa sắt mép trái vùng tường (y58-110; phần dưới bị giường che)
     },
   },
   hanoi: {
@@ -815,7 +814,7 @@ const NPC_LOOK = {
 // vị trí đứng theo scene (x = góc trên-trái sprite, y tự tính theo vungDi)
 const NPC_VI_TRI = {
   // [x, yOffset] — yOffset đẩy NPC về PHÍA TRƯỚC (gần camera) để không đè vùng chạm đồ
-  phong_tro: { ba_tu: [150, 30] },
+  phong_tro: { ba_tu: [66, 30] },
   quan_pho:  { chi_dao: [160, 0], hung: [60, 0], hoa: [220, 0] },
   van_phong: { linh: [50, 0], tuan: [140, 0], duc: [240, 0] },
   pho_dem:   { mai: [60, 0], nam: [160, 0], hanh: [250, 0] },

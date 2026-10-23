@@ -72,6 +72,58 @@ async function main() {
     await ev(`(function(){ const m = document.getElementById('menu-do'); if (m) m.remove(); dongHopThoai(); return 1; })()`);
   }
 
+  // ==== UNIT TEST LỐI RA: chạm radiator KHÔNG đổi scene; chạm cửa sắt MỚI đổi ====
+  const kqLoiRa = [];
+  const okLR = (ten, dieu) => kqLoiRa.push([dieu ? 'PASS' : 'FAIL', ten]);
+  // SG: chạm radiator (305, 125) → scene giữ nguyên phong_tro
+  await ev(`(function(){
+    try{xoaSave()}catch(e){};
+    chonTp = 0; batDauTuMenu(); dongHopThoai();
+    const cv = document.getElementById('man-choi');
+    const r = cv.getBoundingClientRect();
+    cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + 305 * r.width / 320, clientY: r.top + 125 * r.height / 240, bubbles: true }));
+    return 1;
+  })()`);
+  await new Promise(r3 => setTimeout(r3, 3000));
+  const sc1 = await ev('SCENE_HIEN');
+  okLR('[SG] chạm radiator (305,125) KHÔNG ra phố (scene = ' + sc1 + ')', sc1 === 'phong_tro');
+  // SG: chạm cửa sắt (15, 110) → ĐỔI scene
+  await ev(`(function(){
+    const cv = document.getElementById('man-choi');
+    const r = cv.getBoundingClientRect();
+    cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + 15 * r.width / 320, clientY: r.top + 80 * r.height / 240, bubbles: true }));
+    return 1;
+  })()`);
+  await new Promise(r3 => setTimeout(r3, 3000));
+  const sc2 = await ev('SCENE_HIEN');
+  okLR('[SG] chạm cửa sắt (15,80) → ra phố (scene = ' + sc2 + ')', sc2 !== 'phong_tro');
+  await ev('(function(){ if (SCENE_HIEN !== "phong_tro") doiSceneImLang("phong_tro"); return 1; })()');
+  // HN: cửa (305, 100) → ra
+  await ev(`(function(){
+    try{xoaSave()}catch(e){};
+    chonTp = 1; batDauTuMenu(); dongHopThoai();
+    const cv = document.getElementById('man-choi');
+    const r = cv.getBoundingClientRect();
+    cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + 305 * r.width / 320, clientY: r.top + 100 * r.height / 240, bubbles: true }));
+    return 1;
+  })()`);
+  await new Promise(r3 => setTimeout(r3, 3000));
+  const sc3 = await ev('SCENE_HIEN');
+  okLR('[HN] chạm cửa (305,100) → ra phố (scene = ' + sc3 + ')', sc3 !== 'phong_tro');
+  // ĐN: cửa (305, 110) → ra
+  await ev(`(function(){
+    try{xoaSave()}catch(e){};
+    chonTp = 2; batDauTuMenu(); dongHopThoai();
+    const cv = document.getElementById('man-choi');
+    const r = cv.getBoundingClientRect();
+    cv.dispatchEvent(new PointerEvent('pointerdown', { clientX: r.left + 305 * r.width / 320, clientY: r.top + 110 * r.height / 240, bubbles: true }));
+    return 1;
+  })()`);
+  await new Promise(r3 => setTimeout(r3, 3000));
+  const sc4 = await ev('SCENE_HIEN');
+  okLR('[ĐN] chạm cửa (305,110) → ra phố (scene = ' + sc4 + ')', sc4 !== 'phong_tro');
+  for (const [st, ten] of kqLoiRa) kq.push([st, ten]);
+
   console.log('=== UNIT TEST TƯƠNG TÁC 3 TP ===');
   for (const [st, ten] of kq) console.log(st + ' | ' + ten);
   const fail = kq.filter(x => x[0] === 'FAIL').length;
