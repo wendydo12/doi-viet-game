@@ -408,7 +408,7 @@ function capNhatDoi() {
 }
 function capNhatMo() { capNhatDream(); }
 
-// ===== CHẾT + VĂN BIA =====
+// ===== CHẾT + VĂN BIA (màn tang lễ kiểu 9 To Life) =====
 function kiemTraChet() {
   if (!G || !G.daChet) return;
   playSfx('chet'); bgmTat();
@@ -418,9 +418,44 @@ function kiemTraChet() {
   document.getElementById('vb-tuoi').textContent = 'Hưởng dương ' + d.tuoi + ' tuổi — Ngày ' + d.ngay + ' tháng ' + d.thang;
   document.getElementById('vb-lydo').textContent = 'Mất vì ' + d.lyDo + '.';
   document.getElementById('vb-trich').textContent = '"' + d.vanBia + '"';
+  document.getElementById('vb-bimat').textContent = d.biMat || '';
+  document.getElementById('vb-nguoilai').textContent = d.nguoiOLai || '';
   document.getElementById('vb-khach').textContent = d.khachDu + ' người quen tới tiễn · ' + d.lp + ' LP dành dụm cho giấc mơ "' + G.dream.ten + '" chưa thành.';
   document.getElementById('van-bia').style.display = 'flex';
+  // scene tang lễ trên canvas chính + copy sang canvas trong overlay (có sao lấp lánh động)
+  doiSceneImLang('tang_le');
+  const nguoiDuaTang = G.npc.filter(n => n.quanHe >= 40).slice(0, 6);
+  if (nguoiDuaTang.length) {
+    const ten = nguoiDuaTang[0].ten;
+    setTimeout(() => hopThoai(ten, (d.chiTiet || d.lyDo) + '\n' + d.vanBia), 1400);
+  }
+  const cv = document.getElementById('cv-tang');
+  const ctx2 = cv.getContext('2d');
+  ctx2.imageSmoothingEnabled = false;
+  const main = document.getElementById('man-choi');
+  ctx2.drawImage(main, 0, 0);
   xoaSave();
+}
+function luuAnhTang() {
+  // gộp canvas tang lễ + dòng epitaph thành ảnh tải về
+  const cv = document.getElementById('cv-tang');
+  const out = document.createElement('canvas');
+  out.width = 320; out.height = 300;
+  const o = out.getContext('2d');
+  o.imageSmoothingEnabled = false;
+  o.fillStyle = '#0B0916'; o.fillRect(0, 0, 320, 300);
+  o.drawImage(cv, 0, 0);
+  const d = G.daChet || {};
+  o.fillStyle = '#F8D400'; o.font = 'bold 14px monospace'; o.textAlign = 'center';
+  o.fillText((d.ten || '').toUpperCase(), 160, 262);
+  o.fillStyle = '#C8C8D8'; o.font = '10px monospace';
+  o.fillText('Mất vì ' + (d.lyDo || '') + ' · ' + (d.khachDu || 0) + ' người tới tiễn', 160, 280);
+  o.fillStyle = '#8888A0'; o.font = '9px monospace';
+  o.fillText('Cơm Bụi & Deadline — một đời đã sống', 160, 294);
+  const a = document.createElement('a');
+  a.href = out.toDataURL('image/png');
+  a.download = 'tang-le-' + (d.ten || 'vo-danh') + '.png';
+  a.click();
 }
 
 // ===== HỘP THOẠI (kiểu RPG xanh dương viền trắng của 9 To Life) =====

@@ -286,6 +286,7 @@
   <div id="hop-thoai"></div>
 
   <div id="van-bia">
+    <canvas id="cv-tang" width="320" height="240" style="image-rendering:pixelated;width:min(88vw,420px);height:auto;border:2px solid #4A4A5A"></canvas>
     <div class="mo">— TƯỞNG NHỚ —</div>
     <h2 id="vb-ten"></h2>
     <div class="nghe" id="vb-nghe"></div>
@@ -293,10 +294,16 @@
       <span class="rip">R . I . P</span>
       <span id="vb-tuoi"></span><br>
       <span id="vb-lydo" style="color:#E2585E"></span><br>
-      <span class="trich" id="vb-trich"></span>
+      <span class="trich" id="vb-trich"></span><br>
+      <span id="vb-bimat" style="color:#C8A8B8;font-size:12px"></span><br>
+      <span id="vb-nguoilai" style="color:#A898C8;font-size:12px"></span>
     </div>
     <div class="khach" id="vb-khach"></div>
-    <button class="btn" style="margin-top:8px" onclick="hoiLaiChoi()">🌱 Đầu thai làm lại cuộc đời</button>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center">
+      <button class="btn" onclick="luuAnhTang()">📷 Lưu thành ảnh</button>
+      <button class="btn" style="background:var(--vang);color:#241B30;border-color:#7A5A10" onclick="hoiLaiChoi()">🌱 Tạo cuộc đời mới</button>
+    </div>
+    <div class="khach" style="font-size:11px;margin-top:6px">LP dành dụm truyền sang kiếp sau (tab MƠ)</div>
   </div>
 
 <script src="src/core.js"></script>

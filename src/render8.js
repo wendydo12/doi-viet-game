@@ -30,66 +30,85 @@ const CHAR_FRAMES = {
   idle: [
     '....tttt....',
     '...tttttt...',
-    '...tttttt...',
+    '..tttttttt..',
+    '..tddddddt..',
+    '..tdmddmdt..',
+    '..tddddddt..',
+    '..ttddddtt..',
     '...dddddd...',
-    '...dmdmdq...',
-    '...dddddd...',
-    '....dddd....',
     '...aaaaaa...',
     '..aaaaaaaa..',
-    '.a.aaaaaa.a.',
-    '.a.aaaaaa.a.',
-    '.a..aaaa..a.',
-    '....aaaa....',
-    '....qqqq....',
-    '...qq...qq..',
-    '...q.....q..',
-    '...q.....q..',
-    '..gg.....gg.',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '.daaaaaaaad.',
+    '..aaaaaaaa..',
+    '...qq..qq...',
+    '...qq..qq...',
+    '...qq..qq...',
+    '...qq..qq...',
+    '...qq..qq...',
+    '...qq..qq...',
+    '..ggg..ggg..',
+    '..ggg..ggg..',
   ],
   walk1: [
     '....tttt....',
     '...tttttt...',
-    '...tttttt...',
+    '..tttttttt..',
+    '..tddddddt..',
+    '..tdmddmdt..',
+    '..tddddddt..',
+    '..ttddddtt..',
     '...dddddd...',
-    '...dmdmdq...',
-    '...dddddd...',
-    '....dddd....',
     '...aaaaaa...',
     '..aaaaaaaa..',
-    '.a.aaaaaa.a.',
-    '.a.aaaaaa.a.',
-    '.aa.aaaa.aa.',
-    '....aaaa....',
-    '....qqqq....',
-    '...qq...qq..',
-    '..qq.....q..',
-    '..q.......q.',
-    '.gg.......gg',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '.daaaaaaaad.',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '...qq..qq...',
+    '..qq....qq..',
+    '..qq....qq..',
+    '..qq....qq..',
+    '..qq....qq..',
+    '..qq....qq..',
+    '.ggg....ggg.',
+    '.ggg....ggg.',
   ],
   walk2: [
     '....tttt....',
     '...tttttt...',
-    '...tttttt...',
+    '..tttttttt..',
+    '..tddddddt..',
+    '..tdmddmdt..',
+    '..tddddddt..',
+    '..ttddddtt..',
     '...dddddd...',
-    '...dmdmdq...',
-    '...dddddd...',
-    '....dddd....',
     '...aaaaaa...',
     '..aaaaaaaa..',
-    '.aa.aaaa.aa.',
-    '.a.aaaaaa.a.',
-    '.a.aaaaaa.a.',
-    '....aaaa....',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '..aaaaaaaa..',
+    '.daaaaaaaad.',
+    '..aaaaaaaa..',
+    '...qq..qq...',
+    '...qq..qq...',
     '....qqqq....',
-    '...qq...qq..',
-    '...q.....qq.',
-    '.q.......q..',
-    'gg.......gg.',
+    '....qqqq....',
+    '....qqqq....',
+    '....qqqq....',
+    '...gggggg...',
+    '...gg..gg...',
   ],
 };
 
-const CHAR_COLOR = { t: P.toc, d: P.da, m: P.den, a: '#4E9A8F', q: '#3A2A1C', g: '#16121E', ' ': null, '.': null };
+// Bảng màu nhân vật chuẩn 9 To Life: da peach ấm, tóc nâu, jean xanh, giày nâu đen
+const CHAR_COLOR = { t: '#5A3A24', d: '#EFC39A', m: '#202020', a: '#4E9A8F', q: '#3E5A8A', g: '#2E241B', ' ': null, '.': null };
 
 function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
   sy = sy || sx;
@@ -363,7 +382,7 @@ SCENES.bia_hoi = {
   },
   viTriGoc: [150, 158],
   charScale: 3,
-  charPx: 48,
+  charPx: 72,
   vungDi: { x1: 8, x2: 288, y1: 140, y2: 168 },
 };
 
@@ -460,11 +479,77 @@ SCENES.pho_dem = {
   },
   viTriGoc: [172, 164],
   charScale: 3,
-  charPx: 48, // ~20% chiều cao cảnh — chuẩn 9 To Life cho phố rộng
+  charPx: 72, // ~24% chiều cao cảnh — sprite mới 24 hàng
   // vùng đi lại: y là GÓC TRÊN sprite cao 48px → chân ở y+48, trên dải vỉa hè
   vungDi: { x1: 8, x2: 288, y1: 146, y2: 168 },
 };
 
+// ===== MÀN TANG LỄ kiểu 9 To Life: đêm sao + bia mộ R.I.P ♥ + NPC đưa tang 2 bên =====
+SCENES.tang_le = {
+  ten: 'Tiễn đưa',
+  ve() {
+    // trời đêm đầy sao
+    CTX.fillStyle = C.troiDem; CTX.fillRect(0, 0, W, H);
+    veSao();
+    // trăng
+    CTX.fillStyle = '#E8E0C0'; CTX.beginPath(); CTX.arc(270, 36, 12, 0, 7); CTX.fill();
+    CTX.fillStyle = C.troiDem; CTX.beginPath(); CTX.arc(275, 32, 10, 0, 7); CTX.fill();
+    // cỏ nghĩa trang
+    CTX.fillStyle = '#2A4A2E'; CTX.fillRect(0, 160, W, 80);
+    CTX.fillStyle = '#223E26'; for (let i = 0; i < 30; i++) CTX.fillRect((i * 47) % W, 164 + ((i * 31) % 70), 3, 2);
+    // hàng rào cây xa
+    CTX.fillStyle = '#1E3622'; CTX.fillRect(0, 140, W, 20);
+    CTX.fillStyle = '#16291A'; for (let i = 0; i < 16; i++) CTX.fillRect(i * 20, 140 + (i % 3) * 2, 12, 6);
+    // BIA MỘ giữa
+    const d = (typeof G !== 'undefined' && G && G.daChet) || { ten: 'VÔ DANH', tuoi: 23, khachDu: 0, nghe: '' };
+    CTX.fillStyle = C.den; CTX.fillRect(131, 71, 58, 92); // outline mộ
+    CTX.fillStyle = '#8A8A96'; CTX.fillRect(132, 80, 56, 82); // thân bia
+    CTX.beginPath(); CTX.arc(160, 80, 28, Math.PI, 0); CTX.fill(); // vòm bia
+    CTX.fillStyle = '#6E6E7A'; CTX.fillRect(138, 76, 44, 4); // gờ
+    CTX.fillStyle = '#4A4A56'; CTX.fillRect(128, 158, 64, 6); // đế
+    // chữ khắc (pixel font qua fillText nhỏ)
+    CTX.textAlign = 'center';
+    CTX.fillStyle = '#3A3A46'; CTX.font = 'bold 10px monospace';
+    CTX.fillText('R.I.P', 160, 94);
+    CTX.fillStyle = '#2A2A34'; CTX.font = 'bold 12px monospace';
+    CTX.fillText(String(d.ten).slice(0, 10).toUpperCase(), 160, 112);
+    CTX.font = '9px monospace';
+    CTX.fillText('22-' + d.tuoi, 160, 128);
+    CTX.fillStyle = '#E03838'; CTX.font = '10px monospace';
+    CTX.fillText('♥ ' + d.khachDu, 160, 144);
+    CTX.textAlign = 'left';
+    // hoa quanh mộ
+    for (const fx of [112, 122, 198, 208]) {
+      CTX.fillStyle = '#3E7A44'; CTX.fillRect(fx, 152, 2, 8);
+      CTX.fillStyle = fx % 2 ? '#E05070' : '#E8C040'; CTX.fillRect(fx - 2, 148, 6, 5);
+    }
+    // NGƯỜI ĐƯA TANG: tối đa 6, chia 2 bên (sprite đen + chấm khăn trắng)
+    const SC = 2;
+    const khach = Math.min(6, d.khachDu || 0);
+    const viTri = [[40, 128], [70, 136], [96, 142], [216, 142], [244, 136], [274, 128]];
+    for (let i = 0; i < khach; i++) {
+      const [mx, my] = viTri[i];
+      const bob = ((TG + i * 13) % 80 < 40) ? 0 : -1;
+      // bóng
+      CTX.fillStyle = 'rgba(8,6,12,0.5)';
+      CTX.beginPath(); CTX.ellipse(mx + 12, my + 37, 9, 3, 0, 0, 7); CTX.fill();
+      // sprite đồ đen
+      const mauTang = { ...CHAR_COLOR, a: '#2A2A34', q: '#202028', t: '#181820' };
+      for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC]]) {
+        veCharRaw(CHAR_FRAMES.idle, mx + ox, my + oy + bob, SC, i < 3, () => null); // không outline đen trùng nền
+      }
+      veCharRaw(CHAR_FRAMES.idle, mx, my + bob, SC, i < 3, (ch) => mauTang[ch] || null);
+      // khăn trắng tang chế trên đầu
+      CTX.fillStyle = '#E8E8E8'; CTX.fillRect(mx + 3 * SC, my + bob - 2, 6 * SC - 2 * SC, 3);
+      // giọt nước mắt (1px xanh nhạt) cho 2 người gần mộ nhất
+      if (i === 2 || i === 3) { CTX.fillStyle = '#8AC8E8'; CTX.fillRect(mx + (i < 3 ? 8 * SC : 3 * SC), my + bob + 5 * SC + ((TG % 40 < 20) ? 0 : 2), 2, 2); }
+    }
+  },
+  diem: {},
+  viTriGoc: [150, 200],
+  charScale: 2,
+  vungDi: { x1: 0, x2: 0, y1: 200, y2: 200 }, // không đi lại được
+};
 let SCENE_HIEN = 'phong_tro';
 
 // ===== MƯA RƠI ĐỘNG (kiểu 9 To Life — vệt mưa chéo + icon mây trên HUD) =====
@@ -555,8 +640,8 @@ function veRimSang() { return; }
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC; // chiều cao sprite thật (px)
-  const spriteW = 12 * SC * (charPx / (18 * SC));
+  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC; // chiều cao sprite thật (px)
+  const spriteW = 12 * SC * (charPx / (24 * SC));
   const spriteH = charPx;
   const chanY = y + spriteH;
   // bóng đổ tiếp xúc (contact shadow) — neo nhân vật xuống sàn
@@ -634,7 +719,7 @@ function napNpcScene() {
     const vt = (NPC_VI_TRI[SCENE_HIEN] || {})[id];
     if (!vt) continue;
     const sc2 = (SCENES[SCENE_HIEN].charScale) || 2;
-    const charPx = SCENES[SCENE_HIEN].charPx || 18 * sc2;
+    const charPx = SCENES[SCENE_HIEN].charPx || 24 * sc2;
     // đứng trong vùng đi được, y = đáy vungDi trừ chiều cao sprite
     const v = sc.vungDi || { y1: 141, y2: 160 };
     const y = Math.max(v.y1, v.y2) - charPx + 6;
@@ -670,7 +755,7 @@ function npcCapNhat() {
 
 function veNpcTrongScene() {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC;
   for (const n of NPC_HIENTAI) {
     const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
     const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
@@ -688,7 +773,7 @@ function veNpcTrongScene() {
     veCharRaw(CHAR_FRAMES[frame], n.x, y, SC, n.di > 0, (ch) => mauRieng[ch] || null);
     // shadow áo 2 tông: phủ nửa phải áo bằng màu tối
     CTX.fillStyle = look.ao[1];
-    for (let r = 7; r < 12; r++) {
+    for (let r = 8; r < 16; r++) {
       const line = CHAR_FRAMES[frame][r];
       for (let cc = 7; cc < 12; cc++) {
         const ch = n.di > 0 ? line[cc] : line[line.length - 1 - cc];
@@ -740,7 +825,7 @@ function CTXT_DO_W(t) {
 let NPC_MUC_TIEU = null; // { id, x }
 function npcHitTest(mx, my) {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 18 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC;
   for (const n of NPC_HIENTAI) {
     if (mx >= n.x - 4 && mx <= n.x + 12 * SC + 4 && my >= n.y - 6 && my <= n.y + charPx + 4) return n;
   }

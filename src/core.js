@@ -294,11 +294,28 @@ function chet(state, lyDo, chiTiet) {
     'Sổ tay còn ghi: "tuần sau nghỉ ngơi một bữa".',
     'Tin nhắn cuối: "mai mình cà phê nhé". Không có mai.',
     'Đồng nghiệp nói: "nó còn nợ mình chầu trà đá".',
+    'Chỉ muốn xong cái deadline cuối. Deadline thắng.',
+    'Ước mơ còn dang dở: một giấc ngủ không báo thức.',
   ];
+  // bí mật xấu hổ + người ở lại — hài đen đúng chất 9 To Life
+  const nguoiYeu = state.banGai ? (state.npc.find(n => n.id === state.banGai.npcId) || {}).ten : null;
+  const mauBiMat = [
+    'Chưa từng giặt cái gối ôm suốt 2 năm.',
+    'Ăn vụng hộp cơm của đồng nghiệp 3 lần, chưa nhận.',
+    'Từng nói dối "em sắp tới" khi vẫn còn ở nhà.',
+    'Giấu 50 ngàn trong ốp điện thoại "phòng thân".',
+    'Hát karaoke phòng trọ lúc 1 giờ sáng, cả xóm biết.',
+    'Nợ bà Tư tiền nước 2 tháng, bà giả vờ quên.',
+  ];
+  const mauNguoiOLai = nguoiYeu
+    ? 'Ở lại là ' + nguoiYeu + ', người vẫn hay dúi quà vào tay bạn — và mẹ bạn, người đang gắng gượng lắm.'
+    : 'Ở lại là mẹ bạn, người đang gắng gượng lắm. Và vài đứa bạn còn nợ bạn chầu cà phê chưa kịp trả.';
   state.daChet = {
     ngay: state.thoiGian.ngay, thang: state.thoiGian.thang,
     lyDo, chiTiet,
     vanBia: mauVanBia[Math.floor(Math.random() * mauVanBia.length)],
+    biMat: mauBiMat[Math.floor(Math.random() * mauBiMat.length)],
+    nguoiOLai: mauNguoiOLai,
     khachDu: khach, nghe: state.nghe, tuoi: state.tuoi, ten: state.ten,
     lp: state.dream.lp,
   };
