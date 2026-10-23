@@ -43,21 +43,30 @@
     border:2px solid var(--vien); background:#13111E; touch-action:none; display:block; }
   #canh-hien { background: var(--navy); border:2px solid var(--vien); padding:4px 10px; font-size:12px; color:#9AA5C9; }
 
-  /* Panel "Đang ở..." + 6 thanh nhu cầu + mood box — khung viền vàng như 9 To Life */
-  #panel-idle { background: var(--navy); border:2px solid var(--vang); padding:8px 10px; }
-  #panel-idle h3 { color: var(--vang); font-size:12px; letter-spacing:1px; margin-bottom:6px; }
+  /* Panel "Đang ở..." + 6 thanh nhu cầu + mood box — chuẩn 9 To Life:
+     bevel 16-bit (sáng trên-trái, tối dưới-phải) + stat bar tick 25% */
+  #panel-idle { background: var(--navy); border:2px solid var(--vang); padding:8px 10px;
+    box-shadow: inset 1px 1px 0 #5A6A92, inset -1px -1px 0 #101428; }
+  #panel-idle h3 { color: var(--vang); font-size:12px; letter-spacing:1px; margin-bottom:6px;
+    text-shadow: 1px 1px 0 #000; }
   #idle-grid { display:grid; grid-template-columns: 1fr 1fr auto; gap:5px 12px; align-items:center; }
   .bar { font-size:11px; }
-  .bar .ten { display:flex; justify-content:space-between; color:#C9D2F0; }
-  .bar .ong { height:10px; background:#10152A; border:1px solid var(--vien); margin-top:2px; }
-  .bar .day { height:100%; transition: width .3s; background: var(--xanhla); }
-  .bar .day.vang { background: var(--vang); } .bar .day.do { background: var(--do); }
+  .bar .ten { display:flex; justify-content:space-between; color:#C9D2F0; text-shadow: 1px 1px 0 #000; }
+  .bar .ong { height:10px; background:#0A0A14; border:1px solid #384058; margin-top:2px; position:relative; }
+  /* tick chia 25% đúng kiểu 9 To Life */
+  .bar .ong::after { content:''; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(to right, transparent 0, transparent calc(25% - 1px), #0A0A14 calc(25% - 1px), #0A0A14 25%); }
+  .bar .day { height:100%; transition: width .3s; background: #35B04A;
+    box-shadow: inset 0 1px 0 #6FE06A, inset 0 -1px 0 #1E7A32; }
+  .bar .day.vang { background: #D2A21C; box-shadow: inset 0 1px 0 #F8D860, inset 0 -1px 0 #9A7614; }
+  .bar .day.do { background: var(--do); box-shadow: inset 0 1px 0 #F08080, inset 0 -1px 0 #7A1818; }
   .bar .ten .tt { color:#9AA5C9; }
-  #mood-box { grid-row: 1 / span 6; background:#10152A; border:2px solid var(--vien);
-    padding:6px; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:78px; }
+  #mood-box { grid-row: 1 / span 6; background:#181824; border:2px solid #4A4A5A;
+    padding:6px; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:78px;
+    box-shadow: inset 1px 1px 0 #5A5A82, inset -1px -1px 0 #101028; }
   #mood-box img { width:44px; height:44px; image-rendering:pixelated; background:var(--navy2); border:1px solid var(--vien); }
-  #mood-pct { font-weight:bold; font-size:15px; color: var(--xanhla); }
-  #mood-txt { font-size:10px; letter-spacing:1px; color:#C9D2F0; }
+  #mood-pct { font-weight:bold; font-size:15px; color: #5CE055; text-shadow: 1px 1px 0 #000; }
+  #mood-txt { font-size:10px; letter-spacing:1px; color:#C9D2F0; text-shadow: 1px 1px 0 #000; }
   #shift-note { background: var(--navy); border:2px solid var(--vien); padding:4px 10px; font-size:11px; color:#9AA5C9; }
   #shift-note b { color: var(--vang); }
 
@@ -117,13 +126,20 @@
   .hd-npc { background: linear-gradient(#3A4368, #2A3157); border:2px solid #10152A; color:var(--kem);
     font-family:inherit; font-size:12px; padding:7px 9px; cursor:pointer; text-align:left; width:100%; margin-top:4px; }
   .hd-npc:hover { background:#454E78; }
-  /* hộp thoại */
+  /* hộp thoại — ĐÚNG chuẩn 9 To Life: viền trắng 3px + viền trong tối +
+     gradient #4D5AA8→#3F4C96 + title vàng + divider + nút OK gradient + drop shadow (6,6) */
   #hop-thoai { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(92vw,560px);
-    background:#27408B; border:3px solid #fff; box-shadow: 0 0 0 3px #10152A, 0 12px 32px rgba(0,0,0,.6);
+    background:linear-gradient(180deg,#4D5AA8 0%,#465198 50%,#3F4C96 100%);
+    border:3px solid #fff; box-shadow: 0 0 0 2px #14142C, 6px 6px 0 rgba(0,0,0,.6);
     padding:12px 14px; font-size:13px; display:none; z-index:50; }
-  #hop-thoai .nguoi { color: var(--vang); font-weight:bold; text-decoration:underline; }
-  #hop-thoai .nut { margin-top:8px; background: linear-gradient(#4A5580,#343E66); border:2px solid #10152A;
-    padding:5px 16px; display:inline-block; cursor:pointer; font-size:12px; color:#fff; }
+  #hop-thoai .nguoi { color: #F8D400; font-weight:bold; text-shadow: 1px 1px 0 #000;
+    display:block; padding-bottom:6px; margin-bottom:8px; border-bottom:2px solid #8B93D6; }
+  #hop-thoai .noi-dung { color:#F2F2F2; text-shadow: 1px 1px 0 #22224A; line-height:1.5; }
+  #hop-thoai .nut { margin-top:10px; background: linear-gradient(180deg,#D8DDF0 0%,#B9C1DE 45%,#8D96C4 100%);
+    border:2px solid #101430; box-shadow: inset 0 1px 0 #E8ECF8;
+    padding:5px 20px; display:inline-block; cursor:pointer; font-size:12px; font-weight:bold;
+    color:#101430; text-shadow:none; font-family:inherit; }
+  #hop-thoai .nut:hover { background: linear-gradient(180deg,#E8ECF8 0%,#C9D0E8 45%,#9DA6D4 100%); }
   #hop-thoai img.pt { width:56px; height:56px; image-rendering:pixelated; float:left; margin-right:10px;
     background:#10152A; border:2px solid #9AA5C9; }
 

@@ -431,8 +431,8 @@ function hopThoai(nguoi, noiDung) {
   const tenSach = nguoi.replace(/^⚡ /, '').replace(' chủ trọ', '').replace(' Bà Hạnh', '');
   const p = PORTRAIT[tenSach] || (tenSach.includes('Bà') ? 'portrait/nu_01' : (tenSach.includes('chị') || tenSach.includes('Chị') ? 'portrait/nu_04' : 'meowa-r1/char_07'));
   const img = p ? '<img class="pt" src="assets/' + (p.endsWith('.png') ? p : p + '.png') + '">' : '';
-  box.innerHTML = img + '<span class="nguoi">' + nguoi + '</span><br>' + noiDung.replace(/\n/g, '<br>') +
-    '<br><span class="nut" onclick="dongHopThoai()">OK</span>';
+  box.innerHTML = img + '<span class="nguoi">' + nguoi + '</span><span class="noi-dung">' + noiDung.replace(/\n/g, '<br>') +
+    '</span><br><span class="nut" onclick="dongHopThoai()">OK</span>';
   if (hopThoaiTimer) clearTimeout(hopThoaiTimer);
   hopThoaiTimer = setTimeout(dongHopThoai, 10000);
 }
