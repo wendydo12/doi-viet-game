@@ -5,15 +5,13 @@ const MAIN_CTX = CANVAS.getContext('2d');
 MAIN_CTX.imageSmoothingEnabled = false;
 
 const W = 320, H = 240, T = 16;
-// ===== PIXEL CRUSH 8-BIT =====
-// 9 To Life thật đo được: scene chỉ ~135x81 px game, pixel CỤC TO.
-// Ta vẽ hệ tọa độ 320x240 vào offscreen 160x120 (scale 0.5) rồi phóng
-// ngược NEAREST lên canvas → mọi thứ thành khối 2x2, đúng chất 8-bit.
+// ===== VẼ THẲNG 320x240 — BỎ pixel crush 2x =====
+// Crush nearest 2x làm mọi chấm 1x1 (dither, bụi, mép sprite tọa độ lẻ) thành Ô VUÔNG 2x2
+// nổi lộm cộm trên người nhân vật — phu quân đã phàn nàn. Vẽ full-res, smooth pixel art.
 const OFF = document.createElement('canvas');
-OFF.width = 160; OFF.height = 120;
+OFF.width = W; OFF.height = H;
 const CTX = OFF.getContext('2d');
 CTX.imageSmoothingEnabled = false;
-CTX.scale(0.5, 0.5);
 
 // ===== BẢNG MÀU 8BIT HOÀI NIỆM VN =====
 const P = {
@@ -398,6 +396,8 @@ const BUI = Array.from({ length: 9 }, (_, i) => ({
 }));
 
 function hieuUngPhoDem() {
+  // TẮT — quầng 'lighter' + hạt bụi 1x1 (crush thành ô vuông 2x2 bay trên người nhân vật)
+  return;
   const nhap = 0.5 + 0.5 * Math.sin(TG * 0.05);   // nhịp thở của đèn
   // quầng ấm từ đèn đường / quán (cộng sáng rất nhẹ, giữ nguyên pixel gốc)
   CTX.save();
@@ -448,8 +448,8 @@ SCENES.pho_dem = {
     }
     // ---- dự phòng khi chưa nạp được ảnh ----
     CTX.fillStyle = P.dem; CTX.fillRect(0, 0, W, H);
-    dither(0, 0, W, 115, 'rgba(58,47,82,0.35)', 6);
-    for (let i = 0; i < 40; i++) {
+    // KHÔNG dither toàn màn — pixel crush 2x làm chấm 1x1 thành ô vuông nhỏ nổi trên người nhân vật
+    for (let i = 0; i < 40; i++) { // sao thưa (điểm 1px, không pattern)
       CTX.fillStyle = i % 3 ? P.kem : P.vang;
       CTX.fillRect(((i * 61) % W), ((i * 37) % 110), 1, 1);
     }

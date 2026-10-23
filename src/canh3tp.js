@@ -48,9 +48,9 @@ function KB(x, y, w, h, f, bong, o) {
   CTX.fillRect(x, y + h - 2, w, 2);
 }
 function veTuongPhang(x, y, w, h, m1, m2) {
+  // TƯỜNG PHẲNG 1 MÀU — không texture, không đốm, KHÔNG vệt chân tường
+  // (vệt m2 4px ở đáy = các ô vuông nhỏ lốm đốm mà phu quân ghét)
   CTX.fillStyle = m1; CTX.fillRect(x, y, w, h);
-  CTX.fillStyle = m2; // đốm texture thưa kiểu tường cũ
-  for (let i = 0; i < 24; i++) CTX.fillRect(x + ((i * 61) % w), y + ((i * 37) % h), 3, 2);
 }
 function veSanGo(y0) {
   CTX.fillStyle = C.go; CTX.fillRect(0, y0, 320, 240 - y0);
@@ -99,6 +99,7 @@ function veQuatTreo(x, y) {
   K(x, y + 3, 3, 8, C.xam2); // ti quạt từ trần xuống
   K(x - 8, y + 11, 19, 4, C.xam);
   CTX.fillStyle = C.xam2; CTX.fillRect(x - 6, y + 12, 15, 2);
+  // (bỏ dither quạt — ô vuông 1x1 crush 2x)
 }
 function veTV(x, y) { // TV CRT đỏ 24x18 + CHÂN ĐẾ (đáy = y+22 chạm mặt kệ)
   KB(x, y, 24, 16, C.do, C.do2);
