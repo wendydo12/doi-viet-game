@@ -627,10 +627,11 @@ function render() {
   npcCapNhat();
   veNpcTrongScene();
   veMua();
-  // crush ra canvas chính: 160x120 → 320x240 NEAREST (pixel cục 8-bit)
+  // VẼ THẲNG 1:1 — OFF (320x240) → MAIN (320x240). KHÔNG crush (ô vuông 2x2)
+  // và KHÔNG cắt 1/4 (bug cũ: chỉ lấy 160x120 rồi phóng 2x)
   MAIN_CTX.imageSmoothingEnabled = false;
   MAIN_CTX.clearRect(0, 0, W, H);
-  MAIN_CTX.drawImage(OFF, 0, 0, 160, 120, 0, 0, W, H);
+  MAIN_CTX.drawImage(OFF, 0, 0);
   capNhatIconThoiTiet();
 }
 
