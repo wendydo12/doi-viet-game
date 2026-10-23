@@ -228,20 +228,58 @@ SCENES.phong_tro = {
     CTX.fillStyle = P.bia; CTX.fillRect(180, 24, 14, 10);
     CTX.fillStyle = P.den; CTX.fillRect(186, 34, 2, 4);
   },
-  diem: {
-    // khớp đồ v15: giường trái → tủ lạnh → sofa → bàn máy tính → TV/tủ xanh → cửa
-    giuong: [8, 110, 54, 34, 'ngu'],
-    tu_lanh: [60, 70, 34, 72, 'tu_lanh_act'],
-    sofa: [96, 105, 86, 40, 'tivi'], // ngồi sofa = nghỉ ngơi/xem TV
-    may_vanh: [186, 82, 56, 60, 'may_vanh'], // bàn máy tính: browse internet
-    tivi: [244, 34, 60, 108, 'tivi'], // TV CRT trên tủ xanh
-    cua: [292, 85, 28, 60, 'ra_pho'], // radiator/ra phố (SG: cửa sắt ở 0)
-    cua_sgt: [0, 58, 34, 84, 'ra_pho'],
-  },
+  diem: {}, // diem thật theo TP ở DIEM_THEO_TP (tapToMove/hover tra bảng đúng TP)
   viTriGoc: [150, 148],
   charScale: 3,
   vungDi: { x1: 8, x2: 280, y1: 141, y2: 160 },
 };
+
+// ===== DIEM THEO THÀNH PHỐ — toạ độ KHỚP CHÍNH XÁC đồ vẽ trong canh3tp.js =====
+// SG.phong_tro: giường 8-62 (110-144) | tủ lạnh 60-94 (76-142) | sofa 96-182 (111-142) |
+//   bàn máy 186-242 (90-142) | TV+tủ xanh 244-304 (57-142) | cửa sắt 0-34 | radiator 292-318
+const DIEM_THEO_TP = {
+  saigon: {
+    phong_tro: {
+      giuong: [8, 110, 54, 34, 'ngu'],
+      tu_lanh: [60, 76, 34, 66, 'tu_lanh_act'],
+      sofa: [96, 105, 86, 40, 'sofa'],
+      may_vanh: [186, 90, 56, 52, 'may_vanh'],
+      tivi: [244, 57, 60, 85, 'tivi'],
+      cua_sgt: [0, 58, 34, 84, 'ra_pho'],
+      quat: [292, 112, 26, 30, 'ra_pho'], // radiator mép phải = lối ra
+    },
+  },
+  hanoi: {
+    // HN.phong_tro: cửa sổ 20-70 (26-64) | lịch 96-126 | giường 20-104 (104-144) |
+    //   bàn trà 130-186 (126-142) | quạt treo 210 | TV kệ 228-284 (98-144) | cửa 296-318
+    phong_tro: {
+      giuong: [20, 100, 84, 46, 'ngu'],
+      ban_tra: [130, 110, 56, 34, 'ban_tra'], // bàn thấp + ấm chén → menu trà
+      tivi: [228, 94, 56, 50, 'tivi'],
+      cua: [290, 62, 30, 82, 'ra_pho'],
+      cua_so: [20, 24, 50, 42, 'tu_kinh'], // cửa sổ gỗ
+    },
+  },
+  danang: {
+    // DN.phong_tro: giường 16-100 (100-142) | võng cột 114-202 (84-152) |
+    //   bàn 220-280 (108-142) | TV kệ 16-48 (40-64) | cửa sổ biển 220-290 (24-72)
+    phong_tro: {
+      giuong: [16, 96, 84, 48, 'ngu'],
+      vong: [114, 84, 88, 68, 'vong_act'], // võng — nghỉ trưa kiểu biển
+      ban: [220, 104, 60, 40, 'ban_tra'], // bàn thấp ly nước → menu trà
+      tivi: [16, 40, 32, 26, 'tivi'],
+      cua_so: [220, 24, 70, 48, 'cua_so_bien'], // cửa sổ nhìn ra biển
+      cua: [290, 80, 28, 64, 'ra_pho'],
+    },
+  },
+};
+// tra diem theo TP hiện tại — fallback SCENES.diem nếu không có bảng
+function diemHienTai() {
+  const tp = (typeof G !== 'undefined' && G && G.thanhPhoKey) || 'saigon';
+  const bang = DIEM_THEO_TP[tp] && DIEM_THEO_TP[tp][SCENE_HIEN];
+  if (bang) return bang;
+  return SCENES[SCENE_HIEN].diem || {};
+}
 
 // --- SCENE 2: QUÁN PHỞ ---
 SCENES.quan_pho = {
@@ -772,7 +810,8 @@ const NPC_LOOK = {
 };
 // vị trí đứng theo scene (x = góc trên-trái sprite, y tự tính theo vungDi)
 const NPC_VI_TRI = {
-  phong_tro: { ba_tu: [20, 0] },
+  // [x, yOffset] — yOffset đẩy NPC về PHÍA TRƯỚC (gần camera) để không đè vùng chạm đồ
+  phong_tro: { ba_tu: [150, 30] },
   quan_pho:  { chi_dao: [160, 0], hung: [60, 0], hoa: [220, 0] },
   van_phong: { linh: [50, 0], tuan: [140, 0], duc: [240, 0] },
   pho_dem:   { mai: [60, 0], nam: [160, 0], hanh: [250, 0] },
@@ -808,7 +847,7 @@ function napNpcScene() {
     const charPx = SCENES[SCENE_HIEN].charPx || 15 * sc2;
     // đứng trong vùng đi được, y = đáy vungDi trừ chiều cao sprite
     const v = sc.vungDi || { y1: 141, y2: 160 };
-    const y = Math.max(v.y1, v.y2) - charPx + 6;
+    const y = Math.max(v.y1, v.y2) - charPx + 6 + (vt[1] || 0);
     NPC_HIENTAI.push({ id, x: vt[0], y, frameDem: Math.floor(Math.random() * 60),
       bubble: null, icon: null, di: Math.random() < 0.5 ? -1 : 1 });
   }
@@ -877,7 +916,7 @@ function tapToMove(mx, my) {
     [NGUOI.mucTieuX, NGUOI.mucTieuY] = gioiHan(sc, NGUOI.mucTieuX, NGUOI.mucTieuY);
     return;
   }
-  for (const [ten, [px, py, pw, ph, action]] of Object.entries(sc.diem)) {
+  for (const [ten, [px, py, pw, ph, action]] of Object.entries(diemHienTai())) {
     if (mx >= px && mx <= px+pw && my >= py && my <= py+ph) {
       NGUOI.mucTieuAction = action;
       NGUOI.mucTieuX = Math.min(Math.max(px + pw/2 - 12, 10), W-26);
@@ -900,7 +939,7 @@ CANVAS.addEventListener('pointermove', (ev) => {
   const sc = SCENES[SCENE_HIEN];
   HOVER_DIEM = null;
   if (!sc) return;
-  for (const [ten, [px, py, pw, ph, action]] of Object.entries(sc.diem)) {
+  for (const [ten, [px, py, pw, ph, action]] of Object.entries(diemHienTai())) {
     if (mx >= px && mx <= px + pw && my >= py && my <= py + ph) {
       HOVER_DIEM = { ten, px, py, pw, ph, action };
       break;
@@ -1054,15 +1093,41 @@ const MENU_DO = {
     moTa: 'Gối mềm, khung gỗ — chỗ ngồi thương mến nhất phòng.',
     luaChon: [
       { ten: 'Ngồi nghỉ ngơi', phut: 30, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
-      { ten: 'Ngủ một giấc trưa', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Ngắm đường phố', phut: 20, tien: 0, act: 'di_dao', chiSo: '+Vui +10' },
       { ten: 'Hủy', huy: true },
     ],
   },
-  giuong: {
+  ban_tra: {
+    tieuDe: 'Bàn trà',
+    moTa: 'Ấm trà cũ, đôi chén rót sẵn — kiểu nhà truyền thống Hà Nội.',
+    luaChon: [
+      { ten: 'Pha ấm trà đá', phut: 15, tien: -3_000, act: 'tra_da_via_he', chiSo: '+Xã hội +10' },
+      { ten: 'Ngâm trà tâm sự', phut: 30, tien: 0, act: 'tam_su_ban', chiSo: '+Xã hội +20' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  vong_act: {
+    tieuDe: 'Võng mạt ca',
+    moTa: 'Võng hồng mắc giữa 2 cột — nghe tiếng sóng mà ngủ rất editorial.',
+    luaChon: [
+      { ten: 'Nằm võng nghe sóng', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Ngủ trưa một giấc', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  cua_so_bien: {
+    tieuDe: 'Cửa sổ nhìn biển',
+    moTa: 'My Khe xanh thẳm, dừa xa xa nghiêng nghiêng.',
+    luaChon: [
+      { ten: 'Ngắm biển khởi ngày', phut: 20, tien: 0, act: 'di_dao', chiSo: '+Vui +12' },
+      { ten: 'Hủy', huy: true },
+    ],
+  },
+  ngu: {
     tieuDe: 'Giường',
     moTa: 'Nệm mỏng mền xanh — giấc ngủ không deadline.',
     luaChon: [
-      { ten: 'Ngủ một đêm', phut: 420, tien: 0, act: 'ngu_dem', chiSo: '+Năng lượng MAX', dem: true },
+      { ten: 'Ngủ một đêm', phut: 420, tien: 0, act: 'ngu_dem', chiSo: '+Năng lượng MAX' },
       { ten: 'Ngủ trưa chợp mắt', phut: 60, tien: 0, act: 'ngu_trua', chiSo: '+Năng lượng +20' },
       { ten: 'Hủy', huy: true },
     ],
