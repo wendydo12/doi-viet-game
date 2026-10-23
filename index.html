@@ -202,7 +202,7 @@
           <button class="nut-mui" onclick="chinhDream(-1)">◄</button><div class="gia-tri" id="tao-dream">Nhà Mặt Phố</div><button class="nut-mui" onclick="chinhDream(1)">►</button></div>
         <div class="mo-ta" id="tao-dream-mo-ta" style="color:var(--vang)">Từ phòng trọ 12m² tới căn nhà mặt phố của riêng mình.</div>
         <button class="start" onclick="batDauTuMenu()">BẮT ĐẦU CUỘC ĐỜI</button>
-        <button class="load-save" id="btn-tiep-tuc" style="display:none;margin-top:8px" onclick="tiepTuc()">📂 Chơi tiếp (tải bản lưu)</button>
+        <button class="load-save" id="btn-tiep-tuc" style="display:none;margin-top:8px" onclick="tiepTuc()">Chơi tiếp (tải bản lưu)</button>
       </div>
       <div class="ver">v1.0 · đời việt</div>
     </div>
@@ -211,8 +211,8 @@
   <div id="app">
     <div id="hud">
       <div class="trai"><b id="hud-ten">Nhân</b> <span id="hud-noi">Ngày 1 tại phòng trọ</span></div>
-      <div class="giua"><span id="hud-tt">☀️</span> <span id="hud-tg">—</span> <span id="hud-pause" style="cursor:pointer" onclick="togglePause()">‖</span> <span id="hud-am" style="cursor:pointer" onclick="taoMute()">🔊</span></div>
-      <div class="phai">🪙 <span id="hud-tien">—</span></div>
+      <div class="giua"><span id="hud-tt"></span> <span id="hud-tg">—</span> <span id="hud-pause" style="cursor:pointer" onclick="togglePause()"></span> <span id="hud-am" style="cursor:pointer" onclick="taoMute()"></span></div>
+      <div class="phai"><span id="hud-coin"></span> <span id="hud-tien">—</span></div>
     </div>
 
     <div id="col-trai">
@@ -226,12 +226,12 @@
 
     <div id="col-phai">
       <div id="tabs">
-        <button class="tab on" data-tab="lam" onclick="chuyenTab('lam')"><span class="ico">👆</span>LÀM</button>
-        <button class="tab" data-tab="pho" onclick="chuyenTab('pho')"><span class="ico">🏙️</span>PHỐ</button>
-        <button class="tab" data-tab="nguoi" onclick="chuyenTab('nguoi')"><span class="ico">👥</span>NGƯỜI</button>
-        <button class="tab" data-tab="doi" onclick="chuyenTab('doi')"><span class="ico">📖</span>ĐỜI</button>
-        <button class="tab" data-tab="song" onclick="chuyenTab('song')"><span class="ico">🌿</span>SỐNG</button>
-        <button class="tab" data-tab="mo" onclick="chuyenTab('mo')"><span class="ico">⭐</span>MƠ</button>
+        <button class="tab on" data-tab="lam" onclick="chuyenTab('lam')"><span class="ico" data-pix="tay"></span>LÀM</button>
+        <button class="tab" data-tab="pho" onclick="chuyenTab('pho')"><span class="ico" data-pix="nha"></span>PHỐ</button>
+        <button class="tab" data-tab="nguoi" onclick="chuyenTab('nguoi')"><span class="ico" data-pix="nguoi"></span>NGƯỜI</button>
+        <button class="tab" data-tab="doi" onclick="chuyenTab('doi')"><span class="ico" data-pix="doi"></span>ĐỜI</button>
+        <button class="tab" data-tab="song" onclick="chuyenTab('song')"><span class="ico" data-pix="song"></span>SỐNG</button>
+        <button class="tab" data-tab="mo" onclick="chuyenTab('mo')"><span class="ico" data-pix="mo"></span>MƠ</button>
       </div>
 
       <div id="today">
@@ -270,7 +270,7 @@
         <div style="font-size:11px; color:var(--vang); letter-spacing:1px; margin-bottom:5px;">KỸ NĂNG &amp; TÌNH TRẠNG</div>
         <div id="ky-nang-list" style="font-size:12px; line-height:1.8; color:#C9D2F0;"></div>
         <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-          <button class="btn" onclick="luuVaBao()">💾 Lưu game</button>
+          <button class="btn" onclick="luuVaBao()">Lưu game</button>
           <button class="btn" onclick="hoiLaiChoi()">🔄 Chơi lại</button>
         </div>
       </div>
@@ -300,13 +300,14 @@
     </div>
     <div class="khach" id="vb-khach"></div>
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center">
-      <button class="btn" onclick="luuAnhTang()">📷 Lưu thành ảnh</button>
-      <button class="btn" style="background:var(--vang);color:#241B30;border-color:#7A5A10" onclick="hoiLaiChoi()">🌱 Tạo cuộc đời mới</button>
+      <button class="btn" onclick="luuAnhTang()">Lưu thành ảnh</button>
+      <button class="btn" style="background:var(--vang);color:#241B30;border-color:#7A5A10" onclick="hoiLaiChoi()">Tạo cuộc đời mới</button>
     </div>
     <div class="khach" style="font-size:11px;margin-top:6px">LP dành dụm truyền sang kiếp sau (tab MƠ)</div>
   </div>
 
 <script src="src/core.js"></script>
+<script src="src/pixelicons.js"></script>
 <script src="src/canh3tp.js"></script>
 <script src="src/render8.js"></script>
 <script src="src/game.js"></script>

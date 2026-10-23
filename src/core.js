@@ -28,12 +28,12 @@ const NPC_GOC = [
 
 // ===== 6 NHU CẦU — ĐÚNG BỘ 9 TO LIFE (Food/Energy/Fun/Social/Clean/Health) =====
 const NHU_CAU = {
-  com:       { ten: 'Đồ ăn',     icon: '🍚', day: 'com' },
-  nangLuong: { ten: 'Năng lượng', icon: '⚡', day: 'nangLuong' },
-  vui:       { ten: 'Vui vẻ',    icon: '🎮', day: 'vui' },
-  xaHoi:     { ten: 'Xã hội',    icon: '💬', day: 'xaHoi' },
-  sachSe:    { ten: 'Sạch sẽ',   icon: '🚿', day: 'sachSe' },
-  sucKhoe:   { ten: 'Sức khỏe',  icon: '❤️', day: 'sucKhoe' },
+  com:       { ten: 'Đồ ăn',     icon: 'com', day: 'com' },
+  nangLuong: { ten: 'Năng lượng', icon: 'set', day: 'nangLuong' },
+  vui:       { ten: 'Vui vẻ',    icon: 'vui', day: 'vui' },
+  xaHoi:     { ten: 'Xã hội',    icon: 'noi', day: 'xaHoi' },
+  sachSe:    { ten: 'Sạch sẽ',   icon: 'nuoc', day: 'sachSe' },
+  sucKhoe:   { ten: 'Sức khỏe',  icon: 'tim', day: 'sucKhoe' },
 };
 
 function taoNguoiChoi(tenThanhPho, tenNguoi) {

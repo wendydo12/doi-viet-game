@@ -33,7 +33,7 @@ function playSfx(ten, vol) {
 function taoMute() {
   MUTE = !MUTE;
   if (MUTE) { if (bgmAudio) bgmAudio.pause(); } else { bgmBat(); }
-  const b = document.getElementById('hud-am'); if (b) b.textContent = MUTE ? '🔇' : '🔊';
+  const b = document.getElementById('hud-am'); if (b) b.innerHTML = pixIcon(MUTE ? 'cam' : 'am', 14);
 }
 document.addEventListener('pointerdown', function () { if (!amKhoi) amBat(); }, { once: true });
 document.addEventListener('pointerdown', function (e) {
@@ -119,6 +119,7 @@ function tiepTuc() {
 function khoiDongUI() {
   document.getElementById('menu').style.display = 'none';
   document.getElementById('van-bia').style.display = 'none';
+  if (typeof renderPixIcons === 'function') renderPixIcons();
   dungBars();
   doiSceneImLang('phong_tro');
   capNhatTatCa();
@@ -160,7 +161,7 @@ function dungBars() {
     const d = document.createElement('div');
     d.className = 'bar'; d.id = 'bar-' + k;
     d.style.gridColumn = (i % 2) + 1; d.style.gridRow = Math.floor(i / 2) + 1;
-    d.innerHTML = '<div class="ten"><span>' + m.icon + ' ' + m.ten + '</span><span class="tt">0%</span></div>' +
+    d.innerHTML = '<div class="ten"><span>' + pixIcon(ICON_NHU_CAU[k], 12) + ' ' + m.ten + '</span><span class="tt">0%</span></div>' +
       '<div class="ong"><div class="day" style="width:0%"></div></div>';
     grid.appendChild(d);
     i++;
@@ -240,10 +241,11 @@ function capNhatActions() {
     wrap.appendChild(b);
   }
 }
-const MUI = { com: '🍚', nangLuong: '⚡', vui: '🎮', xaHoi: '💬', sachSe: '🚿', sucKhoe: '❤' };
+const ICON_NHU_CAU = { com: 'com', nangLuong: 'set', vui: 'vui', xaHoi: 'noi', sachSe: 'nuoc', sucKhoe: 'tim' };
+const MUI = { com: 'com', nangLuong: 'set', vui: 'vui', xaHoi: 'noi', sachSe: 'nuoc', sucKhoe: 'tim' };
 function muiTen(chiSo) {
   return Object.entries(chiSo || {}).filter(([, v]) => v !== 0 && v !== 100)
-    .map(([k, v]) => '<span style="color:' + (v > 0 ? '#8FD4C8' : '#E88A90') + '">' + MUI[k] + (v > 0 ? '↑' : '↓') + '</span>').join(' ');
+    .map(([k, v]) => '<span style="display:inline-flex;align-items:center;gap:1px;vertical-align:middle">' + pixIcon(MUI[k], 10) + '<b style="color:' + (v > 0 ? '#8FD4C8' : '#E88A90') + '">' + (v > 0 ? '↑' : '↓') + '</b></span>').join(' ');
 }
 
 // ===== TABS =====
@@ -348,7 +350,7 @@ function kiemTraPhanUngQuest() {
   if (xong > qTruoc.xong && q.viec.length > 1 && xong < q.viec.length) playSfx('coin', 0.35);
   if (q.daLanhHet && !qTruoc.lanh && xong === q.viec.length) {
     playSfx('coin', 0.7);
-    toast('⭐ Trọn CẢ 3 việc hôm nay! +<b>' + q.thuongHet.toLocaleString('vi-VN') + 'đ</b> · +1 LP "' + G.dream.ten + '"');
+    toast(pixIcon('mo', 12) + ' Trọn CẢ 3 việc hôm nay! +<b>' + q.thuongHet.toLocaleString('vi-VN') + 'đ</b> · +1 LP "' + G.dream.ten + '"');
   }
   qTruoc = { xong, lanh: !!q.daLanhHet };
 }
@@ -383,7 +385,7 @@ function chaySuKien() {
     const key = nn.id + '-' + G.thoiGian.ngay + '-' + G.thoiGian.gio;
     if (key !== suKienDaBao) {
       suKienDaBao = key;
-      setTimeout(() => { hopThoai('⚡ ' + nn.ten, nn.thoai); capNhatTatCa(); kiemTraChet(); }, 1400);
+      setTimeout(() => { hopThoai(nn.ten, nn.thoai); capNhatTatCa(); kiemTraChet(); }, 1400);
     }
   }
 }
@@ -463,7 +465,7 @@ let hopThoaiTimer = null;
 function hopThoai(nguoi, noiDung) {
   const box = document.getElementById('hop-thoai');
   box.style.display = 'block';
-  const tenSach = nguoi.replace(/^⚡ /, '').replace(' chủ trọ', '').replace(' Bà Hạnh', '');
+  const tenSach = nguoi.replace(' chủ trọ', '').replace(' Bà Hạnh', '');
   const p = PORTRAIT[tenSach] || (tenSach.includes('Bà') ? 'portrait/nu_01' : (tenSach.includes('chị') || tenSach.includes('Chị') ? 'portrait/nu_04' : 'meowa-r1/char_07'));
   const img = p ? '<img class="pt" src="assets/' + (p.endsWith('.png') ? p : p + '.png') + '">' : '';
   box.innerHTML = img + '<span class="nguoi">' + nguoi + '</span><span class="noi-dung">' + noiDung.replace(/\n/g, '<br>') +
@@ -479,10 +481,10 @@ function dongHopThoai() {
 // ===== PAUSE / SAVE / RESET =====
 function togglePause() {
   PAUSE = !PAUSE;
-  document.getElementById('hud-pause').textContent = PAUSE ? '▶' : '‖';
+  document.getElementById('hud-pause').innerHTML = pixIcon(PAUSE ? 'play' : 'pause', 12);
   if (PAUSE) { hopThoai('Tạm dừng', 'Thời gian ngừng lại. Trà đá vẫn còn ấm.'); bgmTat(); } else bgmBat();
 }
-function luuVaBao() { if (!G) return; luuGame(G); hopThoai('💾 Đã lưu', 'Cuộc đời bạn được cất gọn vào máy này.'); }
+function luuVaBao() { if (!G) return; luuGame(G); hopThoai('Đã lưu', 'Cuộc đời bạn được cất gọn vào máy này.'); }
 function hoiLaiChoi() {
   xoaSave(); G = null;
   document.getElementById('van-bia').style.display = 'none';

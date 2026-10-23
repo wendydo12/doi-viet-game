@@ -579,11 +579,11 @@ function veMua() {
   CTX.fillStyle = 'rgba(40,60,90,0.12)';
   CTX.fillRect(0, 0, W, H);
 }
-// icon thời tiết pixel bên cạnh giờ trên HUD (kiểu 9 To Life)
-const ICON_TT = { nang: '☀️', may: '☁️', mua: '🌧️', nong: '🔥', ret: '🥶' };
+// icon thời tiết pixel bên cạnh giờ trên HUD (kiểu 9 To Life — SVG pixel, không emoji)
+const ICON_TT = { nang: 'nang', may: 'may', mua: 'mua', nong: 'nong', ret: 'ret' };
 function capNhatIconThoiTiet() {
   const el = document.getElementById('hud-tt');
-  if (el && typeof G !== 'undefined' && G) el.textContent = ICON_TT[G.thoiTiet] || '☀️';
+  if (el && typeof G !== 'undefined' && G) el.innerHTML = pixIcon(ICON_TT[G.thoiTiet] || 'nang', 14);
 }
 
 // ===== ĐỒNG BỘ TÔNG MÀU (Phase 1) =====
