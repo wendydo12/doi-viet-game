@@ -360,6 +360,31 @@ const SU_KIEN_VIET = [
   { id: 'cam_cum', ten: 'Trái gió trở trời', xacSuat: 0.05, chiSo: { sucKhoe: -15, nangLuong: -10 }, thoai: 'Hắt hơi sổ mũi — mùa này ai cũng dính. Uống nước ấm vào.' },
   { id: 'mua_to', ten: 'Dông bất chợt', xacSuat: 0.06, chiSo: { sachSe: -15, vui: -4 }, thoai: 'Dông ập xuống bất chợt, ai cũng chạy tìm mái hiên. Một ông tài xế vẫn từ tốn đắp bạt xe.' },
   { id: 'nghe_ban_gai', ten: 'Tin đồn tình ái', xacSuat: 0.04, chiSo: { vui: +8, xaHoi: +5 }, thoai: 'Lão Chương tám: "nghe đồn ông ở chung với người yêu rồi ha?" — mặt đỏ như gạch nung.' },
+  // ===== MỞ RỘNG ~20 sự kiện hên xui — điều kiện theo thành phố / thời tiết / giờ =====
+  // xui kiểu VN đời thường
+  { id: 'csgt', ten: 'CSGT thổi phạt', xacSuat: 0.04, tien: -150_000, chiSo: { vui: -12 }, thoai: 'Chú CSGT vẫy tay: "em quên xi-nhan kìa". Ví mỏng đi 150 ngàn, bài học nhớ đời.' },
+  { id: 'chet_may', ten: 'Xe chết máy giữa mưa', xacSuat: 0.05, onlyThoiTiet: 'mua', chiSo: { nangLuong: -12, sachSe: -20, vui: -10 }, thoai: 'Xe chết máy đúng chỗ ngập sâu nhất. Dắt bộ 500m, chú sửa xe ven đường cười: "bệnh cũ rồi em".' },
+  { id: 'cho_ruo', ten: 'Chó rượt', xacSuat: 0.03, chiSo: { nangLuong: -15, sucKhoe: -8, vui: -5 }, thoai: 'Con chó nhà ai xổ cổng rượt 3 con hẻm. Tim còn đập thình thịch, chân thì... chạy tiếp cho chắc.' },
+  { id: 'karaoke', ten: 'Karaoke hàng xóm', xacSuat: 0.05, gioMin: 19, gioMax: 23, chiSo: { nangLuong: -10, vui: -8 }, thoai: 'Xóm bên mở "Đắp mộ cuộc tình" lúc 10h đêm, loa kéo full công suất. Gối bịt tai cũng không ăn thua.' },
+  { id: 'wifi_sap', ten: 'Wifi sập', xacSuat: 0.05, chiSo: { vui: -14, xaHoi: -5 }, thoai: 'Mạng rớt đúng lúc họp online. Gọi tổng đài: "dạ 2-4 tiếng nữa kỹ thuật qua ạ". 4 tiếng.' },
+  { id: 'rop_vi', ten: 'Rớt ví', xacSuat: 0.025, tien: -200_000, chiSo: { vui: -18 }, thoai: 'Ví rơi đâu mất tiêu — trong còn đúng 200 ngàn với cái thẻ sinh viên cũ. Đau hơn bị người yêu cũ block.' },
+  { id: 'gap_nguoi_yeu_cu', ten: 'Gặp người yêu cũ', xacSuat: 0.03, chiSo: { vui: -10, xaHoi: +4 }, thoai: 'Gặp người cũ ở quán cà phê, đi cùng... người mới. Hai bên gật đầu chào, lòng dậy sóng nhẹ.' },
+  { id: 'sep_nhan_11h', ten: 'Sếp nhắn 23h', xacSuat: 0.04, gioMin: 22, chiSo: { nangLuong: -8, vui: -12 }, thoai: '23:07, sếp Đức nhắn: "em ơi file mai cần gấp". Tin nhắn đã xem. Không dám giả vờ ngủ.' },
+  { id: 'trien_cuong', ten: 'Triều cường dâng', xacSuat: 0.05, onlyTp: 'saigon', chiSo: { sachSe: -18, nangLuong: -8, vui: -8 }, thoai: 'Triều cường, nước dâng nửa bánh xe đúng giờ tan tầm. Cả đoàn người nối nhau đẩy xe, cười khổ.' },
+  { id: 'nom_am', ten: 'Trời nồm', xacSuat: 0.05, onlyTp: 'hanoi', chiSo: { sachSe: -15, vui: -8 }, thoai: 'Nồm ẩm — sàn nhà "đổ mồ hôi", quần áo phơi 3 ngày chưa khô. Cái ẩm ngấm vào tận xương.' },
+  { id: 'gio_lao', ten: 'Gió Lào thổi rát', xacSuat: 0.04, onlyTp: 'danang', chiSo: { nangLuong: -10, sucKhoe: -5, sachSe: -8 }, thoai: 'Gió Lào khô rát thổi cả ngày, ra đường 5 phút tóc cứng như bánh tráng.' },
+  { id: 'say_bia', ten: 'Quá chén', xacSuat: 0.03, gioMin: 18, chiSo: { sucKhoe: -15, nangLuong: -12, vui: +6, xaHoi: +10 }, thoai: '"Một ly nữa thôi!" — và đó là ly thứ sáu. Sáng nay đầu đau như búa bổ nhưng mà... vui thật.' },
+  // hên kiểu VN đời thường
+  { id: 'luom_tien', ten: 'Nhặt được tiền', xacSuat: 0.025, tien: +50_000, chiSo: { vui: +12 }, thoai: 'Nhặt được 50 ngàn ai đánh rơi trước cổng công ty. Chờ 10 phút không ai quay lại... thôi coi như lộc.' },
+  { id: 'duoc_giam_tien', ten: 'Bà Tư giảm tiền trọ', xacSuat: 0.02, tien: +200_000, chiSo: { vui: +15, xaHoi: +8 }, thoai: 'Bà Tư phẩy tay: "tháng này mày ngoan, bà bớt cho 200". Sống trên đời có tình có nghĩa là vậy.' },
+  { id: 'ban_cu_goi', ten: 'Bạn cũ chuyển khoản', xacSuat: 0.02, tien: +150_000, chiSo: { vui: +12, xaHoi: +10 }, thoai: 'Thằng Nam thời đại học nhắn: "tao còn nợ mày chầu cà phê 5 năm trước", kèm 150 ngàn.' },
+  { id: 'trung_so_cao', ten: 'Trúng số cào', xacSuat: 0.012, tien: +500_000, chiSo: { vui: +25 }, thoai: 'Tờ vé cào 10 ngàn mua cho vui — cào ra 500! Cả xóm trọ kéo sang xem tận mắt.' },
+  { id: 'duoc_thang_chuc', ten: 'Được thăng chức', xacSuat: 0.02, chiSo: { vui: +20, xaHoi: +6 }, thoai: 'Sếp Đức gọi riêng: "từ mai em dẫn dắt nhóm nhỏ". Lương chưa tăng nhưng oai thì có.' },
+  { id: 'hang_xom_cho_do', ten: 'Hàng xóm cho đồ ăn', xacSuat: 0.04, chiSo: { com: +25, vui: +8, xaHoi: +6 }, thoai: 'Chị phòng bên gõ cửa: "nhà nấu dư nồi bún riêu, em ăn phụ chị". Tình làng nghĩa xóm là đây.' },
+  { id: 'troi_dep', ten: 'Trời đẹp bất ngờ', xacSuat: 0.04, onlyThoiTiet: 'nang', chiSo: { vui: +10, nangLuong: +6 }, thoai: 'Trời xanh nắng vàng gió nhẹ — kiểu thời tiết khiến người ta muốn sống tử tế hơn một chút.' },
+  { id: 'duoc_nguoi_yeu_qua', ten: 'Quà bất ngờ', xacSuat: 0.03, onlyCoNguoiYeu: true, chiSo: { vui: +18, xaHoi: +8 }, thoai: 'Người ấy dúi vào tay hộp quà nhỏ: "thấy hợp với anh/em nên mua". Không dịp gì cả. Tự nhiên thế.' },
+  { id: 'song_than', ten: 'Sóng thần tin đồn', xacSuat: 0.02, chiSo: { vui: -6, xaHoi: +8 }, thoai: 'Tin đồn công ty cắt giảm lan nhanh hơn wifi. Hóa ra chỉ là chuyển phòng ban. Thở phào nhưng cũng chột dạ.' },
+  { id: 'mat_dien_thoai', ten: 'Suýt mất điện thoại', xacSuat: 0.025, chiSo: { vui: -15, nangLuong: -5 }, thoai: 'Móc túi quần trống trơn — tim rơi cái bịch. May quá, nó trượt nằm trong lớp áo khoác. Thọ thêm vài năm.' },
 ];
 
 // Gossip kiểu 9 To Life "word gets around" — NPC buôn chuyện với nhau qua tin nhắn
@@ -372,17 +397,29 @@ const GOSSIP = [
   'Mai mới đổi kiểu tóc — nửa quán nhắn tin hỏi nhau',
 ];
 
+function suKienHopLe(s, state, gio) {
+  if (s.onlyTp && state.thanhPhoKey !== s.onlyTp) return false;
+  if (s.onlyThoiTiet && state.thoiTiet !== s.onlyThoiTiet) return false;
+  if (s.onlyCoNguoiYeu && !(state.banGai && state.banGai.npcId)) return false;
+  if (s.gioMin !== undefined && gio < s.gioMin) return false;
+  if (s.gioMax !== undefined && gio > s.gioMax) return false;
+  return true;
+}
+
 function kiemTraSuKien(state) {
   const sk = [];
   const { thu, gio, ngay } = state.thoiGian;
   if (Math.random() < 0.35) {
-    const r = Math.random(); let cong = 0;
-    for (const s of SU_KIEN_VIET) {
+    // lọc theo điều kiện (thành phố / thời tiết / giờ / người yêu) rồi quay theo xác suất
+    const hopLe = SU_KIEN_VIET.filter(s => suKienHopLe(s, state, gio));
+    const tongXs = hopLe.reduce((a, s) => a + s.xacSuat, 0);
+    const r = Math.random() * tongXs; let cong = 0;
+    for (const s of hopLe) {
       cong += s.xacSuat;
       if (r < cong) {
         apDungChiSo(state, s.chiSo);
         if (s.tien) state.tien += s.tien;
-        if (s.chiSo.sucKhoe <= -15 && Math.random() < 0.5) state.songSot.khat = 0; // ốm nhẹ chưa nguy
+        if ((s.chiSo.sucKhoe || 0) <= -15 && Math.random() < 0.5) state.songSot.khat = 0; // ốm nhẹ chưa nguy
         ghiNhatKy(state, 'su_kien', s.ten + ': ' + s.thoai);
         sk.push({ id: s.id, ten: s.ten, thoai: s.thoai, ngauNhien: true });
         break;
@@ -574,6 +611,36 @@ function chayTest() {
     const kq11 = xuLyTienThue(s11);
     if (kq11.ok) throw new Error('không ghi nợ');
     if (s11.phong.ngayHanNo !== s11.thoiGian.ngay + 5) throw new Error('hạn nợ không phải 5 ngày');
+  });
+  t('Sự kiện theo TP: triều cường chỉ Sài Gòn, nồm chỉ Hà Nội, gió Lào chỉ Đà Nẵng', () => {
+    const sg = taoNguoiChoi('saigon');
+    const hn = taoNguoiChoi('hanoi');
+    const dn = taoNguoiChoi('danang');
+    if (!suKienHopLe({ onlyTp: 'saigon' }, sg, 12)) throw new Error('SG phải hợp lệ');
+    if (suKienHopLe({ onlyTp: 'saigon' }, hn, 12)) throw new Error('HN không được có triều cường');
+    if (suKienHopLe({ onlyTp: 'hanoi' }, dn, 12)) throw new Error('ĐN không được có nồm');
+    if (suKienHopLe({ onlyTp: 'danang' }, sg, 12)) throw new Error('SG không được có gió Lào');
+  });
+  t('Sự kiện theo thời tiết + giờ + người yêu', () => {
+    const s = taoNguoiChoi('saigon');
+    s.thoiTiet = 'mua';
+    if (!suKienHopLe({ onlyThoiTiet: 'mua' }, s, 12)) throw new Error('mưa phải khớp chết máy');
+    s.thoiTiet = 'nang';
+    if (suKienHopLe({ onlyThoiTiet: 'mua' }, s, 12)) throw new Error('nắng không được ra chết máy');
+    if (suKienHopLe({ gioMin: 22 }, s, 10)) throw new Error('10h không được ra sự kiện 23h');
+    if (!suKienHopLe({ gioMin: 22 }, s, 23)) throw new Error('23h phải khớp');
+    if (suKienHopLe({ onlyCoNguoiYeu: true }, s, 12)) throw new Error('FA không được nhận quà');
+    s.banGai = { npcId: 'mai', ngayChot: 3 };
+    if (!suKienHopLe({ onlyCoNguoiYeu: true }, s, 12)) throw new Error('có người yêu phải khớp');
+  });
+  t('Bộ sự kiện VN ≥ 25 cái, id không trùng, quay nhiều lần không crash', () => {
+    if (SU_KIEN_VIET.length < 25) throw new Error('chỉ có ' + SU_KIEN_VIET.length);
+    const ids = new Set(SU_KIEN_VIET.map(s => s.id));
+    if (ids.size !== SU_KIEN_VIET.length) throw new Error('trùng id sự kiện');
+    for (const tp of ['saigon', 'hanoi', 'danang']) {
+      const s = taoNguoiChoi(tp);
+      for (let i = 0; i < 60; i++) { s.thoiGian.gio = i % 24; quayThoiTiet(s); kiemTraSuKien(s); }
+    }
   });
   t('Chết vì sức khỏe cạn → văn bia + LP', () => {
     const s9 = taoNguoiChoi('hanoi');
