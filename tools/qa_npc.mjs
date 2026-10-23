@@ -20,7 +20,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const c = new CDP(tab.webSocketDebuggerUrl);
 await c.open();
 await c.send('Page.enable');
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(3000);
 // SW cache-first đang phục render8.js CŨ — unregister + xóa cache + reload
 await c.eval(`(async () => {
@@ -30,7 +30,7 @@ await c.eval(`(async () => {
   for (const k of ks) await caches.delete(k);
   return rs.length + '/' + ks.length;
 })()`);
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(3000);
 console.log('0. render8 new?', await c.eval(`typeof NPC_HIENTAI !== 'undefined' ? 'YES' : 'NO — old cached'`));
 

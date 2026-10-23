@@ -24,9 +24,9 @@ const P = {
 };
 
 // ===== NHÂN VẬT V2 — 12x18: tóc gọn, 2 mắt, 2 tay nối, quần riêng, giày =====
+// ===== NHÂN VẬT V3 — 10x20: chibi đầu to kiểu 9 To Life, cao 60px nội thất (75% tủ lạnh) =====
 const CHAR_FRAMES = {
   idle: [
-    '....tttt....',
     '...tttttt...',
     '..tttttttt..',
     '..tddddddt..',
@@ -34,17 +34,14 @@ const CHAR_FRAMES = {
     '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '...aaaaaa...',
+    '....dddd....',
     '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.aaaaaaaaaa.',
+    '.daaaaaaaad.',
+    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
-    '...qq..qq...',
-    '...qq..qq...',
-    '...qq..qq...',
+    '..aaaaaaaa..',
     '...qq..qq...',
     '...qq..qq...',
     '...qq..qq...',
@@ -52,7 +49,6 @@ const CHAR_FRAMES = {
     '..ggg..ggg..',
   ],
   walk1: [
-    '....tttt....',
     '...tttttt...',
     '..tttttttt..',
     '..tddddddt..',
@@ -60,25 +56,21 @@ const CHAR_FRAMES = {
     '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '...aaaaaa...',
+    '....dddd....',
     '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.aaaaaaaaaa.',
+    '.daaaaaaaad.',
+    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
     '..aaaaaaaa..',
     '...qq..qq...',
     '..qq....qq..',
-    '..qq....qq..',
-    '..qq....qq..',
-    '..qq....qq..',
-    '..qq....qq..',
+    '.qq......qq.',
     '.ggg....ggg.',
-    '.ggg....ggg.',
+    '.gg......gg.',
   ],
   walk2: [
-    '....tttt....',
     '...tttttt...',
     '..tttttttt..',
     '..tddddddt..',
@@ -86,22 +78,19 @@ const CHAR_FRAMES = {
     '..tddddddt..',
     '..ttddddtt..',
     '...dddddd...',
-    '...aaaaaa...',
+    '....dddd....',
     '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
-    '..aaaaaaaa..',
+    '.aaaaaaaaaa.',
+    '.daaaaaaaad.',
+    '.daaaaaaaad.',
     '.daaaaaaaad.',
     '..aaaaaaaa..',
+    '..aaaaaaaa..',
     '...qq..qq...',
-    '...qq..qq...',
+    '...qq.qq....',
     '....qqqq....',
-    '....qqqq....',
-    '....qqqq....',
-    '....qqqq....',
-    '...gggggg...',
-    '...gg..gg...',
+    '....gggg....',
+    '....gg......',
   ],
 };
 
@@ -123,7 +112,7 @@ function veCharRaw(rows, x, y, sx, flip, mauFn, sy) {
 }
 
 function veChar(frame, x, y, flip, SC) {
-  SC = SC || 2; // scale theo cảnh: 2 = phố (24x36), 3 = nội thất (36x54)
+  SC = SC || 2; // scale theo cảnh: 2 = phố (24x40), 3 = nội thất (36x60)
   // Outline đen dày đúng 1 pixel-art (bằng 1 ô sprite), ôm sát silhouette
   for (const [ox, oy] of [[-SC,0],[SC,0],[0,-SC],[0,SC],[-SC,-SC],[SC,-SC],[-SC,SC],[SC,SC]]) {
     veCharRaw(CHAR_FRAMES[frame], x + ox, y + oy, SC, flip, (ch) => CHAR_COLOR[ch] ? P.den : null);
@@ -254,10 +243,14 @@ SCENES.phong_tro = {
     CTX.fillStyle = P.den; CTX.fillRect(186, 34, 2, 4);
   },
   diem: {
-    giuong: [20, 95, 95, 65, 'ngu'],
-    ban_an: [110, 95, 60, 55, 'tivi'],
-    cua: [285, 85, 32, 85, 'ra_pho'],
-    tu_kinh: [190, 100, 50, 55, 'tu_kinh'],
+    // khớp đồ v15: giường trái → tủ lạnh → sofa → bàn máy tính → TV/tủ xanh → cửa
+    giuong: [8, 110, 54, 34, 'ngu'],
+    tu_lanh: [60, 70, 34, 72, 'tu_kinh'],
+    sofa: [96, 105, 86, 40, 'tivi'], // ngồi sofa = nghỉ ngơi/xem TV
+    may_vanh: [186, 82, 56, 60, 'may_vanh'], // bàn máy tính: browse internet
+    tivi: [244, 34, 60, 108, 'tivi'], // TV CRT trên tủ xanh
+    cua: [292, 85, 28, 60, 'ra_pho'], // radiator/ra phố (SG: cửa sắt ở 0)
+    cua_sgt: [0, 58, 34, 84, 'ra_pho'],
   },
   viTriGoc: [150, 148],
   charScale: 3,
@@ -380,7 +373,7 @@ SCENES.bia_hoi = {
   },
   viTriGoc: [150, 158],
   charScale: 3,
-  charPx: 72,
+  charPx: 60,
   vungDi: { x1: 8, x2: 288, y1: 140, y2: 168 },
 };
 
@@ -479,7 +472,7 @@ SCENES.pho_dem = {
   },
   viTriGoc: [172, 164],
   charScale: 3,
-  charPx: 72, // ~24% chiều cao cảnh — sprite mới 24 hàng
+  charPx: 60, // ~24% chiều cao cảnh — sprite mới 24 hàng
   // vùng đi lại: y là GÓC TRÊN sprite cao 48px → chân ở y+48, trên dải vỉa hè
   vungDi: { x1: 8, x2: 288, y1: 146, y2: 168 },
 };
@@ -641,8 +634,8 @@ function veRimSang() { return; }
 function veNguoiHien() {
   const { x, y, di, frame } = NGUOI;
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC; // chiều cao sprite thật (px)
-  const spriteW = 12 * SC * (charPx / (24 * SC));
+  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC; // chiều cao sprite thật (px)
+  const spriteW = 12 * SC * (charPx / (20 * SC));
   const spriteH = charPx;
   const chanY = y + spriteH;
   // bóng đổ tiếp xúc (contact shadow) — neo nhân vật xuống sàn
@@ -655,7 +648,7 @@ function veNguoiHien() {
   veChar(frame, x, y + nhun, di < 0, SC);
 }
 
-// NGUOI: x,y là góc trên-trái sprite 24x36
+// NGUOI: x,y là góc trên-trái sprite (12 cột × 20 hàng)
 let NGUOI = { x: 150, y: 130, di: 1, frame: 'idle', dichX: null, mucTieuAction: null, mucTieuX: 0, mucTieuY: 0, vanToc: 1.6, frameDem: 0 };
 
 // ===== NPC TRONG SCENE — "npcs have feelings" kiểu 9 To Life =====
@@ -687,7 +680,7 @@ const NPC_LOOK = {
 };
 // vị trí đứng theo scene (x = góc trên-trái sprite, y tự tính theo vungDi)
 const NPC_VI_TRI = {
-  phong_tro: { ba_tu: [70, 0], hoa: [230, 0] },
+  phong_tro: { ba_tu: [188, 0], hoa: [70, 0] },
   quan_pho:  { chi_dao: [160, 0], hung: [60, 0] },
   van_phong: { linh: [50, 0], tuan: [140, 0], duc: [240, 0] },
   pho_dem:   { mai: [60, 0], nam: [160, 0], hanh: [250, 0] },
@@ -720,7 +713,7 @@ function napNpcScene() {
     const vt = (NPC_VI_TRI[SCENE_HIEN] || {})[id];
     if (!vt) continue;
     const sc2 = (SCENES[SCENE_HIEN].charScale) || 2;
-    const charPx = SCENES[SCENE_HIEN].charPx || 24 * sc2;
+    const charPx = SCENES[SCENE_HIEN].charPx || 20 * sc2;
     // đứng trong vùng đi được, y = đáy vungDi trừ chiều cao sprite
     const v = sc.vungDi || { y1: 141, y2: 160 };
     const y = Math.max(v.y1, v.y2) - charPx + 6;
@@ -756,7 +749,7 @@ function npcCapNhat() {
 
 function veNpcTrongScene() {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
   for (const n of NPC_HIENTAI) {
     const look = NPC_LOOK[n.id] || { ao: ['#8888A0', '#666680'], toc: '#20202A', quan: '#3A3A48' };
     const bob = (n.frameDem % 60 < 30) ? 0 : -1; // idle bob 1px
@@ -826,7 +819,7 @@ function CTXT_DO_W(t) {
 let NPC_MUC_TIEU = null; // { id, x }
 function npcHitTest(mx, my) {
   const SC = (SCENES[SCENE_HIEN].charScale) || 2;
-  const charPx = SCENES[SCENE_HIEN].charPx || 24 * SC;
+  const charPx = SCENES[SCENE_HIEN].charPx || 20 * SC;
   for (const n of NPC_HIENTAI) {
     if (mx >= n.x - 4 && mx <= n.x + 12 * SC + 4 && my >= n.y - 6 && my <= n.y + charPx + 4) return n;
   }
@@ -969,6 +962,7 @@ function thucHienAction(act) {
     case 'tu_kinh': hopThoai('Tủ kính', 'Chén đĩa sáng bóng, trên cùng là hộp bánh Trung thu để dành. Má gọi điện chưa?'); break;
     case 'noi_pho': hopThoai('Nồi nước lèo', 'Hương xương sôi 6 tiếng. Bà Hạnh: "Cháu ăn tô tái nạm ha, cô bớt hành cho".'); break;
     case 'bang_hop': hopThoai('Bảng họp', 'Sếp Đức gạch đầu dòng: "Q4 chỉ tiêu +30%". Không ai dám hỏi lại.'); break;
+    case 'may_vanh': bamHoatDong('xem_tivi'); break; // tạm dùng xem tivi (Fun+) — browse
     case 'quan_bar': bamHoatDong('tam_su_ban'); break;
     case 'ra_pho':  doiScene('pho_dem'); return;
     case 've_phong': doiScene('phong_tro'); return;

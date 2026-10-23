@@ -4,7 +4,7 @@ const PORT = 9222;
 const tabs = await (await fetch(`http://localhost:${PORT}/json/list`)).json();
 let tab = tabs.find((t) => t.type === 'page' && t.url.includes('8210'));
 if (!tab) {
-  const r = await fetch(`http://localhost:${PORT}/json/new?${encodeURIComponent('http://localhost:8210/index.html?nocache=' + Date.now())}`, { method: 'PUT' });
+  const r = await fetch(`http://localhost:${PORT}/json/new?${encodeURIComponent('http://localhost:8211/index.html?nocache=' + Date.now())}`, { method: 'PUT' });
   tab = await r.json();
   await new Promise((s) => setTimeout(s, 3500));
 }
@@ -18,10 +18,10 @@ const ev = async (expr) => {
   return r.result && r.result.result ? r.result.result.value : undefined;
 };
 await send('Page.enable');
-await send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await new Promise((r) => setTimeout(r, 2500));
 await ev(`(async () => { const rs = await navigator.serviceWorker.getRegistrations(); for (const r of rs) await r.unregister(); const ks = await caches.keys(); for (const k of ks) await caches.delete(k); return 1; })()`);
-await send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await new Promise((r) => setTimeout(r, 2500));
 console.log('start:', await ev(`(() => { try { if (typeof xoaSave==='function') xoaSave(); chonTp=0; batDauTuMenu(); dongHopThoai(); doiSceneImLang('phong_tro'); render(); return 'ok ' + G.thanhPhoKey; } catch(e){ return 'ERR '+e.message; } })()`));
 await new Promise((r) => setTimeout(r, 800));

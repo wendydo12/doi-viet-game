@@ -4,7 +4,7 @@ const PORT = 9222;
 async function main() {
   const t0 = Date.now();
   const log = (m) => console.log('[' + Math.round((Date.now() - t0) / 1000) + 's] ' + m);
-  const r = await fetch('http://localhost:' + PORT + '/json/new?http://localhost:8210/index.html?nocache=' + Date.now(), { method: 'PUT' });
+  const r = await fetch('http://localhost:' + PORT + '/json/new?http://localhost:8211/index.html?nocache=' + Date.now(), { method: 'PUT' });
   const tab = await r.json();
   const ws = new WebSocket(tab.webSocketDebuggerUrl);
   await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });

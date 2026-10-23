@@ -1,6 +1,6 @@
 // QA menu chọn TP: mở game → chụp menu → bấm mũi tên đổi TP 3 lần → chụp từng bước
 import { writeFileSync } from 'fs';
-const tabs = await (await fetch(`http://localhost:9222/json/new?${encodeURIComponent('http://localhost:8210/index.html?nocache=' + Date.now())}`, { method: 'PUT' })).json();
+const tabs = await (await fetch(`http://localhost:9222/json/new?${encodeURIComponent('http://localhost:8211/index.html?nocache=' + Date.now())}`, { method: 'PUT' })).json();
 class CDP {
   constructor(wsUrl) { this.ws = new WebSocket(wsUrl); this.id = 0; this.pending = new Map();
     this.ws.onmessage = (m) => { const d = JSON.parse(m.data);
@@ -15,7 +15,7 @@ const c = new CDP(tabs.webSocketDebuggerUrl);
 await c.open();
 await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Network.enable');
 await c.send('Network.clearBrowserCache');
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await new Promise(r => setTimeout(r, 3500));
 const OUT = '/tmp/9tolife/qa';
 async function shot(name) {

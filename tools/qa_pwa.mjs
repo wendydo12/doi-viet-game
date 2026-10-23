@@ -39,7 +39,7 @@ class CDP {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {
-  const tab = await newTab('http://localhost:8210/index.html');
+  const tab = await newTab('http://localhost:8211/index.html');
   const c = new CDP(tab.webSocketDebuggerUrl);
   await c.ready;
   await c.send('Page.enable');

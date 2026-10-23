@@ -2,7 +2,7 @@
 import { writeFileSync, mkdirSync } from 'fs';
 const PORT = 9222, OUT = '/tmp/9tolife/qa';
 mkdirSync(OUT, { recursive: true });
-const BASE = 'http://localhost:8210/index.html?nocache=' + Date.now();
+const BASE = 'http://localhost:8211/index.html?nocache=' + Date.now();
 
 async function newTab(url) {
   const r = await fetch(`http://localhost:${PORT}/json/new?${encodeURIComponent(url)}`, { method: 'PUT' });

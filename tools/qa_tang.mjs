@@ -20,10 +20,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const c = new CDP(tab.webSocketDebuggerUrl);
 await c.open();
 await c.send('Page.enable');
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(2500);
 await c.eval(`(async () => { const rs = await navigator.serviceWorker.getRegistrations(); for (const r of rs) await r.unregister(); const ks = await caches.keys(); for (const k of ks) await caches.delete(k); return 1; })()`);
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(2500);
 
 console.log('1. start:', await c.eval(`(() => { try { if (typeof xoaSave==='function') xoaSave(); chonTp=0; batDauTuMenu(); dongHopThoai(); return G.thanhPhoKey; } catch(e){ return 'ERR '+e.message; } })()`));

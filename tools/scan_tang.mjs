@@ -10,7 +10,7 @@ ws.onmessage = e => { const m = JSON.parse(e.data); if (m.id && pend.has(m.id)) 
 await new Promise(r => ws.onopen = r);
 
 await send('Page.enable');
-await send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await new Promise(r => setTimeout(r, 4000));
 await send('Runtime.evaluate', { expression: `navigator.serviceWorker.getRegistration().then(r=>r&&r.unregister());'ok'` });
 await send('Page.reload');

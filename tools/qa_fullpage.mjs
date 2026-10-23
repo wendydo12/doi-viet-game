@@ -21,7 +21,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const c = new CDP(tab.webSocketDebuggerUrl);
 await c.open();
 await c.send('Page.enable');
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(3500);
 // unregister SW + xóa cache để nạp pixelicons.js mới
 await c.eval(`(async () => {
@@ -30,7 +30,7 @@ await c.eval(`(async () => {
   const ks = await caches.keys();
   for (const k of ks) await caches.delete(k);
 })()`);
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html' });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html' });
 await sleep(4000);
 const start = await c.eval(`(async () => {
   if (typeof xoaSave === 'function') { try { xoaSave(); } catch(e){} }

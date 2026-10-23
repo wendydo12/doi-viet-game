@@ -1,7 +1,7 @@
 // QA nhạc mới: bấm nút trong game → BGM lofi 16bit phát thật + verify src
 import { writeFileSync } from 'fs';
 async function main() {
-  const r = await fetch('http://localhost:9222/json/new?http://localhost:8210/index.html?nocache=' + Date.now(), { method: 'PUT' });
+  const r = await fetch('http://localhost:9222/json/new?http://localhost:8211/index.html?nocache=' + Date.now(), { method: 'PUT' });
   const tab = await r.json();
   const ws = new WebSocket(tab.webSocketDebuggerUrl);
   await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });
@@ -15,9 +15,9 @@ async function main() {
   await new Promise(r3 => setTimeout(r3, 3000));
   // unregister SW + cache để nạp v9 sạch
   await ev('(async()=>{ const rs = await navigator.serviceWorker.getRegistrations(); for (const r of rs) await r.unregister(); const ks = await caches.keys(); for (const k of ks) await caches.delete(k); return true; })()');
-  await send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+  await send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
   await new Promise(r3 => setTimeout(r3, 3000));
-  console.log('src core:', await ev('(async()=>{ const t = await (await fetch("/src/core.js?v=9")).text(); return t.length; })()'));
+  console.log('src core:', await ev('(async()=>{ const t = await (await fetch("/src/core.js?v=10")).text(); return t.length; })()'));
   // vào game
   console.log('start:', await ev('(function(){ try{xoaSave()}catch(e){}; batDauTuMenu(); return G ? "OK" : "KHONG"; })()'));
   // BGM phải là file mới + đang phát

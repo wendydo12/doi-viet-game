@@ -1,7 +1,7 @@
 // Zoom chụp shift-note + panel SỐNG ở scale 2 (không nhúng code dài trong CLI)
 import { writeFileSync } from 'fs';
 async function main() {
-  const r = await fetch('http://localhost:9222/json/new?http://localhost:8210/index.html?nocache=' + Date.now(), { method: 'PUT' });
+  const r = await fetch('http://localhost:9222/json/new?http://localhost:8211/index.html?nocache=' + Date.now(), { method: 'PUT' });
   const tab = await r.json();
   const ws = new WebSocket(tab.webSocketDebuggerUrl);
   await new Promise((res, rej) => { ws.onopen = res; ws.onerror = rej; });

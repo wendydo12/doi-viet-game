@@ -30,7 +30,7 @@ class CDP {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const tab = await newTab('http://localhost:8210/index.html?nocache=' + Date.now());
+const tab = await newTab('http://localhost:8211/index.html?nocache=' + Date.now());
 const c = new CDP(tab.webSocketDebuggerUrl);
 await c.open();
 await c.send('Page.enable'); await c.send('Runtime.enable'); await c.send('Network.enable');
@@ -44,7 +44,7 @@ await c.eval(`(async () => {
   for (const k of ks) await caches.delete(k);
   return rs.length + '/' + ks.length;
 })()`);
-await c.send('Page.navigate', { url: 'http://localhost:8210/index.html?nocache=' + Date.now() });
+await c.send('Page.navigate', { url: 'http://localhost:8211/index.html?nocache=' + Date.now() });
 await sleep(3500);
 console.log('SW cleared, fresh load. Canh3tp check:', await c.eval(`typeof window.CANH !== 'undefined' ? Object.keys(window.CANH).join(',') : 'MISSING'`));
 
